@@ -1,23 +1,11 @@
 {
-  "name": "capstone",
+  "name": "api",
   "version": "1.0.0",
-  "description": "A new Flutter project.",
+  "description": "",
   "main": "index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "test"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ophinst/capstone.git"
-  },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ophinst/capstone/issues"
-  },
-  "homepage": "https://github.com/ophinst/capstone#readme"
+  "license": "ISC"
 }
