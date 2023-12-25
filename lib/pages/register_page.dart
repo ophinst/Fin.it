@@ -18,17 +18,17 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(244, 244, 244, 1),
+      backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             controller: ScrollController(),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
 
               // new here?
-              Text(
+              const Text(
                 'New Here?',
                 style: TextStyle(
                   fontFamily: 'josefinSans',
@@ -37,10 +37,10 @@ class RegisterPage extends StatelessWidget {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
 
               //let's get you set up
-              Text(
+              const Text(
                 'Let\'s get you set up',
                 style: TextStyle(
                   fontFamily: 'JosefinSans',
@@ -49,7 +49,7 @@ class RegisterPage extends StatelessWidget {
                   color: Color.fromRGBO(61, 61, 61, 1),
                 ),
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               //text fields
               MyTextField(
@@ -58,34 +58,34 @@ class RegisterPage extends StatelessWidget {
                 obscureText: false,
                 prefixIcon: Icons.alternate_email,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               MyTextField(
                 controller: nameController,
                 hintText: 'full name',
                 obscureText: false,
                 prefixIcon: Icons.person,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               MyTextField(
                 controller: passwordController,
                 hintText: 'password',
                 obscureText: true,
                 prefixIcon: Icons.lock,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               MyTextField(
                 controller: vpasswordController,
                 hintText: 'verify password',
                 obscureText: true,
                 prefixIcon: Icons.lock,
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
 
               // sign up button
               MyButton(
                 onTap: signUserUp,
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               // or continue with
               Padding(
@@ -118,12 +118,12 @@ class RegisterPage extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 25,
               ),
 
               // sign up methods
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SquareTile(imagePath: 'assets/images/google.png'),
@@ -137,12 +137,12 @@ class RegisterPage extends StatelessWidget {
                   SquareTile(imagePath: 'assets/images/fb.png'),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 35,
               ),
 
               //Sign in texts
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Already have an account?',
