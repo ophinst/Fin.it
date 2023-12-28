@@ -3,8 +3,8 @@ import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:flutter/material.dart';
 
-class RegisterPage extends StatelessWidget {
-  RegisterPage({super.key});
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
 
   //text editing controller
   final emailController = TextEditingController();
@@ -25,11 +25,14 @@ class RegisterPage extends StatelessWidget {
             controller: ScrollController(),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const SizedBox(height: 50),
-
+              Image.asset(
+                'assets/images/google.png',
+                width: 180,
+              ),
+              const SizedBox(height: 25),
               // new here?
               const Text(
-                'New Here?',
+                'Welcome Back!',
                 style: TextStyle(
                   fontFamily: 'josefinSans',
                   fontSize: 24,
@@ -41,7 +44,7 @@ class RegisterPage extends StatelessWidget {
 
               //let's get you set up
               const Text(
-                'Let\'s get you set up',
+                'Please login with your account',
                 style: TextStyle(
                   fontFamily: 'JosefinSans',
                   fontSize: 24,
@@ -51,21 +54,14 @@ class RegisterPage extends StatelessWidget {
               ),
               const SizedBox(height: 25),
 
-              //text fields
+              //email text field
               MyTextField(
                 controller: emailController,
                 hintText: 'email',
                 obscureText: false,
                 prefixIcon: Icons.alternate_email,
               ),
-              const SizedBox(height: 15),
-              MyTextField(
-                controller: nameController,
-                hintText: 'full name',
-                obscureText: false,
-                prefixIcon: Icons.person,
-              ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 25),
               MyTextField(
                 controller: passwordController,
                 hintText: 'password',
@@ -73,17 +69,27 @@ class RegisterPage extends StatelessWidget {
                 prefixIcon: Icons.lock,
               ),
               const SizedBox(height: 15),
-              MyTextField(
-                controller: vpasswordController,
-                hintText: 'verify password',
-                obscureText: true,
-                prefixIcon: Icons.lock,
+              const Padding(
+                padding: EdgeInsets.only(
+                  right: 29.0,
+                ),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      fontFamily: 'JosefinSans',
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 35),
+              const SizedBox(height: 30),
 
               // sign up button
               MyButton(
-                buttonText: "Sign up",
+                buttonText: 'Login',
                 onTap: signUserUp,
               ),
               const SizedBox(height: 15),
@@ -147,7 +153,7 @@ class RegisterPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already have an account?',
+                    'Dont\'n have an account?',
                     style: TextStyle(
                       fontFamily: 'josefinSans',
                       fontWeight: FontWeight.w500,
@@ -157,7 +163,7 @@ class RegisterPage extends StatelessWidget {
                     width: 4,
                   ),
                   Text(
-                    'Sign in',
+                    'Sign up',
                     style: TextStyle(
                         fontFamily: 'josefinSans',
                         color: Color.fromRGBO(43, 52, 153, 1),
