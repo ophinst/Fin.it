@@ -1,4 +1,5 @@
 import 'package:capstone_project/pages/login_page.dart';
+import 'package:capstone_project/pages/lost_item.dart';
 //import 'package:capstone_project/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
@@ -11,9 +12,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: LostItemPage(),
     );
   }
 }
