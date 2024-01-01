@@ -23,7 +23,7 @@ class FoundItemPage extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'FOUND ITEM',
+                'FOUND ITEM ui test',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
