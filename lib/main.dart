@@ -1,5 +1,5 @@
 import 'package:capstone_project/pages/lost_item.dart';
-//import 'package:capstone_project/pages/login_page.dart';
+import 'package:capstone_project/pages/login_page.dart';
 //import 'package:capstone_project/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
