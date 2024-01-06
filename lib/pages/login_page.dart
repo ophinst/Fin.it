@@ -1,6 +1,7 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
+// import 'package:capstone_project/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -12,8 +13,11 @@ class LoginPage extends StatelessWidget {
   final passwordController = TextEditingController();
   final vpasswordController = TextEditingController();
 
-  // sign user up method
-  void signUserUp() {}
+  // sign user in method
+  void signUserIn(BuildContext context) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/home');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +94,10 @@ class LoginPage extends StatelessWidget {
               // sign up button
               MyButton(
                 buttonText: 'Login',
-                onTap: signUserUp,
+                onTap: () {
+                  // Call the signUserIn method and pass the context
+                  signUserIn(context);
+                },
               ),
               const SizedBox(height: 15),
 
