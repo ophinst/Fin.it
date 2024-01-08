@@ -1,3 +1,4 @@
+import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/pages/found_item.dart';
@@ -13,9 +14,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: 'Lost and Found',
+      theme: ThemeData(
+        fontFamily: 'josefinSans',
+      ),
       debugShowCheckedModeBanner: false,
       home: FoundItemPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
+        '/register': (context) => RegisterPage(),
+        '/lost': (context) => LostItemPage(),
+      },
     );
   }
 }
