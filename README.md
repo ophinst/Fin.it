@@ -1,4 +1,4 @@
-# capstone_project
+# Fin.it
 
 A new Flutter project.
 
