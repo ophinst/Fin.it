@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  finit-db:
+    container_name: finit-db
+    networks:
+      - finit
+    image: postgres:14.10-alpine
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: finit
+      POSTGRES_PASSWORD: 12345678
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: Asia/Jakarta
+networks:
+  finit:

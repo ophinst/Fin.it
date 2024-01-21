@@ -9,6 +9,30 @@
 .history
 .svn/
 migrate_working_dir/
+dbdata/
+
+# Dependency directories
+node_modules/
+
+# Compiled JavaScript files
+dist/
+
+# TypeScript source map files
+*.d.ts.map
+
+# Compiled TypeScript declaration files
+*.d.ts
+
+# TypeScript build info file
+tsconfig.tsbuildinfo
+
+# Editor-specific files and folders
+.vscode/
+.idea/
+
+# npm package files
+package-lock.json
+npm-debug.log
 
 # IntelliJ related
 *.iml
