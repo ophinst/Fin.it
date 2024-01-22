@@ -1,8 +1,8 @@
-import * as express from "express"
-import ItemController from "../controller/item.controller"
+import * as express from "express";
+import ItemController from "../controller/item.controller";
 
-const itemRouter = express.Router()
+const itemRouter = express.Router();
 
-itemRouter.post("/found", ItemController.CreateFoundItem)
+itemRouter.post("/found", ItemController.CreateFoundItem);
 
-export default itemRouter
+export default itemRouter;

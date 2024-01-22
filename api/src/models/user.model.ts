@@ -1,15 +1,15 @@
-import { Model, DataTypes } from "sequelize"
-import { sequelize } from "../config/db"
+import { Model, DataTypes } from "sequelize";
+import { sequelize } from "../config/db";
 
 class User extends Model {
-	public uid!: string // Note that the `null assertion` `!` is required
-	public name!: string
-	public email!: string
-	public password!: string
-	public phoneNumber?: string
-	public image?: string
-	public balance?: string
-	public points?: string
+	public uid!: string; // Note that the `null assertion` `!` is required
+	public name!: string;
+	public email!: string;
+	public password!: string;
+	public phoneNumber?: string;
+	public image?: string;
+	public balance?: string;
+	public points?: string;
 }
 
 User.init({
@@ -44,6 +44,7 @@ User.init({
 }, {
 	sequelize,
 	modelName: "user",
-})
+});
 
-export { User }
+// export { User };
+export default User;

@@ -16,5 +16,24 @@ services:
       POSTGRES_PASSWORD: 12345678
       PGDATA: /var/lib/postgresql/data/pgdata
       TZ: Asia/Jakarta
+
+  finit-backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        -GCP_EMAIL: ${GCP_EMAIL}
+        -GCP_GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+    depends_on:
+      - finit-db
+    container_name: finit-backend
+    networks:
+      - finit
+    restart: unless-stopped
+    ports: 
+      - 3000:3000
+    env_file:
+      - .env
+    
 networks:
   finit:

@@ -1,19 +1,19 @@
-import { Model, DataTypes } from "sequelize"
-import { sequelize } from "../config/db"
-import { User } from "./user.model"
+import { Model, DataTypes } from "sequelize";
+import { sequelize } from "../config/db";
+import User from "./user.model";
 
 class FoundItem extends Model {
-	public foundId!: number
-	public uid!: string
-	public itemName!: string
-	public itemDescription!: string
-	public foundDate!: Date
-	public foundTime!: Date
-	public category!: string
-	public latitude?: string
-	public longitude?: string
-	public locationDetail?: string
-	public status!: boolean
+	public foundId!: number;
+	public uid!: string;
+	public itemName!: string;
+	public itemDescription!: string;
+	public foundDate!: Date;
+	public foundTime!: Date;
+	public category!: string;
+	public latitude?: string;
+	public longitude?: string;
+	public locationDetail?: string;
+	public status!: boolean;
 }
 
 FoundItem.init({
@@ -65,6 +65,6 @@ FoundItem.init({
 }, {
 	sequelize,
 	modelName: "foundItem",
-})
+});
 
-export { FoundItem }
+export { FoundItem };

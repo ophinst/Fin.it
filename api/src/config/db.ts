@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize"
-import { Env } from "./env-loader"
+import { Sequelize } from "sequelize";
+import { Env } from "./env-loader";
 
 export const sequelize = new Sequelize({
 	dialect: "postgres",
@@ -8,11 +8,11 @@ export const sequelize = new Sequelize({
 	username: Env.DB_USERNAME,
 	password: Env.DB_PASSWORD,
 	database: Env.DB_NAME,
-})
+});
 
 try {
-	sequelize.authenticate()
-	sequelize.sync().then(() => console.log("Database & tables created!"))
+	sequelize.authenticate();
+	sequelize.sync().then(() => console.log("Database & tables created!"));
 } catch (err) {
-	console.error(err)
+	console.error(err);
 }
