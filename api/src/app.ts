@@ -1,9 +1,10 @@
 import * as cors from "cors"
 import * as express from "express"
 import * as morgan from "morgan"
-
 import authRouter from "./routes/auth.router"
 import userRouter from "./routes/user.router"
+import itemRouter from "./routes/item.router"
+import { Env } from "./config/env-loader"
 
 const app = express() 
 
@@ -17,10 +18,14 @@ app.use(cors({
 app.use(morgan("tiny"))
 app.disable("x-powered-by")
 
-app.use(`${globalApiPrefix}/auth`, authRouter)
-app.use(`${globalApiPrefix}/user`, userRouter)
+app.use(`${globalApiPrefix}/`, 
+	express.Router()
+		.use("/auth", authRouter)
+		.use(userRouter)
+		.use(itemRouter)
+)
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
-	console.log(`Server is running on port localhost:${PORT}`)
+const port = Env.PORT
+app.listen(port, () => {
+	console.log(`Server is running on port localhost:${port}`)
 })

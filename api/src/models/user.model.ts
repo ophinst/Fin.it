@@ -1,9 +1,21 @@
-import { DataTypes } from "sequelize"
+import { Model, DataTypes } from "sequelize"
 import { sequelize } from "../config/db"
 
-export const User = sequelize.define("user", {
+class User extends Model {
+	public uid!: string // Note that the `null assertion` `!` is required
+	public name!: string
+	public email!: string
+	public password!: string
+	public phoneNumber?: string
+	public image?: string
+	public balance?: string
+	public points?: string
+}
+
+User.init({
 	uid: {
 		type: DataTypes.STRING,
+		unique: true
 	},
 	name: {
 		type: DataTypes.STRING,
@@ -29,69 +41,9 @@ export const User = sequelize.define("user", {
 	points: {
 		type: DataTypes.STRING,
 	},
+}, {
+	sequelize,
+	modelName: "user",
 })
 
-// export class User extends Model {
-//     declare id :number;
-//     declare name: string;
-//     declare email: string;
-//     declare password: string;
-//     declare phoneNumber: string;
-//     declare image: string; // Change the type to Buffer | null
-//     declare balance: number;
-//     declare points: number;
-// };
-
-// User.init(
-//     {
-//         id: {
-//             type: new DataTypes.INTEGER,
-//             primaryKey: true,
-//             autoIncrement: true,
-//         },
-//         // uid: {
-//         //     type: new DataTypes.STRING,
-//         //     allowNull: true
-//         // },
-//         name: {
-//             type: new DataTypes.STRING,
-//             allowNull: false
-//         },
-//         email: {
-//             type: new DataTypes.STRING,
-//             allowNull: false
-//         },
-//         password: {
-//             type: new DataTypes.STRING,
-//             allowNull: false
-//         },
-//         phoneNumber: {
-//             type: new DataTypes.STRING,
-//             allowNull: false
-//         },
-//         // image: {
-//         //     type: new DataTypes.STRING,
-//         //     allowNull: true,
-//         // },
-//         balance: {
-//             type: new DataTypes.INTEGER,
-//             allowNull: true
-//         },
-//         points: {
-//             type: new DataTypes.INTEGER,
-//             allowNull: true
-//         },
-//         createdAt: {
-//             type: new DataTypes.DATE,
-//             allowNull: true
-//         },
-//         updatedAt: {
-//             type: new DataTypes.DATE,
-//             allowNull: true
-//         }
-//     },
-//     {
-//         tableName: 'user',
-//         sequelize,
-//     },
-// )
+export { User }

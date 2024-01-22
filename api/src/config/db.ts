@@ -1,18 +1,18 @@
 import { Sequelize } from "sequelize"
+import { Env } from "./env-loader"
 
 export const sequelize = new Sequelize({
 	dialect: "postgres",
-	host: "localhost",
-	port: 5433,
-	username: "finit",
-	password: "12345678",
-	database: "finit",
+	host: Env.DB_HOST,
+	port: Env.DB_PORT,
+	username: Env.DB_USERNAME,
+	password: Env.DB_PASSWORD,
+	database: Env.DB_NAME,
 })
 
 try {
 	sequelize.authenticate()
-	console.log("Database Connected!")
-	sequelize.sync()
+	sequelize.sync().then(() => console.log("Database & tables created!"))
 } catch (err) {
 	console.error(err)
 }
