@@ -18,7 +18,7 @@ class _FilterCategoriesState extends State<FilterCategories> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 230, right: 20),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       child: Container(
         alignment: Alignment.topLeft,
         height: 40,

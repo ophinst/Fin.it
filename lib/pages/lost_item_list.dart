@@ -127,7 +127,16 @@ class _LostItemListState extends State<LostItemList> {
             SizedBox(
               height: 10,
             ),
-            FilterCategories(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  children: [
+                    FilterCategories(),   
+                  ],
+                ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: GridView.builder(
@@ -173,7 +182,7 @@ class _LostItemListState extends State<LostItemList> {
                           Text(
                             nameItem[index],
                             style: TextStyle(
-                              fontFamily: 'JosefinSans',
+                              // fontFamily: 'JosefinSans',
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -183,7 +192,7 @@ class _LostItemListState extends State<LostItemList> {
                           ),
                           Row(
                             children: [
-                              Icon(Icons.location_pin),
+                              Icon(Icons.location_pin,),
                               Text('Lokasi')
                             ],
                           )
