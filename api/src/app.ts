@@ -25,7 +25,12 @@ app.use(`${globalApiPrefix}/`,
 		.use(itemRouter)
 );
 
+app.use("/", (req, res) => {
+	console.log("Server is listening");
+	res.send("It's working bruh!");
+});
+
 const port = Env.PORT;
 app.listen(port, () => {
-	console.log(`Server is running on port localhost:${port}`);
+	console.log(`Server is running on port :${port}`);
 });
