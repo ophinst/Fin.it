@@ -2,7 +2,7 @@ import User from "../models/user.model";
 import { Request, Response } from "express";
 
 class UserController {
-	async getUser(req: Request, res: Response): Promise<void> {
+	async GetUser(req: Request, res: Response): Promise<void> {
 		try {
 			const users = await User.findAll({
 				attributes: ["name", "email"]

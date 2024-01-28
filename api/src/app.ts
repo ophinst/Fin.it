@@ -1,6 +1,7 @@
 import * as cors from "cors";
 import * as express from "express";
 import * as morgan from "morgan";
+import * as cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.router";
 import userRouter from "./routes/user.router";
 import itemRouter from "./routes/item.router";
@@ -16,6 +17,7 @@ app.use(cors({
 	origin: "*",
 }));
 app.use(morgan("tiny"));
+app.use(cookieParser());
 app.disable("x-powered-by");
 
 app.use(`${globalApiPrefix}/`, 
@@ -32,5 +34,5 @@ app.use("/", (req, res) => {
 
 const port = Env.PORT;
 app.listen(port, () => {
-	console.log(`Server is running on port :${port}`);
+	console.log(`Server is running on port ${port}`);
 });

@@ -8,6 +8,6 @@ RUN npm install pm2 && npm install
 
 COPY . .
 
-RUN npm run start
+EXPOSE 8080
 
-CMD ["node", "dist/app.js"]
+CMD ["npm", "run", "start:prod"]
