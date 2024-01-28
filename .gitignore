@@ -21,9 +21,6 @@ dist/
 # TypeScript source map files
 *.d.ts.map
 
-# Compiled TypeScript declaration files
-*.d.ts
-
 # TypeScript build info file
 tsconfig.tsbuildinfo
 
