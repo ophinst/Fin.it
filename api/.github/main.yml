@@ -1,13 +1,13 @@
 name: FIN.IT API
 
 on:
- push:
-    branches: [auth-api]
- pull_request:
-    branches: [auth-api]
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
- deploy:
+  deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     env:
