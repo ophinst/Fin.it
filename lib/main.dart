@@ -5,7 +5,10 @@ import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
-import 'package:capstone_project/components/list_item_lost.dart';
+import 'package:capstone_project/pages/form_lost.dart';
+import 'package:capstone_project/pages/form_found.dart';
+
+// import 'package:capstone_project/components/list_item_lost.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +25,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'josefinSans',
       ),
       debugShowCheckedModeBanner: false,
-      home: LostItemList(),
+      home: FormLost(),
       // initialRoute: '/',
       // routes: {
       //   '/': (context) => LoginPage(),

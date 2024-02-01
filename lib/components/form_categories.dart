@@ -30,6 +30,7 @@ class _FilterCategoriesState extends State<FilterCategories> {
         child: DropdownButton<String>(
           style: TextStyle(
               color: Color.fromRGBO(43, 52, 153, 1),
+              fontFamily: 'JosefinSans',
               fontWeight: FontWeight.w500),
           padding: EdgeInsets.only(left: 10),
           borderRadius: BorderRadius.circular(15),
