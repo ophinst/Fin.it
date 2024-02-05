@@ -1,3 +1,4 @@
+import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/lost_item.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'josefinSans',
       ),
       debugShowCheckedModeBanner: false,
-      home: FormLost(),
+      home: FoundItemList(),
       // initialRoute: '/',
       // routes: {
       //   '/': (context) => LoginPage(),
