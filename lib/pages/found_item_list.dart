@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
-import 'package:capstone_project/components/bottom_navbar.dart';
 import 'package:capstone_project/components/filter_categories.dart';
 
 class FoundItemList extends StatefulWidget {
@@ -14,7 +13,6 @@ class FoundItemList extends StatefulWidget {
 }
 
 class _FoundItemListState extends State<FoundItemList> {
-  int _currentIndex = 0;
   bool isExtend = false;
   @override
   Widget build(BuildContext context) {
@@ -90,15 +88,7 @@ class _FoundItemListState extends State<FoundItemList> {
             const FoundItemListCard(),
         ],
       ),
-      floatingActionButton: isExtend ? buildCompose() : buildExtendedCompose(),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _currentIndex,
-        onItemSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+      floatingActionButton: isExtend ? buildCompose(context) : buildExtendedCompose(context),
     );
   }
 }
