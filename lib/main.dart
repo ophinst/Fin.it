@@ -1,5 +1,6 @@
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
+import 'package:capstone_project/pages/home_screen.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/pages/found_item.dart';
@@ -26,14 +27,15 @@ class MyApp extends StatelessWidget {
         fontFamily: 'josefinSans',
       ),
       debugShowCheckedModeBanner: false,
-      home: FoundItemList(),
-      // initialRoute: '/',
-      // routes: {
-      //   '/': (context) => LoginPage(),
-      //   '/home': (context) => HomePage(),
-      //   '/register': (context) => RegisterPage(),
-      //   '/lost': (context) => LostItemPage(),
-      // },
+      home: LoginPage(),
+      initialRoute: '/',
+      routes: {
+        '/home': (context) => HomeScreen(),
+        '/register': (context) => RegisterPage(),
+        '/lost': (context) => LostItemList(),
+        '/found': (context) => FoundItemList(),
+        '/add-lost': (context) => FormLost(),
+      },
     );
   }
 }

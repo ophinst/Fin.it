@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 
-class LostItemPage extends StatelessWidget {
+class LostItemPage extends StatefulWidget {
   const LostItemPage({super.key});
 
+  @override
+  State<LostItemPage> createState() => _LostItemPageState();
+}
+
+class _LostItemPageState extends State<LostItemPage> {
   void tagButton() {}
+
   void chatButton() {}
+
+  // int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:flutter/rendering.dart';
-import 'package:capstone_project/components/bottom_navbar.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
 import 'package:capstone_project/components/filter_categories.dart';
@@ -14,7 +13,6 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
-  int _currentIndex = 0;
   List imgLostItm = [
     'ip1',
     'ip2',
@@ -183,17 +181,21 @@ class _LostItemListState extends State<LostItemList> {
                             nameItem[index],
                             style: TextStyle(
                               // fontFamily: 'JosefinSans',
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(
-                            height: 5,
+                            height: 1,
                           ),
                           Row(
                             children: [
                               Icon(Icons.location_pin,),
-                              Text('Lokasi')
+                              Text('Lokasi',
+                              // style: TextStyle(
+                              //   fontSize: 12
+                              // ),
+                              )
                             ],
                           )
                         ],
@@ -204,15 +206,7 @@ class _LostItemListState extends State<LostItemList> {
               ),
             ),
           ]),
-      floatingActionButton: isExtend ? buildCompose() : buildExtendedCompose(),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _currentIndex,
-        onItemSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+      floatingActionButton: isExtend ? buildCompose(context) : buildExtendedCompose(context),
     );
   }
 }
