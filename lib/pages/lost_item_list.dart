@@ -1,3 +1,5 @@
+import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:flutter/rendering.dart';
@@ -13,27 +15,29 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
-  List imgLostItm = [
-    'ip1',
-    'ip2',
-    'ip3',
-    'tws',
-    'money',
-    'card',
-    'wallet',
-    'glasses',
-  ];
+  // List imgLostItm = [
+  //   'ip1',
+  //   'ip2',
+  //   'ip3',
+  //   'tws',
+  //   'money',
+  //   'card',
+  //   'wallet',
+  //   'glasses',
+  // ];
 
-  List nameItem = [
-    'Iphone 13 Pro',
-    'Iphone 14 Pro',
-    'Iphone 15 Pro',
-    'Link Buds Pro',
-    'Uang banyak',
-    'Kartu gacor',
-    'Dompet mahal',
-    'Kacamata mahal',
-  ];
+  // List nameItem = [
+  //   'Iphone 13 Pro',
+  //   'Iphone 14 Pro',
+  //   'Iphone 15 Pro',
+  //   'Link Buds Pro',
+  //   'Uang banyak',
+  //   'Kartu gacor',
+  //   'Dompet mahal',
+  //   'Kacamata mahal',
+  // ];
+  List<Datum>? losts;
+  var isLoaded = false;
 
   ScrollController _scrollController = new ScrollController();
   bool isExtend = false;
@@ -41,6 +45,10 @@ class _LostItemListState extends State<LostItemList> {
   @override
   void initState() {
     super.initState();
+
+    //fetch data from API
+    getData();
+
     _scrollController.addListener(() {
       if (_scrollController.offset > 5) {
         setState(() {
@@ -52,6 +60,15 @@ class _LostItemListState extends State<LostItemList> {
         });
       }
     });
+  }
+
+  getData() async {
+    losts = await RemoteService().getDatum();
+    if(losts != null) {
+      setState(() {
+        isLoaded = true;
+      });
+    }
   }
 
   @override
@@ -137,72 +154,78 @@ class _LostItemListState extends State<LostItemList> {
             ),
             Padding(
               padding: const EdgeInsets.all(20),
-              child: GridView.builder(
-                // controller: _scrollController,
-                itemCount: imgLostItm.length,
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio:
-                        // (MediaQuery.of(context).size.height - 50 - 25),
-                        1.0,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10),
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {},
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                      decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 10,
-                              color: Color(0x33000000),
-                              offset: Offset(0, 0),
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white),
-                      child: Column(
-                        children: [
-                          Container(
-                            child: Image.asset(
-                              'assets/images/${imgLostItm[index]}.jpeg',
-                              width: 100,
-                              height: 100,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            nameItem[index],
-                            style: TextStyle(
-                              // fontFamily: 'JosefinSans',
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 1,
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.location_pin,),
-                              Text('Lokasi',
-                              // style: TextStyle(
-                              //   fontSize: 12
-                              // ),
-                              )
+              child: Visibility(
+                visible: isLoaded,
+                child: GridView.builder(
+                  // controller: _scrollController,
+                  itemCount: losts?.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio:
+                          // (MediaQuery.of(context).size.height - 50 - 25),
+                          1.0,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10),
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 10,
+                                color: Color(0x33000000),
+                                offset: Offset(0, 0),
+                              ),
                             ],
-                          )
-                        ],
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white),
+                        child: Column(
+                          children: [
+                            // Container(
+                            //   child: Image.asset(
+                            //     'assets/images/${imgLostItm[index]}.jpeg',
+                            //     width: 100,
+                            //     height: 100,
+                            //   ),
+                            // ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              losts![index].itemName!,
+                              style: TextStyle(
+                                // fontFamily: 'JosefinSans',
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 1,
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.location_pin,),
+                                Text(losts![index].foundId
+                                // style: TextStyle(
+                                //   fontSize: 12
+                                // ),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
+                replacement: const Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
           ]),
