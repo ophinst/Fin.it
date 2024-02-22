@@ -1,4 +1,3 @@
-import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/lost_item.dart';
@@ -19,11 +18,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int index = 2;
 
   final screens = [
-    LostItemList(),
+    FoundItemList(),
     LostItemPage(),
     HomePage(),
     RegisterPage(),
-    FoundItemList(),
+    LostItemList(),
   ];
 
   @override
