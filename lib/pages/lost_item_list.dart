@@ -1,5 +1,7 @@
 import 'package:capstone_project/models/foundItem.dart';
 import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:flutter/rendering.dart';
