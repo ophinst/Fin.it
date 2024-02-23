@@ -1,5 +1,7 @@
 import 'package:capstone_project/models/foundItem.dart';
 import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:flutter/rendering.dart';
@@ -15,27 +17,6 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
-  // List imgLostItm = [
-  //   'ip1',
-  //   'ip2',
-  //   'ip3',
-  //   'tws',
-  //   'money',
-  //   'card',
-  //   'wallet',
-  //   'glasses',
-  // ];
-
-  // List nameItem = [
-  //   'Iphone 13 Pro',
-  //   'Iphone 14 Pro',
-  //   'Iphone 15 Pro',
-  //   'Link Buds Pro',
-  //   'Uang banyak',
-  //   'Kartu gacor',
-  //   'Dompet mahal',
-  //   'Kacamata mahal',
-  // ];
   List<Datum>? losts;
   var isLoaded = false;
 
@@ -63,10 +44,12 @@ class _LostItemListState extends State<LostItemList> {
   }
 
   getData() async {
-    losts = await RemoteService().getDatum();
-    if(losts != null) {
+    var data = await RemoteService().getDatum();
+    if (mounted) {
+      // Check if the widget is mounted before calling setState
       setState(() {
         isLoaded = true;
+        losts = data;
       });
     }
   }
@@ -147,7 +130,7 @@ class _LostItemListState extends State<LostItemList> {
               children: [
                 Column(
                   children: [
-                    FilterCategories(),   
+                    FilterCategories(),
                   ],
                 ),
               ],
@@ -186,18 +169,42 @@ class _LostItemListState extends State<LostItemList> {
                             color: Colors.white),
                         child: Column(
                           children: [
-                            // Container(
-                            //   child: Image.asset(
-                            //     'assets/images/${imgLostItm[index]}.jpeg',
-                            //     width: 100,
-                            //     height: 100,
-                            //   ),
-                            // ),
+                            Container(
+                              child: Image.network(
+                                losts![index].itemImage,
+                                width: 100,
+                                height: 100,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  }
+                                },
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  return Text('Failed to load image');
+                                },
+                              ),
+                            ),
                             SizedBox(
                               height: 5,
                             ),
                             Text(
-                              losts![index].itemName!,
+                              losts![index].itemName,
                               style: TextStyle(
                                 // fontFamily: 'JosefinSans',
                                 fontSize: 15,
@@ -209,12 +216,14 @@ class _LostItemListState extends State<LostItemList> {
                             ),
                             Row(
                               children: [
-                                Icon(Icons.location_pin,),
-                                Text(losts![index].foundId
-                                // style: TextStyle(
-                                //   fontSize: 12
-                                // ),
-                                )
+                                Icon(
+                                  Icons.location_pin,
+                                ),
+                                Text(losts![index].lostId
+                                    // style: TextStyle(
+                                    //   fontSize: 12
+                                    // ),
+                                    )
                               ],
                             )
                           ],
@@ -229,7 +238,8 @@ class _LostItemListState extends State<LostItemList> {
               ),
             ),
           ]),
-      floatingActionButton: isExtend ? buildCompose(context) : buildExtendedCompose(context),
+      floatingActionButton:
+          isExtend ? buildCompose(context) : buildExtendedCompose(context),
     );
   }
 }

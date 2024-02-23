@@ -29,57 +29,45 @@ class Found {
 }
 
 class Datum {
-    String foundId;
+    String lostId;
     String uid;
     String itemName;
-    String itemDescription;
-    DateTime foundDate;
-    String foundTime;
+    String itemImage;
     String category;
     String latitude;
     String longitude;
-    String locationDetail;
-    String owner;
+    String lostOwner;
 
     Datum({
-        required this.foundId,
+        required this.lostId,
         required this.uid,
         required this.itemName,
-        required this.itemDescription,
-        required this.foundDate,
-        required this.foundTime,
+        required this.itemImage,
         required this.category,
         required this.latitude,
         required this.longitude,
-        required this.locationDetail,
-        required this.owner,
+        required this.lostOwner,
     });
 
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        foundId: json["foundId"],
+        lostId: json["lostId"],
         uid: json["uid"],
         itemName: json["itemName"],
-        itemDescription: json["itemDescription"],
-        foundDate: DateTime.parse(json["foundDate"]),
-        foundTime: json["foundTime"],
+        itemImage: json["itemImage"],
         category: json["category"],
         latitude: json["latitude"],
         longitude: json["longitude"],
-        locationDetail: json["locationDetail"],
-        owner: json["owner"],
+        lostOwner: json["lostOwner"],
     );
 
     Map<String, dynamic> toJson() => {
-        "foundId": foundId,
+        "lostId": lostId,
         "uid": uid,
         "itemName": itemName,
-        "itemDescription": itemDescription,
-        "foundDate": "${foundDate.year.toString().padLeft(4, '0')}-${foundDate.month.toString().padLeft(2, '0')}-${foundDate.day.toString().padLeft(2, '0')}",
-        "foundTime": foundTime,
+        "itemImage": itemImage,
         "category": category,
         "latitude": latitude,
         "longitude": longitude,
-        "locationDetail": locationDetail,
-        "owner": owner,
+        "lostOwner": lostOwner,
     };
 }
