@@ -39,6 +39,8 @@ dependencies:
   curved_navigation_bar: ^1.0.3
   google_maps_flutter: ^2.5.3
   http: ^0.13.6
+  get: ^4.6.6
+  multiple_result: ^5.1.0
 
 dev_dependencies:
   flutter_test:

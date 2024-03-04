@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/lost': (context) => LostItemList(),
         '/found': (context) => FoundItemList(),
         '/add-lost': (context) => FormLost(),
+        '/add-found': (context) => FormFound(),
       },
     );
   }

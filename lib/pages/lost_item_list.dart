@@ -15,6 +15,11 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
+  void foundForm(BuildContext context) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/add-found');
+  }
+
   List<Datum>? losts;
   var isLoaded = false;
 
@@ -248,8 +253,17 @@ class _LostItemListState extends State<LostItemList> {
               ),
             ),
           ]),
-      floatingActionButton:
-          isExtend ? buildCompose(context) : buildExtendedCompose(context),
+      floatingActionButton: isExtend
+          ? MyCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            )
+          : MyExtendedCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            ),
     );
   }
 }

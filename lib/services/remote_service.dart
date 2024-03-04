@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/models/loginModel.dart';
 import 'package:http/http.dart' as http;
 
 class RemoteService {
   final Map<String, String> _locationCache = {};
-
+  final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
   Future<List<Datum>?> getLostItems() async {
     var client = http.Client();
 
-    var uri = Uri.parse('https://finit-api-ahawuso3sq-et.a.run.app/api/lost');
+    var uri = Uri.parse('$url/lost');
     var response = await client.get(uri);
     if (response.statusCode == 200) {
       var json = response.body;
@@ -44,5 +45,26 @@ class RemoteService {
       }
     }
     return 'Location address not found';
+  }
+
+  //login
+  Future<LoginResponseModel> login(LoginRequestModel loginRequestModel) async {
+    var uriLog = Uri.parse("$url/auth/login");
+
+    final response = await http.post(
+      uriLog,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(loginRequestModel.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return LoginResponseModel.fromJson(jsonDecode(response.body));
+    } else {
+      // Consider handling different status codes based on your API's documentation
+      // For example, a 400 status code might indicate a bad request
+      throw Exception('Failed to load Data');
+    }
   }
 }
