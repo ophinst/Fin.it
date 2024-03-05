@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'josefinSans',
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: FormFound(),
       initialRoute: '/',
       routes: {
         '/home': (context) => HomeScreen(),

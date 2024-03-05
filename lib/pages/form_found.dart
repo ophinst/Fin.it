@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:capstone_project/components/form_categories.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/search_loc.dart';
 import 'package:capstone_project/components/radio.dart';
+import 'package:http/http.dart' as http;
 
 class FormFound extends StatefulWidget {
   const FormFound({super.key});
@@ -13,7 +16,47 @@ class FormFound extends StatefulWidget {
 }
 
 class _FormFoundState extends State<FormFound> {
+  final _formKey = GlobalKey<FormState>();
+  var _itemName = '';
+  var _itemDescription = '';
+  var _foundDate = "2024-01-29";
+  var _foundTime = "12:30:00";
+  var _category = 'Phone';
+  var _latitude = '3.6125771940756817';
+  var _longitude = '98.6750036157047';
+  var _locationDetail = 'Manggarai';
   DateTime dateTime = DateTime.now();
+
+  void _saveItem() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      final url = Uri.https(
+        'finit-api-ahawuso3sq-et.a.run.app',
+        '/api/found',
+      );
+      http.post(
+        url,
+        headers: {
+          'Authorization':
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJmaW4tSDh4ZHVTZ29oNiIsIm5hbWUiOiJmaW4iLCJpYXQiOjE3MDY1Mzk0MDYsImV4cCI6MTcwNjYyNTgwNn0.hN-2755rsnAYNwxn5Qll_MmT8irT6_oFwTTIdn6wwU4',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'itemName': _itemName,
+            'itemDescription': _itemDescription,
+            'foundDate': _foundDate,
+            'foundTime': _foundTime,
+            'category': _category,
+            'latitude': _latitude,
+            'longitude': _longitude,
+            'locationDetail': _locationDetail
+          },
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +79,7 @@ class _FormFoundState extends State<FormFound> {
       body: ListView(
         children: [
           Form(
+            key: _formKey,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
@@ -82,6 +126,18 @@ class _FormFoundState extends State<FormFound> {
                             color: Color.fromRGBO(43, 52, 153, 1), width: 3),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim().length <= 1 ||
+                          value.trim().length > 50) {
+                        return 'Must be between 1 and 50 characters';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _itemName = value!;
+                    },
                   ),
                   SizedBox(
                     height: 15,
@@ -106,6 +162,18 @@ class _FormFoundState extends State<FormFound> {
                             color: Color.fromRGBO(43, 52, 153, 1), width: 3),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim().length <= 1 ||
+                          value.trim().length > 150) {
+                        return 'Must be between 1 and 150 characters';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _itemDescription = value!;
+                    },
                   ),
                   SizedBox(
                     height: 15,
@@ -224,18 +292,7 @@ class _FormFoundState extends State<FormFound> {
                   ),
                   MyButton(
                     buttonText: 'UPLOAD',
-                    onTap: () {
-                      // Call the signUserIn method and pass the context
-                      //DO UPLOAD
-                      final snackBar = SnackBar(
-                        content: Text(
-                          'Upload Complete',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        backgroundColor: Colors.green,
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    },
+                    onTap: _saveItem,
                   ),
                   const SizedBox(
                     height: 24,
