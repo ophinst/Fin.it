@@ -1,19 +1,16 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_formfield.dart';
-import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/foundation.dart';
-// import 'package:capstone_project/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert'; // Import the dart:convert library
 import 'package:capstone_project/components/loading_HUD.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:multiple_result/multiple_result.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -29,14 +26,15 @@ class _LoginPageState extends State<LoginPage> {
   //Login model
   late LoginRequestModel requestModel;
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-  GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
+  GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isApiCallProcess = false;
   @override
   void initState() {
     super.initState();
-    requestModel = new LoginRequestModel();
+    requestModel = LoginRequestModel();
   }
 
+  //Create build loading hud
   @override
   Widget build(BuildContext context) {
     return ProgressHUD(
@@ -52,9 +50,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushNamed(context, '/home');
   }
 
-  // sign user to registration
-  void signUserReg(BuildContext context) {
-    // navigate to register page
+  void signUserUp(BuildContext context) {
     Navigator.pushNamed(context, '/register');
   }
 
@@ -98,33 +94,30 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 25),
 
-              //email text field
-              // MyTextField(
-              //   controller: emailController,
-              //   hintText: 'email',
-              //   obscureText: false,
-              //   prefixIcon: Icons.alternate_email,
-              // ),
+              //form for input user data
               Form(
                 key: globalFormKey,
                 child: Column(children: [
+                  //email
                   MyFormField(
                       keyboardType: TextInputType.emailAddress,
                       onSaved: (input) => requestModel.email = input,
+                      validator: (input) => !input.contains('@')
+                          ? "Email ID should be valid"
+                          : null,
                       controller: emailController,
                       hintText: 'email',
                       obscureText: false,
                       prefixIcon: Icons.alternate_email),
+
                   const SizedBox(height: 25),
-                  // MyTextField(
-                  //   controller: passwordController,
-                  //   hintText: 'password',
-                  //   obscureText: true,
-                  //   prefixIcon: Icons.lock,
-                  // ),
+                  //password
                   MyFormField(
                       keyboardType: TextInputType.text,
                       onSaved: (input) => requestModel.password = input,
+                      validator: (input) => input.length < 3
+                          ? "Password should be more than 3 characters"
+                          : null,
                       controller: passwordController,
                       hintText: 'password',
                       obscureText: true,
@@ -158,20 +151,38 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           isApiCallProcess = true;
                         });
-
+                        //handle API process
                         RemoteService remoteService = RemoteService();
                         remoteService.login(requestModel).then((value) {
                           setState(() {
                             isApiCallProcess = false;
                           });
-
-                          if (value.token!.isNotEmpty) {
-                            const snackBar =
+                          //check token available or not
+                          if (value.token != null && value.token!.isNotEmpty) {
+                            final snackBar =
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                             signUserIn(context);
+                            //if not, return value below
+                          } else if (value.error != null) {
+                            final snackBar =
+                                SnackBar(content: Text(value.error!));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          } else {
+                            final snackBar =
+                                SnackBar(content: Text("Login Failed"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                           }
+                        }).catchError((error) {
+                          setState(() {
+                            isApiCallProcess = false;
+                          });
+                          final snackBar =
+                              SnackBar(content: Text("Error: $error"));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         });
                       }
                     },
@@ -233,33 +244,32 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   //Sign in texts
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         'Dont\'n have an account?',
                         style: TextStyle(
                           fontFamily: 'josefinSans',
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 4,
                       ),
-                      // MyButton(
-                      //   buttonText: 'Login',
-                      //   onTap: () {
-                      //     signUserIn(context);
-                      //   },
-                      // ),
+                      TextButton(
+                        onPressed: () {
+                          signUserUp(context);
+                        },
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 15),
-                      // Text(
-                      //   'Sign up',
-                      //   style: TextStyle(
-                      //       fontFamily: 'josefinSans',
-                      //       color: Color.fromRGBO(43, 52, 153, 1),
-                      //       fontWeight: FontWeight.bold),
-                      // ),
                     ],
                   )
                 ]),

@@ -3,17 +3,29 @@ import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:flutter/material.dart';
 
-class RegisterPage extends StatelessWidget {
-  RegisterPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   //text editing controller
   final emailController = TextEditingController();
+
   final nameController = TextEditingController();
+
   final passwordController = TextEditingController();
+
   final vpasswordController = TextEditingController();
 
   // sign user up method
   void signUserUp() {}
+
+  void goLoginPage(BuildContext context) {
+    Navigator.pushNamed(context, '/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +155,7 @@ class RegisterPage extends StatelessWidget {
               ),
 
               //Sign in texts
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
@@ -156,12 +168,17 @@ class RegisterPage extends StatelessWidget {
                   SizedBox(
                     width: 4,
                   ),
-                  Text(
-                    'Sign in',
-                    style: TextStyle(
-                        fontFamily: 'josefinSans',
-                        color: Color.fromRGBO(43, 52, 153, 1),
-                        fontWeight: FontWeight.bold),
+                  TextButton(
+                    onPressed: () {
+                      goLoginPage(context);
+                    },
+                    child: Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ],
               )

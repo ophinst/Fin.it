@@ -60,11 +60,15 @@ class RemoteService {
     );
 
     if (response.statusCode == 200) {
-      return LoginResponseModel.fromJson(jsonDecode(response.body));
+      return LoginResponseModel.fromJson(
+        jsonDecode(response.body),
+      );
+    } else if (response.statusCode == 401) {
+      return LoginResponseModel(
+          error: 'Unauthorized: Please check your credentials');
     } else {
-      // Consider handling different status codes based on your API's documentation
-      // For example, a 400 status code might indicate a bad request
-      throw Exception('Failed to load Data');
+      print('Failed to fetch data: ${response.statusCode}');
+      throw Exception('Failed to fetch data: ${response.statusCode}');
     }
   }
 }

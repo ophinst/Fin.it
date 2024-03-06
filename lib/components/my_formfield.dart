@@ -7,6 +7,7 @@ class MyFormField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final IconData prefixIcon;
+  final validator;
 
   const MyFormField({
     super.key,
@@ -16,6 +17,9 @@ class MyFormField extends StatelessWidget {
     required this.hintText,
     required this.obscureText,
     required this.prefixIcon,
+    required this.validator,
+
+    // required String? Function(dynamic input) validator,
   });
 
   @override
