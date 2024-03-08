@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(9.0),
-      child: SrcBar(),
-    );
-  }
-}
-
 class SrcBar extends StatelessWidget {
+  final TextEditingController searchController;
+  final Function(String) onSearch;
+
   const SrcBar({
-    super.key,
+    required this.searchController, required this.onSearch
   });
 
   @override
@@ -39,6 +30,8 @@ class SrcBar extends StatelessWidget {
             ),
           ]),
       child: TextFormField(
+        controller: searchController,
+        onChanged: onSearch, // Call the onSearch function when text changes
         decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Search...",
