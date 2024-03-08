@@ -115,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 15),
                     MyFormField(
                       keyboardType: TextInputType.text,
-                      onSaved: (input) => requestModel.vpassword = input,
+                      onSaved: (input) => requestModel.confirmPassword = input,
                       controller: vpasswordController,
                       hintText: 'verify password',
                       obscureText: true,

@@ -1,45 +1,3 @@
-// class RegisterResponseModel {
-//   // final bool success;
-//   final String? message;
-//   final RegisterRequestModel? data;
-
-//   RegisterResponseModel({
-//     // required this.success,
-//     this.message,
-//     this.data,
-//   });
-
-//   factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
-//     return RegisterResponseModel(
-//       // success: json['success'],
-//       message: json['message'],
-//       data: json['data'] != null
-//           ? RegisterRequestModel.fromJson(json['data'])
-//           : null,
-//     );
-//   }
-// }
-
-// class RegisterRequestModel {
-//   final String name;
-//   final String email;
-//   final String token;
-
-//   RegisterRequestModel({
-//     required this.name,
-//     required this.email,
-//     required this.token,
-//   });
-
-//   factory RegisterRequestModel.fromJson(Map<String, dynamic> json) {
-//     return RegisterRequestModel(
-//       name: json['name'],
-//       email: json['email'],
-//       token: json['token'],
-//     );
-//   }
-// }
-
 class RegisterResponseModel {
   // final bool success;
   final String? message;
@@ -73,13 +31,13 @@ class RegisterRequestModel {
   String? name;
   String? email;
   String? password;
-  String? vpassword;
+  String? confirmPassword;
 
   RegisterRequestModel({
     this.name,
     this.email,
     this.password,
-    this.vpassword,
+    this.confirmPassword,
   });
 
   Map<String, dynamic> toJson() {
@@ -87,7 +45,7 @@ class RegisterRequestModel {
       'name': name?.trim(),
       'email': email?.trim(),
       'password': password?.trim(),
-      'vpassword': vpassword?.trim(),
+      'confirmPassword': confirmPassword?.trim(),
     };
 
     return map;

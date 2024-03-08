@@ -89,7 +89,7 @@ class RemoteService {
       body: jsonEncode(registerRequestModel.toJson()),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return RegisterResponseModel.fromJson(
         jsonDecode(response.body),
       );
