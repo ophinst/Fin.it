@@ -11,13 +11,13 @@ class MyFormField extends StatelessWidget {
 
   const MyFormField({
     super.key,
-    required this.keyboardType,
-    required this.onSaved,
+    this.keyboardType,
+    this.onSaved,
     required this.controller,
     required this.hintText,
     required this.obscureText,
     required this.prefixIcon,
-    required this.validator,
+    this.validator,
 
     // required String? Function(dynamic input) validator,
   });

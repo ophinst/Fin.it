@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:capstone_project/models/foundItem.dart';
 import 'package:capstone_project/models/loginModel.dart';
+import 'package:capstone_project/models/registerModel.dart';
+
 import 'package:http/http.dart' as http;
 
 class RemoteService {
@@ -66,6 +68,36 @@ class RemoteService {
     } else if (response.statusCode == 401) {
       return LoginResponseModel(
           error: 'Unauthorized: Please check your credentials');
+    } else if (response.statusCode == 400) {
+      return LoginResponseModel(error: 'Please Input your credential');
+    } else {
+      print('Failed to fetch data: ${response.statusCode}');
+      throw Exception('Failed to fetch data: ${response.statusCode}');
+    }
+  }
+
+  //register
+  Future<RegisterResponseModel> register(
+      RegisterRequestModel registerRequestModel) async {
+    var uriReg = Uri.parse('$url/auth/register');
+
+    final response = await http.post(
+      uriReg,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(registerRequestModel.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return RegisterResponseModel.fromJson(
+        jsonDecode(response.body),
+      );
+    } else if (response.statusCode == 401) {
+      return RegisterResponseModel(
+          message: 'Unauthorized: Please check your credentials');
+    } else if (response.statusCode == 400) {
+      return RegisterResponseModel(message: 'Please Input your credential');
     } else {
       print('Failed to fetch data: ${response.statusCode}');
       throw Exception('Failed to fetch data: ${response.statusCode}');
