@@ -64,7 +64,7 @@ class _FoundItemListState extends State<FoundItemList> {
                 SizedBox(
                   width: 12,
                 ),
-                SrcBar(),
+                // SrcBar(),
               ],
             ),
             Container(
@@ -80,7 +80,7 @@ class _FoundItemListState extends State<FoundItemList> {
               children: [
                 Column(
                   children: [
-                    FilterCategories(),   
+                    // FilterCategories(),   
                   ],
                 ),
               ],

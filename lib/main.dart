@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
 import 'package:capstone_project/pages/form_lost.dart';
 import 'package:capstone_project/pages/form_found.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // import 'package:capstone_project/components/list_item_lost.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
