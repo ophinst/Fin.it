@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:capstone_project/models/lostItem_model.dart';
+import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:http/http.dart' as http;
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:io';
@@ -30,8 +30,8 @@ class RemoteService {
   var response = await client.get(uri);
   if (response.statusCode == 200) {
     var json = response.body;
-    var foundResponse = FoundResponse.fromJson(jsonDecode(json));
-    return foundResponse.data;
+    var lostResponse = LostResponse.fromJson(jsonDecode(json));
+    return lostResponse.data;
   } else {
     // Handle error appropriately
     print('Failed to fetch data: ${response.statusCode}');
@@ -77,17 +77,17 @@ class RemoteService {
   if (response.statusCode == 200) {
     var json = response.body;
     print('Response: $json');
-    var foundResponse = FoundResponse.fromJson(jsonDecode(json));
+    var lostResponse = LostResponse.fromJson(jsonDecode(json));
     // If data is a list, return the first item (assuming lostId is unique)
-    if (foundResponse.data is List<Datum>) {
-      List<Datum> dataList = foundResponse.data;
+    if (lostResponse.data is List<Datum>) {
+      List<Datum> dataList = lostResponse.data;
       if (dataList.isNotEmpty) {
         return dataList.first;
       }
     }
     // If data is a single Datum object, return it directly
-    if (foundResponse.data is Datum) {
-      return foundResponse.data;
+    if (lostResponse.data is Datum) {
+      return lostResponse.data;
     }
   } else {
     // Handle error appropriately

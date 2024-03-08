@@ -1,4 +1,4 @@
-import 'package:capstone_project/models/lostItem_model.dart';
+import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';

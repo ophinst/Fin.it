@@ -1,22 +1,22 @@
 
 // Class for API response containing single data object or a list of data
-class FoundResponse {
+class LostResponse {
   String message;
   dynamic data;
 
-  FoundResponse({
+  LostResponse({
     required this.message,
     required this.data,
   });
 
-  factory FoundResponse.fromJson(Map<String, dynamic> json) {
+  factory LostResponse.fromJson(Map<String, dynamic> json) {
     if (json['data'] is List) {
-      return FoundResponse(
+      return LostResponse(
         message: json['message'],
         data: List<Datum>.from(json['data'].map((x) => Datum.fromJson(x))),
       );
     } else if (json['data'] is Map<String, dynamic>) {
-      return FoundResponse(
+      return LostResponse(
         message: json['message'],
         data: Datum.fromJson(json['data']),
       );
