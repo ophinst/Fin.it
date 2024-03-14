@@ -1,3 +1,4 @@
+import 'package:capstone_project/components/loading_HUD.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_formfield.dart';
 import 'package:capstone_project/components/my_textfield.dart';
@@ -25,8 +26,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final vpasswordController = TextEditingController();
 
   // sign user up method
-  void signUserIn(BuildContext context) {
-    Navigator.pushNamed(context, '/home');
+  void signUserIn(BuildContext context, String name) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/home', arguments: name);
   }
 
   void goLoginPage(BuildContext context) {
@@ -46,6 +48,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    return ProgressHUD(
+      inAsyncCall: isApiCallProcess,
+      opacity: 0.3,
+      child: _uiSetup(context),
+    );
+  }
+
+  @override
+  Widget _uiSetup(BuildContext context) {
     return Scaffold(
       key: scaffoldMessengerKey,
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
@@ -147,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         final snackBar =
                             SnackBar(content: Text("Login Successful"));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        signUserIn(context);
+                        signUserIn(context, value.name!);
                         //if not, return value below
                       } else if (value.message != null) {
                         final snackBar =

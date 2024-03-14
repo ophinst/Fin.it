@@ -7,15 +7,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? name;
+  const HomePage({Key? key, this.name}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   LatLng? _userLocation;
+  late String _name;
 
   @override
   void initState() {
@@ -23,27 +24,33 @@ class _HomePageState extends State<HomePage> {
     _getUserLocation(); // Call the method to get the user's location
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Extract the name from the route arguments
+    _name = ModalRoute.of(context)!.settings.arguments as String? ?? "Unknown";
+  }
+
   // Method to get the user's current location
   void _getUserLocation() async {
-  // Check if location permissions are granted
-  var permissionStatus = await Permission.location.request();
-  
-  if (permissionStatus == PermissionStatus.granted) {
-    // Location permissions granted, retrieve the current position
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    // Check if location permissions are granted
+    var permissionStatus = await Permission.location.request();
 
-    // Use the retrieved position
-    setState(() {
-      _userLocation = LatLng(position.latitude, position.longitude);
-    });
-  } else {
-    // Permissions not granted, handle accordingly
-    print('Location permissions not granted');
+    if (permissionStatus == PermissionStatus.granted) {
+      // Location permissions granted, retrieve the current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Use the retrieved position
+      setState(() {
+        _userLocation = LatLng(position.latitude, position.longitude);
+      });
+    } else {
+      // Permissions not granted, handle accordingly
+      print('Location permissions not granted');
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +84,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 5,
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
@@ -89,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     Text(
-                      'User',
+                      _name,
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.w700,
@@ -232,28 +239,25 @@ class _HomePageState extends State<HomePage> {
                           height: 5,
                         ),
                         Container(
-                          height: 100,
-                          decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: _userLocation != null
-                          ? GoogleMap(
-                              mapType: MapType.normal,
-                              initialCameraPosition: CameraPosition(
-                                  target: _userLocation!,
-                                  zoom: 14
-                                  ),
-                                  markers: {
-                            Marker(
-                              markerId: MarkerId('userLocation'),
-                              position: _userLocation!,
-                            ),
-                          },
-                          ) 
-                          : Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        ),
+                            height: 100,
+                            decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(15)),
+                            child: _userLocation != null
+                                ? GoogleMap(
+                                    mapType: MapType.normal,
+                                    initialCameraPosition: CameraPosition(
+                                        target: _userLocation!, zoom: 14),
+                                    markers: {
+                                      Marker(
+                                        markerId: MarkerId('userLocation'),
+                                        position: _userLocation!,
+                                      ),
+                                    },
+                                  )
+                                : Center(
+                                    child: CircularProgressIndicator(),
+                                  )),
                       ],
                     ),
                   ),

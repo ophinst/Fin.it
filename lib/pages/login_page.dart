@@ -45,9 +45,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // sign user in method
-  void signUserIn(BuildContext context) {
+  void signUserIn(BuildContext context, String name) {
     // Navigate to the HomePage
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushNamed(context, '/home', arguments: name);
   }
 
   void signUserUp(BuildContext context) {
@@ -163,7 +163,8 @@ class _LoginPageState extends State<LoginPage> {
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
-                            signUserIn(context);
+                            signUserIn(context, value.name!);
+
                             //if not, return value below
                           } else if (value.error != null) {
                             final snackBar =
