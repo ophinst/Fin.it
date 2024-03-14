@@ -16,6 +16,11 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
+  void foundForm(BuildContext context) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/add-found');
+  }
+
   List<Datum>? allLosts; // Store all the fetched data
   List<Datum>? displayedLosts; // Store the currently displayed page data
   var isLoaded = false;
@@ -107,18 +112,18 @@ class _LostItemListState extends State<LostItemList> {
   }
 
   void nextPage() {
-  setState(() {
-    final totalLosts = allLosts!.length;
-    if ((currentPage * itemsPerPage) < totalLosts) {
-      currentPage++;
-      int startIndex = (currentPage - 1) * itemsPerPage;
-      int endIndex = currentPage * itemsPerPage;
-      // Adjust endIndex if it exceeds the total number of lost items
-      endIndex = endIndex > totalLosts ? totalLosts : endIndex;
-      displayedLosts = allLosts!.sublist(startIndex, endIndex);
-    }
-  });
-}
+    setState(() {
+      final totalLosts = allLosts!.length;
+      if ((currentPage * itemsPerPage) < totalLosts) {
+        currentPage++;
+        int startIndex = (currentPage - 1) * itemsPerPage;
+        int endIndex = currentPage * itemsPerPage;
+        // Adjust endIndex if it exceeds the total number of lost items
+        endIndex = endIndex > totalLosts ? totalLosts : endIndex;
+        displayedLosts = allLosts!.sublist(startIndex, endIndex);
+      }
+    });
+  }
 
   void previousPage() {
     setState(() {
@@ -353,8 +358,17 @@ class _LostItemListState extends State<LostItemList> {
               ),
             ),
           ]),
-      floatingActionButton:
-          isExtend ? buildCompose(context) : buildExtendedCompose(context),
+      floatingActionButton: isExtend
+          ? MyCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            )
+          : MyExtendedCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
