@@ -3,6 +3,8 @@
 import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +14,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  LatLng? _userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation(); // Call the method to get the user's location
+  }
+
+  // Method to get the user's current location
+  void _getUserLocation() async {
+  // Check if location permissions are granted
+  var permissionStatus = await Permission.location.request();
+  
+  if (permissionStatus == PermissionStatus.granted) {
+    // Location permissions granted, retrieve the current position
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    // Use the retrieved position
+    setState(() {
+      _userLocation = LatLng(position.latitude, position.longitude);
+    });
+  } else {
+    // Permissions not granted, handle accordingly
+    print('Location permissions not granted');
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,12 +236,23 @@ class _HomePageState extends State<HomePage> {
                           decoration: BoxDecoration(
                               color: primaryColor,
                               borderRadius: BorderRadius.circular(15)),
-                          child: GoogleMap(
+                          child: _userLocation != null
+                          ? GoogleMap(
                               mapType: MapType.normal,
                               initialCameraPosition: CameraPosition(
-                                  target: LatLng(
-                                      -6.284797670980568, 107.17054629548609),
-                                  zoom: 14)),
+                                  target: _userLocation!,
+                                  zoom: 14
+                                  ),
+                                  markers: {
+                            Marker(
+                              markerId: MarkerId('userLocation'),
+                              position: _userLocation!,
+                            ),
+                          },
+                          ) 
+                          : Center(
+                            child: CircularProgressIndicator(),
+                          )
                         ),
                       ],
                     ),

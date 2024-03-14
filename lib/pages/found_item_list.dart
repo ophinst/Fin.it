@@ -69,7 +69,7 @@ class _FoundItemListState extends State<FoundItemList> {
               SizedBox(
                 width: 12,
               ),
-              SrcBar(),
+              // SrcBar(),
             ],
           ),
           Container(
@@ -85,7 +85,7 @@ class _FoundItemListState extends State<FoundItemList> {
             children: [
               Column(
                 children: [
-                  FilterCategories(),
+                  // FilterCategories(),
                 ],
               ),
             ],
@@ -93,8 +93,7 @@ class _FoundItemListState extends State<FoundItemList> {
           const FoundItemListCard(),
         ],
       ),
-      floatingActionButton:
-          isExtend 
+      floatingActionButton: isExtend
           ? MyCompose(
               onTap: () {
                 lostForm(context);
