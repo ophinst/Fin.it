@@ -1,9 +1,8 @@
+import 'package:capstone_project/pages/chat_page.dart';
 import 'package:capstone_project/pages/form_lost.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
-import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
-import 'package:capstone_project/pages/register_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     FoundItemList(),
     FormLost(),
     HomePage(),
-    RegisterPage(),
+    ChatPage(),
     LostItemList(),
   ];
 
