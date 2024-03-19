@@ -2,7 +2,6 @@ import 'package:capstone_project/models/foundItem.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
-import 'package:flutter/rendering.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
 import 'package:capstone_project/components/filter_categories.dart';
@@ -64,17 +63,17 @@ class _LostItemListState extends State<LostItemList> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 12),
           child: Icon(
             Icons.arrow_back,
             color: Colors.black,
             size: 35,
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: EdgeInsets.only(right: 12),
             child: Text(
               'LOST & FOUND',
               style: TextStyle(
@@ -90,10 +89,10 @@ class _LostItemListState extends State<LostItemList> {
           controller: _scrollController,
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
+            const Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                     left: 25,
                     top: 25,
                   ),
@@ -116,14 +115,14 @@ class _LostItemListState extends State<LostItemList> {
             ),
             //underline
             Container(
-              margin: EdgeInsets.only(left: 25, top: 10, right: 25),
+              margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
               height: 2,
               color: Colors.black,
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Column(
@@ -137,11 +136,14 @@ class _LostItemListState extends State<LostItemList> {
               padding: const EdgeInsets.all(20),
               child: Visibility(
                 visible: isLoaded,
+                replacement: const Center(
+                  child: CircularProgressIndicator(),
+                ),
                 child: GridView.builder(
                   itemCount: losts?.length,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 1.0,
                       mainAxisSpacing: 10,
@@ -165,10 +167,10 @@ class _LostItemListState extends State<LostItemList> {
                           return InkWell(
                             onTap: () {},
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
                               decoration: BoxDecoration(
-                                  boxShadow: [
+                                  boxShadow: const [
                                     BoxShadow(
                                       blurRadius: 10,
                                       color: Color(0x33000000),
@@ -179,55 +181,53 @@ class _LostItemListState extends State<LostItemList> {
                                   color: Colors.white),
                               child: Column(
                                 children: [
-                                  Container(
-                                    child: Image.network(
-                                      losts![index].itemImage,
-                                      width: 100,
-                                      height: 100,
-                                      loadingBuilder: (BuildContext context,
-                                          Widget child,
-                                          ImageChunkEvent? loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        } else {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      errorBuilder: (BuildContext context,
-                                          Object exception,
-                                          StackTrace? stackTrace) {
-                                        return Text('Failed to load image');
-                                      },
-                                    ),
+                                  Image.network(
+                                    losts![index].itemImage,
+                                    width: 100,
+                                    height: 100,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      } else {
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    errorBuilder: (BuildContext context,
+                                        Object exception,
+                                        StackTrace? stackTrace) {
+                                      return const Text('Failed to load image');
+                                    },
                                   ),
-                                  SizedBox(height: 5),
+                                  const SizedBox(height: 5),
                                   Text(
                                     losts![index].itemName,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  SizedBox(height: 1),
+                                  const SizedBox(height: 1),
                                   Row(
                                     children: [
-                                      Icon(Icons.location_pin),
-                                      SizedBox(width: 5),
+                                      const Icon(Icons.location_pin),
+                                      const SizedBox(width: 5),
                                       Expanded(
                                         child: Text(
                                           locationName ?? 'Location not found',
-                                          style: TextStyle(fontSize: 12),
+                                          style: const TextStyle(fontSize: 12),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       )
@@ -241,9 +241,6 @@ class _LostItemListState extends State<LostItemList> {
                       },
                     );
                   },
-                ),
-                replacement: const Center(
-                  child: CircularProgressIndicator(),
                 ),
               ),
             ),

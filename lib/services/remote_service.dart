@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/models/found_model.dart';
 import 'package:http/http.dart' as http;
 
 class RemoteService {
@@ -44,5 +45,24 @@ class RemoteService {
       }
     }
     return 'Location address not found';
+  }
+
+  //Form Found Post method
+  Future<void> saveItem(FoundModel foundItem) async {
+    final url = Uri.https(
+      'finit-api-ahawuso3sq-et.a.run.app',
+      '/api/found',
+    );
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization':
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJmaW4tSDh4ZHVTZ29oNiIsIm5hbWUiOiJmaW4iLCJpYXQiOjE3MDY1Mzk0MDYsImV4cCI6MTcwNjYyNTgwNn0.hN-2755rsnAYNwxn5Qll_MmT8irT6_oFwTTIdn6wwU4',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(foundItem.toJson()),
+    );
+    print(response.body);
+    print(response.statusCode);
   }
 }
