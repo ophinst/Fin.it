@@ -12,11 +12,12 @@ class MyButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 75),
       child: SizedBox(
-        width: double.infinity, // Makes the button take the full width of its parent
+        width: double
+            .infinity, // Makes the button take the full width of its parent
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.all(15), 
+            padding: const EdgeInsets.all(15),
             backgroundColor: const Color.fromRGBO(43, 52, 153, 1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(35),

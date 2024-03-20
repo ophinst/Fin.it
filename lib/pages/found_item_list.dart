@@ -13,6 +13,11 @@ class FoundItemList extends StatefulWidget {
 }
 
 class _FoundItemListState extends State<FoundItemList> {
+  void lostForm(BuildContext context) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/add-lost');
+  }
+
   bool isExtend = false;
   @override
   Widget build(BuildContext context) {
@@ -45,50 +50,60 @@ class _FoundItemListState extends State<FoundItemList> {
       body: Column(
         children: [
           const Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: 25,
-                    top: 25,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 25,
+                  top: 25,
+                ),
+                child: Text(
+                  'Found Something?',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'JosefinSans',
                   ),
-                  child: Text(
-                    'Found Something?',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'JosefinSans',
-                    ),
-                  ),
                 ),
-                SizedBox(
-                  width: 12,
-                ),
-                SrcBar(),
-              ],
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
-              height: 2,
-              color: Colors.black,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  children: [
-                    FilterCategories(),   
-                  ],
-                ),
-              ],
-            ),
-            const FoundItemListCard(),
+              ),
+              SizedBox(
+                width: 12,
+              ),
+              // SrcBar(),
+            ],
+          ),
+          Container(
+            margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
+            height: 2,
+            color: Colors.black,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                children: [
+                  // FilterCategories(),
+                ],
+              ),
+            ],
+          ),
+          const FoundItemListCard(),
         ],
       ),
-      floatingActionButton: isExtend ? buildCompose(context) : buildExtendedCompose(context),
+      floatingActionButton: isExtend
+          ? MyCompose(
+              onTap: () {
+                lostForm(context);
+              },
+            )
+          : MyExtendedCompose(
+              onTap: () {
+                lostForm(context);
+              },
+            ),
     );
   }
 }

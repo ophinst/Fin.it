@@ -1,3 +1,4 @@
+import 'package:capstone_project/pages/form_lost.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/lost_item.dart';
@@ -7,7 +8,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}): super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,9 +18,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final navigationKey = GlobalKey<CurvedNavigationBarState>();
   int index = 2;
 
+  String? lostId;
+
   final screens = [
     FoundItemList(),
-    LostItemPage(),
+    FormLost(),
     HomePage(),
     RegisterPage(),
     LostItemList(),
@@ -61,7 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
         animationDuration: const Duration(milliseconds: 300),
         index: index,
         items: items,
-        onTap: (index) => setState(() => this.index = index),
+        onTap: (index) {
+          setState(() {
+          this.index = index;
+          lostId = null;
+          }); 
+        },
       ),
     );
   }

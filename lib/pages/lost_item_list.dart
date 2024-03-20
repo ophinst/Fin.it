@@ -1,4 +1,5 @@
-import 'package:capstone_project/models/foundItem.dart';
+import 'package:capstone_project/models/lost_item_model.dart';
+import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
@@ -14,16 +15,29 @@ class LostItemList extends StatefulWidget {
 }
 
 class _LostItemListState extends State<LostItemList> {
-  List<Datum>? losts;
+  void foundForm(BuildContext context) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/add-found');
+  }
+
+  List<Datum>? allLosts; // Store all the fetched data
+  List<Datum>? displayedLosts; // Store the currently displayed page data
   var isLoaded = false;
 
   ScrollController _scrollController = new ScrollController();
   bool isExtend = false;
 
+  int currentPage = 1;
+  int itemsPerPage = 10; // Number of items per page
+
+  String? selectedCategory;
+
+  TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-
+    selectedCategory = items[0];
     //fetch data from API
     getData();
 
@@ -40,15 +54,95 @@ class _LostItemListState extends State<LostItemList> {
     });
   }
 
-  getData() async {
+  void getData() async {
     var data = await RemoteService().getLostItems();
     if (mounted) {
-      // Check if the widget is mounted before calling setState
       setState(() {
         isLoaded = true;
-        losts = data;
+        allLosts = data;
+        // Initialize displayedLosts with allLosts
+        displayedLosts = allLosts;
+        // Reset currentPage when data changes
+        currentPage = 1;
+        // Adjust displayedLosts based on currentPage and itemsPerPage
+        updateDisplayedLosts();
       });
     }
+    // Filter lost items by category
+    filterLostsByCategory(selectedCategory);
+  }
+
+  List<Datum>? filterLostsByCategory(String? category) {
+    if (category == null || category.isEmpty) {
+      return allLosts; // Return all lost items if no category is selected
+    }
+    return allLosts?.where((item) => item.category == category).toList();
+  }
+
+  void updateDisplayedLosts() {
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = currentPage * itemsPerPage;
+    // Ensure endIndex is within the bounds of displayedLosts
+    if (endIndex > displayedLosts!.length) {
+      endIndex = displayedLosts!.length;
+    }
+    displayedLosts = displayedLosts!.sublist(startIndex, endIndex);
+  }
+
+  void handleCategoryChanged(String? category) {
+    setState(() {
+      selectedCategory = category; // Update the selected category
+      if (category == 'All') {
+        // If 'All' category is selected, reset displayedLosts to allLosts
+        displayedLosts = allLosts;
+        // Reset currentPage to 1
+        currentPage = 1;
+        // Adjust displayedLosts based on currentPage and itemsPerPage
+        updateDisplayedLosts();
+      } else {
+        // If a specific category is selected, filter displayedLosts based on the category
+        displayedLosts = filterLostsByCategory(category);
+        // Reset currentPage to 1
+        currentPage = 1;
+        // Adjust displayedLosts based on currentPage and itemsPerPage
+        updateDisplayedLosts();
+      }
+    });
+  }
+
+  void nextPage() {
+    setState(() {
+      final totalLosts = allLosts!.length;
+      if ((currentPage * itemsPerPage) < totalLosts) {
+        currentPage++;
+        int startIndex = (currentPage - 1) * itemsPerPage;
+        int endIndex = currentPage * itemsPerPage;
+        // Adjust endIndex if it exceeds the total number of lost items
+        endIndex = endIndex > totalLosts ? totalLosts : endIndex;
+        displayedLosts = allLosts!.sublist(startIndex, endIndex);
+      }
+    });
+  }
+
+  void previousPage() {
+    setState(() {
+      if (currentPage > 1) {
+        currentPage--;
+        int startIndex = (currentPage - 1) * itemsPerPage;
+        int endIndex = currentPage * itemsPerPage;
+        displayedLosts = allLosts!.sublist(startIndex, endIndex);
+      }
+    });
+  }
+
+  void searchLostItems(String query) {
+    List<Datum> searchResult = allLosts!
+        .where((lostItem) =>
+            lostItem.itemName.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    setState(() {
+      displayedLosts = searchResult;
+    });
   }
 
   @override
@@ -110,7 +204,9 @@ class _LostItemListState extends State<LostItemList> {
                   width: 12,
                 ),
                 //show search bar component
-                SrcBar(),
+                SrcBar(
+                    searchController: searchController,
+                    onSearch: searchLostItems),
               ],
             ),
             //underline
@@ -127,7 +223,9 @@ class _LostItemListState extends State<LostItemList> {
               children: [
                 Column(
                   children: [
-                    FilterCategories(),
+                    FilterCategories(
+                      onCategoryChanged: handleCategoryChanged,
+                    ),
                   ],
                 ),
               ],
@@ -140,7 +238,7 @@ class _LostItemListState extends State<LostItemList> {
                   child: CircularProgressIndicator(),
                 ),
                 child: GridView.builder(
-                  itemCount: losts?.length,
+                  itemCount: displayedLosts?.length ?? 0,
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -149,11 +247,12 @@ class _LostItemListState extends State<LostItemList> {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10),
                   itemBuilder: (context, index) {
-                    final latitude = double.parse(
-                        losts![index].latitude); // Convert latitude to double
-                    final longitude = double.parse(
-                        losts![index].longitude); // Convert longitude to double
-
+                    final latitude = double.parse(displayedLosts![index]
+                        .latitude); // Convert latitude to double
+                    final longitude =
+                        double.parse(displayedLosts![index].longitude);
+                    final lostId =
+                        displayedLosts![index].lostId; // Retrieve lostId
                     return FutureBuilder<String>(
                       future:
                           RemoteService().getLocationName(latitude, longitude),
@@ -165,7 +264,18 @@ class _LostItemListState extends State<LostItemList> {
                           // Display the item with its location name
                           final locationName = snapshot.data;
                           return InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              // Redirect to the LostItemPage passing the lostId
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LostItemPage(
+                                    lostId:
+                                        lostId, // Pass the lostId to the LostItemPage
+                                  ),
+                                ),
+                              );
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
@@ -182,7 +292,7 @@ class _LostItemListState extends State<LostItemList> {
                               child: Column(
                                 children: [
                                   Image.network(
-                                    losts![index].itemImage,
+                                    displayedLosts![index].itemImage,
                                     width: 100,
                                     height: 100,
                                     loadingBuilder: (BuildContext context,
@@ -213,7 +323,7 @@ class _LostItemListState extends State<LostItemList> {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    losts![index].itemName,
+                                    displayedLosts![index].itemName,
                                     style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
@@ -245,8 +355,48 @@ class _LostItemListState extends State<LostItemList> {
               ),
             ),
           ]),
-      floatingActionButton:
-          isExtend ? buildCompose(context) : buildExtendedCompose(context),
+      floatingActionButton: isExtend
+          ? MyCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            )
+          : MyExtendedCompose(
+              onTap: () {
+                foundForm(context);
+              },
+            ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                previousPage();
+              },
+            ),
+            Text(
+              'Page $currentPage',
+              style: TextStyle(fontSize: 16),
+            ),
+            if ((currentPage * itemsPerPage) <
+                (allLosts?.length ??
+                    0)) // Check if there are more items to display on the next page
+              IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed: () {
+                  nextPage();
+                },
+              )
+            else
+              IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed: null,
+              ), // Display the icon without an onPressed function
+          ],
+        ),
+      ),
     );
   }
 }

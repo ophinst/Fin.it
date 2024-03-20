@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 List<String> items = [
-  'item1',
-  'item2',
-  'item3',
+  'All',
+  'Wallet',
+  'electronics',
+  'misc',
 ];
 
 class FilterCategories extends StatefulWidget {
-  const FilterCategories({super.key});
+  final Function(String?) onCategoryChanged;
+
+  const FilterCategories({Key? key, required this.onCategoryChanged})
+      : super(key: key);
 
   @override
   State<FilterCategories> createState() => _FilterCategoriesState();
@@ -45,7 +49,12 @@ class _FilterCategoriesState extends State<FilterCategories> {
                     ),
                   ))
               .toList(),
-          onChanged: (item) => setState(() => selectedItem = item),
+          onChanged: (item) {
+            setState(() {
+            selectedItem = item;
+            });
+            widget.onCategoryChanged(item); 
+          } 
         ),
       ),
     );
