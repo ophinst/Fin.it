@@ -1,14 +1,16 @@
 // ignore_for_file: unnecessary_const
 
+import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  final String? name;
-  const HomePage({Key? key, this.name}) : super(key: key);
+  // final String? name;
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   LatLng? _userLocation;
-  late String _name;
 
   @override
   void initState() {
@@ -24,12 +25,6 @@ class _HomePageState extends State<HomePage> {
     _getUserLocation(); // Call the method to get the user's location
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Extract the name from the route arguments
-    _name = ModalRoute.of(context)!.settings.arguments as String? ?? "Unknown";
-  }
 
   // Method to get the user's current location
   void _getUserLocation() async {
@@ -54,6 +49,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String _uid = userProvider.uid ?? "Unknown";
+    final String _name = userProvider.name ?? "Unknown";
     return Scaffold(
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
       body: SingleChildScrollView(
@@ -87,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Welcome, ',
                       style: TextStyle(
                         fontFamily: 'josefinSans',

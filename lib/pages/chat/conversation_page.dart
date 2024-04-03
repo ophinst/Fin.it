@@ -1,9 +1,13 @@
-// ignore_for_file: camel_case_types, prefer_typing_uninitialized_variables
-
 import 'package:flutter/material.dart';
 
 class ConversationPage extends StatefulWidget {
-  const ConversationPage({Key? key}) : super(key: key);
+  final String chatId;
+  final String memberName;
+  const ConversationPage({
+    Key? key,
+    required this.chatId,
+    required this.memberName,
+  }) : super(key: key);
 
   @override
   State<ConversationPage> createState() => _ConversationPageState();
@@ -14,7 +18,7 @@ class _ConversationPageState extends State<ConversationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Name"),
+        title: Text(widget.memberName), // Display member name in the app bar title
         actions: const [],
       ),
       body: SingleChildScrollView(
@@ -22,7 +26,27 @@ class _ConversationPageState extends State<ConversationPage> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              Text('data')
+              Text(
+                'Chat ID: ${widget.chatId}', // Display chat ID
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Member:', // Display member name
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                widget.memberName,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
