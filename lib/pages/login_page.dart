@@ -2,12 +2,14 @@ import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_formfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/loginModel.dart';
+import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert'; // Import the dart:convert library
 import 'package:capstone_project/components/loading_HUD.dart';
-import 'package:get/get_navigation/get_navigation.dart';
+import 'package:provider/provider.dart';
+// import 'package:get/get_navigation/get_navigation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // sign user in method
-  void signUserIn(BuildContext context, String name) {
+  void signUserIn(BuildContext context, String name, String uid, String token) {
     // Navigate to the HomePage
     Navigator.pushNamed(context, '/home', arguments: name);
   }
@@ -163,7 +165,11 @@ class _LoginPageState extends State<LoginPage> {
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
-                            signUserIn(context, value.name!);
+                            // Get the UserProvider instance
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
+  // Update the user's data in the provider
+  userProvider.updateUserData(value.uid!, value.name!, value.token!);
+                            signUserIn(context, value.name!, value.uid!, value.token!);
 
                             //if not, return value below
                           } else if (value.error != null) {
