@@ -6,6 +6,7 @@ import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
@@ -34,7 +35,7 @@ class RemoteService {
 
   Future<String> getLocationName(double latitude, double longitude) async {
     final cacheKey = '$latitude,$longitude';
-    String apiKey = '';
+    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
 
     // Check if location is already in cache
     if (_locationCache.containsKey(cacheKey)) {
@@ -42,7 +43,6 @@ class RemoteService {
     }
 
     // apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
-    apiKey = Platform.environment['GOOGLE_MAPS_API_KEY'] ?? '';
 
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';

@@ -5,6 +5,7 @@ import 'package:capstone_project/pages/map.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class LocationInput extends StatefulWidget {
@@ -19,11 +20,9 @@ class LocationInput extends StatefulWidget {
 }
 
 class _LocationInputState extends State<LocationInput> {
+  String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
   PlaceLocation? _pickedLocation;
   var _isGettingLocation = false;
-
-  final apiKey = 'AIzaSyASFVu9SBYHG2TUxFRs3ArQrv8phoWMjDo';
-
   String get locationImage {
     if (_pickedLocation == null) {
       return '';
