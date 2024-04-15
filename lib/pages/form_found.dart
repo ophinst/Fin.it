@@ -1,9 +1,16 @@
+import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:capstone_project/components/form_categories.dart';
+import 'package:capstone_project/models/category.dart';
+import 'package:capstone_project/models/place.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/search_loc.dart';
-import 'package:capstone_project/components/radio.dart';
+import 'package:intl/intl.dart';
+import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/components/widgets/location_input.dart';
+import 'package:provider/provider.dart';
+import 'package:capstone_project/models/user_provider.dart';
 
 class FormFound extends StatefulWidget {
   const FormFound({super.key});
@@ -13,7 +20,38 @@ class FormFound extends StatefulWidget {
 }
 
 class _FormFoundState extends State<FormFound> {
-  DateTime dateTime = DateTime.now();
+  List<String> getCategories() {
+    return Categories.values.map((e) => e.toString().split('.').last).toList();
+  }
+
+  final _formKey = GlobalKey<FormState>();
+  var _itemName = '';
+  var _itemDescription = '';
+  var _foundDate = DateTime.now();
+  var _foundTime = DateTime.now();
+  var _category = Categories.Phone.toString().split('.').last;
+  PlaceLocation? _placeLocation;
+
+  void _saveItem() {
+    final token = Provider.of<UserProvider>(context, listen: false).token;
+    if (_formKey.currentState!.validate() && token != null) {
+      _formKey.currentState!.save();
+      String formattedDate = DateFormat('yyyy-MM-dd').format(_foundDate);
+      String formattedTime = DateFormat('HH:mm:ss').format(_foundTime);
+      FoundModel foundItem = FoundModel(
+        itemName: _itemName,
+        itemDescription: _itemDescription,
+        foundDate: formattedDate,
+        foundTime: formattedTime.toString(),
+        category: _category,
+        placeLocation: _placeLocation!,
+      );
+      RemoteService().saveFoundItem(token, foundItem);
+    } else {
+      print('token is null');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,13 +60,13 @@ class _FormFoundState extends State<FormFound> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
             size: 20,
           ),
         ),
-        title: Text(
+        title: const Text(
           'Back',
           style: TextStyle(),
         ),
@@ -36,13 +74,14 @@ class _FormFoundState extends State<FormFound> {
       body: ListView(
         children: [
           Form(
+            key: _formKey,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
                 // mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
@@ -52,19 +91,20 @@ class _FormFoundState extends State<FormFound> {
                       labelText: "Input Name Here",
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.black, width: 3),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 3),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                             color: Color.fromRGBO(43, 52, 153, 1), width: 3),
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
-                  Text(
+                  const Text(
                     "Item Name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
@@ -74,19 +114,32 @@ class _FormFoundState extends State<FormFound> {
                       labelText: "Input Item Name Here",
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.black, width: 3),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 3),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                             color: Color.fromRGBO(43, 52, 153, 1), width: 3),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim().length <= 1 ||
+                          value.trim().length > 50) {
+                        return 'Must be between 1 and 50 characters';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _itemName = value!;
+                    },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
-                  Text(
+                  const Text(
                     "Broadcast Massages",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
@@ -98,93 +151,175 @@ class _FormFoundState extends State<FormFound> {
                       labelText: "Massages...",
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.black, width: 3),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 3),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                             color: Color.fromRGBO(43, 52, 153, 1), width: 3),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim().length <= 1 ||
+                          value.trim().length > 150) {
+                        return 'Must be between 1 and 150 characters';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _itemDescription = value!;
+                    },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
-                  Text(
+                  const Text(
                     "Date",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   Center(
                     child: CupertinoButton(
                       child: Text(
-                        "${dateTime.day}-${dateTime.month}-${dateTime.year}",
-                        style: TextStyle(fontSize: 22),
+                        "${_foundDate.day}-${_foundDate.month}-${_foundDate.year}",
+                        style: const TextStyle(fontSize: 22),
                       ),
                       onPressed: () {
                         showCupertinoModalPopup(
-                            context: context,
-                            builder: (context) {
-                              return Container(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.4,
-                                color: Colors.white,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text(
-                                        "Done",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
-                                            fontSize: 15),
-                                      ),
+                          context: context,
+                          builder: (context) {
+                            return Container(
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              color: Colors.white,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      "Done",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 15),
                                     ),
-                                    Expanded(
-                                      child: CupertinoDatePicker(
-                                        backgroundColor: Colors.white,
-                                        initialDateTime: dateTime,
-                                        onDateTimeChanged: (DateTime newTime) {
-                                          setState(() => dateTime = newTime);
-                                        },
-                                        use24hFormat: true,
-                                        mode: CupertinoDatePickerMode.date,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              );
-                            });
+                                  ),
+                                  Expanded(
+                                    child: CupertinoDatePicker(
+                                      backgroundColor: Colors.white,
+                                      initialDateTime: _foundDate,
+                                      onDateTimeChanged: (DateTime newTime) {
+                                        setState(() => _foundDate = newTime);
+                                      },
+                                      use24hFormat: true,
+                                      mode: CupertinoDatePickerMode.date,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                       },
                     ),
                   ),
-                  SizedBox(
+                  const Text(
+                    "Time",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  Center(
+                    child: CupertinoButton(
+                      child: Text(
+                        "${_foundTime.hour}:${_foundTime.minute}",
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      onPressed: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return Container(
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              color: Colors.white,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      "Done",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 15),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: CupertinoDatePicker(
+                                      backgroundColor: Colors.white,
+                                      initialDateTime: _foundDate,
+                                      onDateTimeChanged: (DateTime newTime) {
+                                        setState(() => _foundTime = newTime);
+                                      },
+                                      use24hFormat: true,
+                                      mode: CupertinoDatePickerMode.time,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(
                     height: 10,
                   ),
-                  Text(
+                  const Text(
                     "Categories",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                  FilterCategories(),
-                  SizedBox(
+                  DropdownButtonFormField<String>(
+                    value: _category,
+                    icon: const Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _category = newValue!;
+                      });
+                    },
+                    items: getCategories()
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     "Last Location",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         width: MediaQuery.of(context).size.width * 10,
-                        height: MediaQuery.of(context).size.height * 0.224,
+                        height: 300,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               blurRadius: 10,
                               color: Color(0x33000000),
@@ -193,49 +328,31 @@ class _FormFoundState extends State<FormFound> {
                           ],
                           borderRadius: BorderRadius.circular(7),
                         ),
-                        child: Column(children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.87,
-                            height: MediaQuery.of(context).size.height * 0.12,
-                            decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius: BorderRadius.circular(7),
+                        child: Column(
+                          children: [
+                            LocationInput(
+                              onSelectLocation: (location) {
+                                _placeLocation = location;
+                              },
                             ),
-                            child: Center(
-                              child: Text(
-                                'NANTI INI MAP',
-                                style: TextStyle(color: Colors.white),
-                              ),
+                            const SizedBox(
+                              height: 10,
                             ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SrcLoc(),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ]),
+                            const SrcLoc(),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   MyButton(
                     buttonText: 'UPLOAD',
-                    onTap: () {
-                      // Call the signUserIn method and pass the context
-                      //DO UPLOAD
-                      final snackBar = SnackBar(
-                        content: Text(
-                          'Upload Complete',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        backgroundColor: Colors.green,
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    },
+                    onTap: _saveItem,
                   ),
                   const SizedBox(
                     height: 24,

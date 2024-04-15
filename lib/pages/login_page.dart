@@ -166,10 +166,14 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                             // Get the UserProvider instance
-  final userProvider = Provider.of<UserProvider>(context, listen: false);
-  // Update the user's data in the provider
-  userProvider.updateUserData(value.uid!, value.name!, value.token!);
-                            signUserIn(context, value.name!, value.uid!, value.token!);
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            // Update the user's data in the provider
+                            userProvider.updateUserData(
+                                value.uid!, value.name!, value.token!);
+                            signUserIn(
+                                context, value.name!, value.uid!, value.token!);
 
                             //if not, return value below
                           } else if (value.error != null) {
