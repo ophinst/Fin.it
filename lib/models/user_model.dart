@@ -1,11 +1,13 @@
+import 'dart:ffi';
+
 class User {
   final String uid;
   final String name;
   final String email;
   final String? phoneNumber;
   final String? image;
-  final String? balance;
-  final String? points;
+  final double? balance;
+  final int? points;
   final DateTime createdAt;
   final DateTime updatedAt;
 

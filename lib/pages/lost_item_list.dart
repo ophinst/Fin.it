@@ -29,7 +29,7 @@ class _LostItemListState extends State<LostItemList> {
   bool isExtend = false;
 
   int currentPage = 1;
-  int itemsPerPage = 10; // Number of items per page
+  int itemsPerPage = 30; // Number of items per page
 
   String? selectedCategory;
 
@@ -57,6 +57,7 @@ class _LostItemListState extends State<LostItemList> {
 
   void getData() async {
     var data = await RemoteService().getLostItems();
+    print(data);
     if (mounted) {
       setState(() {
         isLoaded = true;

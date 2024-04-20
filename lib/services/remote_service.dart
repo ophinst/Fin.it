@@ -5,13 +5,14 @@ import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:http/http.dart' as http;
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:io';
 
 class RemoteService {
   final Map<String, String> _locationCache = {};
+  // final String url = "http://localhost:8080/api";
   final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
 
   Future<dynamic> getLostItems() async {
@@ -38,16 +39,20 @@ class RemoteService {
       return _locationCache[cacheKey]!;
     }
 
-    String apiKey = '';
+    String? apiKey;
+    // await dotenv.load(fileName: ".env");
+    apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ??
+        ''; // Providing an empty string as default value
 
-    // apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
-    apiKey = Platform.environment['GOOGLE_MAPS_API_KEY'] ?? '';
+    // apiKey = Platform.environment['GOOGLE_MAPS_API_KEY'] ?? '';
 
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
+      print('=================');
+      print(apiKey);
       final decodedResponse = json.decode(response.body);
       final results = decodedResponse['results'];
       if (results != null && results.isNotEmpty) {
@@ -64,7 +69,7 @@ class RemoteService {
     var client = http.Client();
 
     var uri =
-        Uri.parse('https://finit-api-ahawuso3sq-et.a.run.app/api/lost/$lostId');
+        Uri.parse('$url/lost/$lostId');
     var response = await client.get(uri);
     if (response.statusCode == 200) {
       var json = response.body;
@@ -160,61 +165,59 @@ class RemoteService {
     return null;
   }
 
-  // Future<List<Chat>> getChats(String userId, String token) async {
-  //   var client = http.Client();
-
-  //   var uri = Uri.parse('$url/chat/$userId');
-  //   var response = await client.get(
-  //     uri,
-  //     headers: {
-  //       HttpHeaders.authorizationHeader: 'Bearer $token',
-  //     },
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     var jsonData = jsonDecode(response.body);
-  //     var chatData = jsonData['data'] as List<dynamic>;
-  //     return chatData.map((json) => Chat.fromJson(json)).toList();
-  //   } else {
-  //     print('Failed to fetch chats: ${response.statusCode}');
-  //     throw Exception('Failed to fetch chats: ${response.statusCode}');
-  //   }
-  // }
-
   Future<Map<String, dynamic>> getChats(String token) async {
-  var client = http.Client();
+    var client = http.Client();
 
-  var uri = Uri.parse('$url/chat');
-  var response = await client.get(
-    uri,
-    headers: {
-      HttpHeaders.authorizationHeader: 'Bearer $token',
-    },
-  );
+    var uri = Uri.parse('$url/chat');
+    var response = await client.get(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    var jsonData = jsonDecode(response.body);
-    return jsonData;
-  } else {
-    print('Failed to fetch chats: ${response.statusCode}');
-    throw Exception('Failed to fetch chats: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print('Failed to fetch chats: ${response.statusCode}');
+      throw Exception('Failed to fetch chats: ${response.statusCode}');
+    }
   }
-}
 
-Future<List<Message>> getMessages(String chatId) async {
-  var client = http.Client();
+  Future<List<Message>> getMessages(String chatId) async {
+    var client = http.Client();
 
-  var uri = Uri.parse('$url/message/$chatId');
-  var response = await client.get(uri);
+    var uri = Uri.parse('$url/message/$chatId');
+    var response = await client.get(uri);
 
-  if (response.statusCode == 200) {
-    var jsonData = jsonDecode(response.body);
-    var messageData = jsonData['data'] as List<dynamic>;
-    return messageData.map((json) => Message.fromJson(json)).toList();
-  } else {
-    print('Failed to fetch messages: ${response.statusCode}');
-    throw Exception('Failed to fetch messages: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      var messageData = jsonData['data'] as List<dynamic>;
+      return messageData.map((json) => Message.fromJson(json)).toList();
+    } else {
+      print('Failed to fetch messages: ${response.statusCode}');
+      throw Exception('Failed to fetch messages: ${response.statusCode}');
+    }
   }
-}
 
+  Future<void> sendMessage(String chatId, String token, String message) async {
+    var uri = Uri.parse('$url/message/$chatId');
+
+    final response = await http.post(
+      uri,
+      headers: <String, String>{
+        HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+      body: jsonEncode({'message': message}),
+    );
+
+    if (response.statusCode == 201) {
+      print('Message sent successfully');
+    } else {
+      print('Failed to send message: ${response.statusCode}');
+      throw Exception('Failed to send message: ${response.statusCode}');
+    }
+  }
 }

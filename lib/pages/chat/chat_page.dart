@@ -1,11 +1,11 @@
 import 'package:capstone_project/models/message_model.dart';
-import 'package:capstone_project/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/chat_box.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:provider/provider.dart';
 import 'package:capstone_project/models/user_provider.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -18,6 +18,8 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController searchController = TextEditingController();
   List<ChatBox> chatBoxes = []; // List to store ChatBox widgets
   List<ChatBox> filteredChatBoxes = []; // List to store filtered ChatBox widgets
+  IO.Socket? socket;
+  
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -39,123 +41,134 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  // Define a callback function that calls fetchChats
+  void onChatPageRefresh() {
+    fetchChats();
+  }
+
   Future<void> fetchChats() async {
-  try {
-    // Check if data has already been loaded
-    if (isLoaded) {
-      // If data has been loaded, use cached data
-      setState(() {
-        filteredChatBoxes = List.from(chatBoxes);
-        isLoading = false;
-      });
-      return;
-    }
-
-    // Set isLoading to true to show circular progress indicator
-    setState(() {
-      isLoading = true;
-    });
-
-    // Retrieve token and user ID from the user provider
-    final token = Provider.of<UserProvider>(context, listen: false).token;
-    final uid = Provider.of<UserProvider>(context, listen: false).uid;
-
-    // Ensure token is not null before proceeding
-    if (token != null) {
-      // Create an instance of RemoteService
-      RemoteService remoteService = RemoteService();
-
-      // Call the getChats function
-      final dynamic response = await remoteService.getChats(token);
-
-      // Extract list of chat objects from the response
-      final List<dynamic>? chatData = response['data'];
-
-      if (chatData != null) {
-        // Clear previous chat boxes
-        setState(() {
-          chatBoxes.clear();
-          filteredChatBoxes.clear(); // Clear filtered chat boxes
-        });
-
-        // Iterate over chat objects and create ChatBox widgets
-        for (var chat in chatData) {
-          final List<dynamic>? members = chat['members'];
-
-          if (members != null && uid != null) {
-            // Filter out member IDs that are not equal to the UID
-            final filteredMembers =
-                members.where((memberId) => memberId != uid).toList();
-
-            // Fetch user name and image for the first member ID
-            String memberName = '';
-            String memberImage = '';
-            String recentMessage = '';
-            String recentMessageCreatedAt = '';
-
-            if (filteredMembers.isNotEmpty) {
-              final user =
-                  await remoteService.getUserById(filteredMembers.first);
-              if (user != null) {
-                memberName = user.name;
-                memberImage = user.image ??
-                    'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
-              }
-            }
-
-            // Get the most recent message and its creation date
-            final List<Message>? messagesResponse =
-                await remoteService.getMessages(chat['chatId']);
-            if (messagesResponse != null && messagesResponse.isNotEmpty) {
-              // Sort messages by creation date in descending order
-              messagesResponse
-                  .sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-              final Message recentMessageObject = messagesResponse.first;
-              recentMessage = recentMessageObject.message;
-              recentMessageCreatedAt = recentMessageObject.createdAt.toString(); // Format the creation date
-            }
-
-            // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
-            final chatBox = ChatBox(
-              chatId: chat['chatId'],
-              memberName: memberName,
-              memberImage: memberImage,
-              recentMessage: recentMessage,
-              recentMessageCreatedAt: recentMessageCreatedAt,
-            );
-
-            // Add chatBox to chatBoxes list
-            chatBoxes.add(chatBox);
-          }
-        }
-
-        // Sort chatBoxes based on recentMessageCreatedAt
-        chatBoxes.sort((a, b) =>
-            b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
-
-        // Assign chatBoxes to filteredChatBoxes
+    try {
+      // Check if data has already been loaded
+      if (isLoaded) {
+        // If data has been loaded, use cached data
         setState(() {
           filteredChatBoxes = List.from(chatBoxes);
-          isLoaded = true; // Set isLoaded to true
+          isLoading = false;
         });
-      } else {
-        print('No chat data found');
+        return;
       }
-    } else {
-      print('Token is null');
+
+      // Set isLoading to true to show circular progress indicator
+      setState(() {
+        isLoading = true;
+      });
+
+      // Retrieve token and user ID from the user provider
+      final token = Provider.of<UserProvider>(context, listen: false).token;
+      final uid = Provider.of<UserProvider>(context, listen: false).uid;
+
+      // Ensure token is not null before proceeding
+      if (token != null) {
+        // Create an instance of RemoteService
+        RemoteService remoteService = RemoteService();
+
+        // Call the getChats function
+        final dynamic response = await remoteService.getChats(token);
+
+        // Extract list of chat objects from the response
+        final List<dynamic>? chatData = response['data'];
+
+        // print(chatData);
+
+        if (chatData != null) {
+          // Clear previous chat boxes
+          setState(() {
+            chatBoxes.clear();
+            filteredChatBoxes.clear(); // Clear filtered chat boxes
+          });
+
+          // Iterate over chat objects and create ChatBox widgets
+          for (var chat in chatData) {
+            final List<dynamic>? members = chat['members'];
+
+            if (members != null && uid != null) {
+              // Filter out member IDs that are not equal to the UID
+              final filteredMembers =
+                  members.where((memberId) => memberId != uid).toList();
+
+              // print(filteredMembers.first);
+
+              // Fetch user name and image for the first member ID
+              String memberId = filteredMembers.first;
+              String memberName = '';
+              String memberImage = '';
+              String recentMessage = '';
+              String recentMessageCreatedAt = '';
+
+              if (filteredMembers.isNotEmpty) {
+                final user =
+                    await remoteService.getUserById(filteredMembers.first);
+                if (user != null) {
+                  memberName = user.name;
+                  memberImage = user.image ??
+                      'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
+                }
+              }
+
+              // Get the most recent message and its creation date
+              final List<Message>? messagesResponse =
+                  await remoteService.getMessages(chat['chatId']);
+              if (messagesResponse != null && messagesResponse.isNotEmpty) {
+                // Sort messages by creation date in descending order
+                messagesResponse
+                    .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                final Message recentMessageObject = messagesResponse.first;
+                recentMessage = recentMessageObject.message;
+                recentMessageCreatedAt = recentMessageObject.createdAt.toString(); // Format the creation date
+                    // print(recentMessageObject.createdAt);
+              }
+
+              // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
+              final chatBox = ChatBox(
+                chatId: chat['chatId'],
+                memberId: memberId,
+                memberName: memberName,
+                memberImage: memberImage,
+                recentMessage: recentMessage,
+                recentMessageCreatedAt: recentMessageCreatedAt,
+                socket: socket,
+              );
+
+              // Add chatBox to chatBoxes list
+              chatBoxes.add(chatBox);
+            }
+          }
+
+          // Sort chatBoxes based on recentMessageCreatedAt
+          chatBoxes.sort((a, b) =>
+              b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+
+          // Assign chatBoxes to filteredChatBoxes
+          setState(() {
+            filteredChatBoxes = List.from(chatBoxes);
+            isLoaded = true; // Set isLoaded to true
+          });
+        } else {
+          print('No chat data found');
+        }
+      } else {
+        print('Token is null');
+      }
+    } catch (e) {
+      print('Error fetching chats: $e');
+    } finally {
+      // Set isLoading to false to hide circular progress indicator
+      setState(() {
+        isLoading = false;
+      });
     }
-  } catch (e) {
-    print('Error fetching chats: $e');
-  } finally {
-    // Set isLoading to false to hide circular progress indicator
-    setState(() {
-      isLoading = false;
-    });
   }
-}
-
-
 
   // Search function to filter chat boxes by member name or recent message
   void searchChats(String query) {
@@ -168,11 +181,61 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void setOnlineUsers(users) {
+    // Handle online users received from socket
+    // Update state or perform other actions as needed
+    // print(users);
+    setState(() {
+      // Update online users state
+    });
+  }
+
+  Future<void> initializeSocket() async {
+  try {
+    // Initialize socket.io connection
+    socket = IO.io('https://finit-api-ahawuso3sq-et.a.run.app', IO.OptionBuilder().setTransports(['websocket']).build());
+    // Connect to the socket
+    await socket!.connect();
+    print('Socket connected');
+    // Emit 'new-user-add' event with user ID
+    final uid = Provider.of<UserProvider>(context, listen: false).uid;
+    socket!.emit("new-user-add", uid);
+    // Listen for 'get-users' event
+    socket!.on('get-users', (users) {
+      setOnlineUsers(users);
+    });
+    socket!.on("receive-message", (data){
+      fetchData();
+    });
+  } catch (e) {
+    print('Failed to connect to socket: $e');
+  }
+}
+
+Future<void> fetchData() async {
+  try {
+    // Set isLoading to true to show loading indicator
+    setState(() {
+      isLoading = true;
+    });
+    // Fetch chat data
+    await fetchChats();
+  } catch (e) {
+    print('Error fetching data: $e');
+  } finally {
+    // Set isLoading to false after fetching data
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
   @override
   void initState() {
-    super.initState();
-    fetchChats();
-  }
+  super.initState();
+  initializeSocket();
+  fetchData();
+}
 
   @override
   Widget build(BuildContext context) {

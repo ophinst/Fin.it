@@ -1,47 +1,50 @@
-import 'package:capstone_project/pages/chat/conversation_page.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeAgo;
+import 'package:capstone_project/pages/chat/conversation_page.dart';
+
+typedef void ChatRefreshCallback();
 
 class ChatBox extends StatelessWidget {
+  final ChatRefreshCallback? onChatRefresh;
   final String chatId;
+  final String memberId;
   final String memberName;
   final String memberImage;
   final String recentMessage;
   final String recentMessageCreatedAt;
+  final VoidCallback? fetchChats;
+  final IO.Socket? socket; // Accept socket object
   const ChatBox({
     Key? key,
+    this.onChatRefresh,
     required this.chatId,
+    required this.memberId,
     required this.memberName,
     required this.memberImage,
     required this.recentMessage,
     required this.recentMessageCreatedAt,
+    this.fetchChats,
+    this.socket, // Include socket object in the constructor
   }) : super(key: key);
-
-  String formatCreatedAt(String createdAt) {
-    // Parse the createdAt string into a DateTime object
-    final createdAtDateTime = DateTime.parse(createdAt);
-
-    // Calculate the difference between the createdAt time and the current device time
-    final difference = DateTime.now().difference(createdAtDateTime);
-
-    // Check if the difference is less than 24 hours
-    if (difference.inHours < 24) {
-      // Display only the time in hour and minutes
-      return '${createdAtDateTime.hour.toString().padLeft(2, '0')}:${createdAtDateTime.minute.toString().padLeft(2, '0')}';
-    } else {
-      // Display just the date and month
-      return '${createdAtDateTime.day.toString().padLeft(2, '0')}-${createdAtDateTime.month.toString().padLeft(2, '0')}';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    // Parse recentMessageCreatedAt to DateTime
+    DateTime createdAtDateTime = DateTime.parse(recentMessageCreatedAt);
+
+    // Format the difference between createdAtDateTime and current time using timeago
+    String formattedTimeAgo =
+        timeAgo.format(createdAtDateTime, locale: 'en_short');
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ConversationPage(
             chatId: chatId,
+            memberId: memberId,
             memberName: memberName,
-            // memberImage: memberImage,
+            memberImage: memberImage,
+            // socket: socket, // Pass the socket object to ConversationPage
           ),
         ));
       },
@@ -97,7 +100,7 @@ class ChatBox extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      formatCreatedAt(recentMessageCreatedAt),
+                      formattedTimeAgo,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
