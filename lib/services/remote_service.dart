@@ -1,11 +1,13 @@
 import 'dart:convert';
-import 'package:capstone_project/models/chat_model.dart';
+import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/message_model.dart';
+import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -33,18 +35,12 @@ class RemoteService {
 
   Future<String> getLocationName(double latitude, double longitude) async {
     final cacheKey = '$latitude,$longitude';
+    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
 
     // Check if location is already in cache
     if (_locationCache.containsKey(cacheKey)) {
       return _locationCache[cacheKey]!;
     }
-
-    String? apiKey;
-    // await dotenv.load(fileName: ".env");
-    apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ??
-        ''; // Providing an empty string as default value
-
-    // apiKey = Platform.environment['GOOGLE_MAPS_API_KEY'] ?? '';
 
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
@@ -219,5 +215,68 @@ class RemoteService {
       print('Failed to send message: ${response.statusCode}');
       throw Exception('Failed to send message: ${response.statusCode}');
     }
+  }
+
+  Future<void> saveFoundItem(String token, FoundModel foundItem) async {
+    final foundToken = token;
+    final url = Uri.https(
+      'finit-api-ahawuso3sq-et.a.run.app',
+      '/api/found',
+    );
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $foundToken',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(foundItem.toJson()),
+    );
+    print(response.body);
+    print(response.statusCode);
+  }
+
+  Future<void> saveLostItem(String token, LostModel lostItem) async {
+    final lostToken = token;
+    final url = Uri.https(
+      'finit-api-ahawuso3sq-et.a.run.app',
+      '/api/lost',
+    );
+
+    var request = http.MultipartRequest('POST', url)
+      ..headers.addAll({
+        'Authorization': 'Bearer $lostToken',
+        'Content-Type': 'application/json',
+      })
+      ..fields.addAll({
+        'itemName': lostItem.itemName,
+        'itemDescription': lostItem.itemDescription,
+        'lostDate': lostItem.lostDate,
+        'lostTime': lostItem.lostTime,
+        'category': lostItem.category,
+        'latitude': lostItem.placeLocation.latitude.toString(),
+        'longitude': lostItem.placeLocation.longitude.toString(),
+        'locationDetail': lostItem.placeLocation.locationDetail,
+      })
+      ..files.add(await http.MultipartFile.fromPath(
+        'image',
+        lostItem.image,
+        contentType: MediaType('image', 'jpg'),
+      ));
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      print("Upload successful");
+    } else {
+      print("Upload failed");
+    }
+
+    response.stream.listen((value) {
+      String responseBody = String.fromCharCodes(value);
+      print("Response body: $responseBody");
+
+      Map<String, dynamic> responseJson = json.decode(responseBody);
+      print("Message from server: ${responseJson['message']}");
+    });
   }
 }
