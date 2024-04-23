@@ -1,9 +1,9 @@
 import 'package:capstone_project/components/found_item_list_card.dart';
+import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
-import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
-import 'package:capstone_project/components/filter_categories.dart';
 
 class FoundItemList extends StatefulWidget {
   const FoundItemList({super.key});
@@ -16,6 +16,26 @@ class _FoundItemListState extends State<FoundItemList> {
   void lostForm(BuildContext context) {
     // Navigate to the HomePage
     Navigator.pushNamed(context, '/add-lost');
+  }
+
+  List<GetFoundModel> data = [];
+  final RemoteService _remoteService = RemoteService();
+
+  fetchData() async {
+    try {
+      List<GetFoundModel> fetchedData = await _remoteService.fetchFoundItems();
+      setState(() {
+        data = fetchedData;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
   }
 
   bool isExtend = false;
@@ -80,17 +100,14 @@ class _FoundItemListState extends State<FoundItemList> {
           const SizedBox(
             height: 10,
           ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Column(
-                children: [
-                  // FilterCategories(),
-                ],
-              ),
-            ],
+          Expanded(
+            child: ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return FoundItemListCard(foundItem: data[index]);
+              },
+            ),
           ),
-          const FoundItemListCard(),
         ],
       ),
       floatingActionButton: isExtend
