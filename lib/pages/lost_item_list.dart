@@ -3,7 +3,6 @@ import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/search_bar.dart';
-import 'package:flutter/rendering.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
 import 'package:capstone_project/components/filter_categories.dart';
@@ -25,7 +24,7 @@ class _LostItemListState extends State<LostItemList> {
   List<Datum>? displayedLosts; // Store the currently displayed page data
   var isLoaded = false;
 
-  ScrollController _scrollController = new ScrollController();
+  final ScrollController _scrollController = ScrollController();
   bool isExtend = false;
 
   int currentPage = 1;
@@ -158,17 +157,17 @@ class _LostItemListState extends State<LostItemList> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 12),
           child: Icon(
             Icons.arrow_back,
             color: Colors.black,
             size: 35,
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: EdgeInsets.only(right: 12),
             child: Text(
               'LOST & FOUND',
               style: TextStyle(
@@ -186,8 +185,8 @@ class _LostItemListState extends State<LostItemList> {
           children: <Widget>[
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(
+                const Padding(
+                  padding: EdgeInsets.only(
                     left: 25,
                     top: 25,
                   ),
@@ -201,7 +200,7 @@ class _LostItemListState extends State<LostItemList> {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 12,
                 ),
                 //show search bar component
@@ -212,7 +211,7 @@ class _LostItemListState extends State<LostItemList> {
             ),
             //underline
             Container(
-              margin: EdgeInsets.only(left: 25, top: 10, right: 25),
+              margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
               height: 2,
               color: Colors.black,
             ),

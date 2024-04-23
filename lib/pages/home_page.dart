@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_const
 
+import 'package:capstone_project/components/drawer.dart';
+import 'package:capstone_project/pages/profile.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +27,6 @@ class _HomePageState extends State<HomePage> {
     _getUserLocation(); // Call the method to get the user's location
   }
 
-
   // Method to get the user's current location
   void _getUserLocation() async {
     // Check if location permissions are granted
@@ -47,6 +48,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  //navigate to profile page
+  void goToProfile() {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -54,6 +65,26 @@ class _HomePageState extends State<HomePage> {
     final String _name = userProvider.name ?? "Unknown";
     return Scaffold(
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 20),
+            child: Text(
+              'LOST & FOUND',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'JosefinSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+      drawer: MyDrawer(
+        onProfileTap: goToProfile,
+      ),
       body: SingleChildScrollView(
         controller: ScrollController(),
         child: SafeArea(
@@ -61,24 +92,25 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(13.0),
             child: Column(
               children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(
-                      Icons.account_circle_outlined,
-                      color: Colors.black,
-                      size: 40,
-                    ),
-                    Text(
-                      'LOST & FOUND',
-                      style: TextStyle(
-                        fontFamily: 'josefinSans',
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     IconButton(
+                //       icon: const Icon(
+                //         Icons.account_circle_outlined,
+                //         color: Colors.black,
+                //         size: 40,
+                //       ),
+                //       onPressed: () {
+                //         Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //               builder: (context) => const ProfilePage()),
+                //         );
+                //       },
+                //     ),
+                //   ],
+                // ),
                 const SizedBox(
                   height: 5,
                 ),
