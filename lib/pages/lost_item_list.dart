@@ -180,183 +180,184 @@ class _LostItemListState extends State<LostItemList> {
         ],
       ),
       body: ListView(
-          controller: _scrollController,
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(
-                    left: 25,
-                    top: 25,
+        controller: _scrollController,
+        // crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 25,
+                  top: 25,
+                ),
+                child: Text(
+                  'Found Something?',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'JosefinSans',
                   ),
-                  child: Text(
-                    'Found Something?',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'JosefinSans',
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 12,
-                ),
-                //show search bar component
-                SrcBar(
-                    searchController: searchController,
-                    onSearch: searchLostItems),
-              ],
-            ),
-            //underline
-            Container(
-              margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
-              height: 2,
-              color: Colors.black,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  children: [
-                    FilterCategories(
-                      onCategoryChanged: handleCategoryChanged,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Visibility(
-                visible: isLoaded,
-                child: GridView.builder(
-                  itemCount: displayedLosts?.length ?? 0,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.0,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10),
-                  itemBuilder: (context, index) {
-                    final latitude = double.parse(displayedLosts![index]
-                        .latitude); // Convert latitude to double
-                    final longitude =
-                        double.parse(displayedLosts![index].longitude);
-                    final lostId =
-                        displayedLosts![index].lostId; // Retrieve lostId
-                    return FutureBuilder<String>(
-                      future:
-                          RemoteService().getLocationName(latitude, longitude),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          // Show error message if an error occurs
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          // Display the item with its location name
-                          final locationName = snapshot.data;
-                          return InkWell(
-                            onTap: () {
-                              // Redirect to the LostItemPage passing the lostId
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LostItemPage(
-                                    lostId:
-                                        lostId, // Pass the lostId to the LostItemPage
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 10),
-                              decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 10,
-                                      color: Color(0x33000000),
-                                      offset: Offset(0, 0),
-                                    ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.white),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    child: Image.network(
-                                      displayedLosts![index].itemImage,
-                                      width: 100,
-                                      height: 100,
-                                      loadingBuilder: (BuildContext context,
-                                          Widget child,
-                                          ImageChunkEvent? loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        } else {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      errorBuilder: (BuildContext context,
-                                          Object exception,
-                                          StackTrace? stackTrace) {
-                                        return Text('Failed to load image');
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    displayedLosts![index].itemName,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 1),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_pin),
-                                      SizedBox(width: 5),
-                                      Expanded(
-                                        child: Text(
-                                          locationName ?? 'Location not found',
-                                          style: TextStyle(fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-                replacement: const Center(
-                  child: CircularProgressIndicator(),
                 ),
               ),
+              const SizedBox(
+                width: 12,
+              ),
+              //show search bar component
+              SrcBar(
+                  searchController: searchController,
+                  onSearch: searchLostItems),
+            ],
+          ),
+          //underline
+          Container(
+            margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
+            height: 2,
+            color: Colors.black,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                children: [
+                  FilterCategories(
+                    onCategoryChanged: handleCategoryChanged,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Visibility(
+              visible: isLoaded,
+              child: GridView.builder(
+                itemCount: displayedLosts?.length ?? 0,
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.0,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10),
+                itemBuilder: (context, index) {
+                  final latitude = double.parse(displayedLosts![index]
+                      .latitude); // Convert latitude to double
+                  final longitude =
+                      double.parse(displayedLosts![index].longitude);
+                  final lostId =
+                      displayedLosts![index].lostId; // Retrieve lostId
+                  return FutureBuilder<String>(
+                    future:
+                        RemoteService().getLocationName(latitude, longitude),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        // Show error message if an error occurs
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        // Display the item with its location name
+                        final locationName = snapshot.data;
+                        return InkWell(
+                          onTap: () {
+                            // Redirect to the LostItemPage passing the lostId
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LostItemPage(
+                                  lostId:
+                                      lostId, // Pass the lostId to the LostItemPage
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 10),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 10,
+                                    color: Color(0x33000000),
+                                    offset: Offset(0, 0),
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white),
+                            child: Column(
+                              children: [
+                                Container(
+                                  child: Image.network(
+                                    displayedLosts![index].itemImage,
+                                    width: 100,
+                                    height: 100,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      } else {
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    errorBuilder: (BuildContext context,
+                                        Object exception,
+                                        StackTrace? stackTrace) {
+                                      return Text('Failed to load image');
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  displayedLosts![index].itemName,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 1),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_pin),
+                                    SizedBox(width: 5),
+                                    Expanded(
+                                      child: Text(
+                                        locationName ?? 'Location not found',
+                                        style: TextStyle(fontSize: 12),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+              replacement: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          ]),
+          ),
+        ],
+      ),
       floatingActionButton: isExtend
           ? MyCompose(
               onTap: () {
