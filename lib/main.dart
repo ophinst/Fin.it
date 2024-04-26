@@ -33,8 +33,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'josefinSans',
         ),
         debugShowCheckedModeBanner: false,
-        // home: LoginPage(),
-        home: VoucherDetail(),
+        home: LoginPage(),
         initialRoute: '/',
         routes: {
           '/home': (context) => HomeScreen(),
