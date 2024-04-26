@@ -13,23 +13,46 @@ class FoundItemList extends StatefulWidget {
 }
 
 class _FoundItemListState extends State<FoundItemList> {
-  void lostForm(BuildContext context) {
+  void foundForm(BuildContext context) {
     // Navigate to the HomePage
-    Navigator.pushNamed(context, '/add-lost');
+    Navigator.pushNamed(context, '/add-found');
   }
 
   List<GetFoundModel> data = [];
+  var counter = 1;
   final RemoteService _remoteService = RemoteService();
+  bool isLoading = true;
 
   fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      List<GetFoundModel> fetchedData = await _remoteService.fetchFoundItems();
+      List<List<GetFoundModel>> fetchedData =
+          await _remoteService.fetchFoundItems(counter);
       setState(() {
-        data = fetchedData;
+        data = fetchedData[0];
+
+        if (fetchedData[1].isEmpty) {
+          isExtend = false;
+        } else {
+          isExtend = true;
+        }
       });
     } catch (e) {
       print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  String formatLocationName(String locationName, {int maxLength = 35}) {
+    if(locationName.length <= maxLength) {
+      return locationName;
+    }
+    return '${locationName.substring(0, maxLength)}...';
   }
 
   @override
@@ -101,26 +124,63 @@ class _FoundItemListState extends State<FoundItemList> {
             height: 10,
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                return FoundItemListCard(foundItem: data[index]);
-              },
-            ),
+            child: isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      String formattedLocationName = formatLocationName(data[index].placeLocation.locationDetail);
+                      return FoundItemListCard(foundItem: data[index], formattedLocationName: formattedLocationName,);
+                    },
+                  ),
           ),
         ],
       ),
       floatingActionButton: isExtend
           ? MyCompose(
               onTap: () {
-                lostForm(context);
+                foundForm(context);
               },
             )
           : MyExtendedCompose(
               onTap: () {
-                lostForm(context);
+                foundForm(context);
               },
             ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: isLoading || counter <= 1
+                    ? null
+                    : () {
+                        setState(() {
+                          counter--;
+                        });
+                        fetchData();
+                      }),
+            Text(
+              'Page $counter',
+              style: const TextStyle(fontSize: 16),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward),
+              onPressed: isLoading || !isExtend
+                  ? null
+                  : () {
+                      setState(() {
+                        counter++;
+                      });
+                      fetchData();
+                    },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
