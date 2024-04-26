@@ -33,12 +33,22 @@ class RemoteService {
     }
   }
 
-  Future<List<GetFoundModel>> fetchFoundItems() async {
-    final response = await http.get(Uri.parse('$url/found'));
+  Future<List<List<GetFoundModel>>> fetchFoundItems(int counter) async {
+    final response = await http.get(Uri.parse('$url/found?page=$counter'));
 
     if (response.statusCode == 200) {
-      Iterable list = json.decode(response.body)['data'];
-      return list.map((model) => GetFoundModel.fromJson(model)).toList();
+      Iterable currentList = json.decode(response.body)['data'];
+      List<GetFoundModel> currentData = currentList.map((model) => GetFoundModel.fromJson(model)).toList();
+
+      final nextResponse = await http.get(Uri.parse('$url/found?page=${counter + 1}'));
+      if(nextResponse.statusCode == 200) {
+        Iterable nextList = json.decode(nextResponse.body)['data'];
+        List<GetFoundModel> nextData = nextList.map((model) => GetFoundModel.fromJson(model)).toList();
+
+        return [currentData, nextData];
+      } else {
+        throw Exception('Failed to load next data');
+      }
     } else {
       throw Exception('Failed to load data');
     }
