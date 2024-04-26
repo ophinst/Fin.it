@@ -1,23 +1,19 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
 import 'package:capstone_project/pages/chat/conversation_page.dart';
 
-typedef void ChatRefreshCallback();
-
-class ChatBox extends StatelessWidget {
-  final ChatRefreshCallback? onChatRefresh;
+class ChatBox extends StatefulWidget {
   final String chatId;
   final String memberId;
   final String memberName;
   final String memberImage;
-  final String recentMessage;
+  String recentMessage; // Change to non-final to allow modification
   final String recentMessageCreatedAt;
   final VoidCallback? fetchChats;
-  final IO.Socket? socket; // Accept socket object
-  const ChatBox({
+  final Function(String) updateRecentMessage; // Callback function
+
+  ChatBox({
     Key? key,
-    this.onChatRefresh,
     required this.chatId,
     required this.memberId,
     required this.memberName,
@@ -25,13 +21,25 @@ class ChatBox extends StatelessWidget {
     required this.recentMessage,
     required this.recentMessageCreatedAt,
     this.fetchChats,
-    this.socket, // Include socket object in the constructor
+    required this.updateRecentMessage, // Pass the callback function
   }) : super(key: key);
+
+  @override
+  State<ChatBox> createState() => _ChatBoxState();
+}
+
+class _ChatBoxState extends State<ChatBox> {
+
+  void updateRecentMessage(String newMessage) {
+  setState(() {
+    widget.recentMessage = newMessage;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
     // Parse recentMessageCreatedAt to DateTime
-    DateTime createdAtDateTime = DateTime.parse(recentMessageCreatedAt);
+    DateTime createdAtDateTime = DateTime.parse(widget.recentMessageCreatedAt);
 
     // Format the difference between createdAtDateTime and current time using timeago
     String formattedTimeAgo =
@@ -40,11 +48,10 @@ class ChatBox extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ConversationPage(
-            chatId: chatId,
-            memberId: memberId,
-            memberName: memberName,
-            memberImage: memberImage,
-            // socket: socket, // Pass the socket object to ConversationPage
+            chatId: widget.chatId,
+            memberId: widget.memberId,
+            memberName: widget.memberName,
+            memberImage: widget.memberImage,
           ),
         ));
       },
@@ -60,7 +67,7 @@ class ChatBox extends StatelessWidget {
                   children: [
                     ClipOval(
                       child: Image.network(
-                        memberImage,
+                        widget.memberImage,
                         width: 55,
                         height: 55,
                         fit: BoxFit.cover,
@@ -75,7 +82,7 @@ class ChatBox extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        memberName,
+                        widget.memberName,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -85,7 +92,7 @@ class ChatBox extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            recentMessage,
+                            widget.recentMessage,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 12,

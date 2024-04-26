@@ -10,6 +10,7 @@ class User {
   final int? points;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final List<String>? reward;
 
   User({
     required this.uid,
@@ -21,9 +22,13 @@ class User {
     this.points,
     required this.createdAt,
     required this.updatedAt,
+    this.reward,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    // Parse the 'reward' field as a List<String>
+    List<String> rewardList = json['reward'] != null ? List<String>.from(json['reward']) : [];
+
     return User(
       uid: json['uid'],
       name: json['name'],
@@ -34,6 +39,7 @@ class User {
       points: json['points'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      reward: rewardList,
     );
   }
 }

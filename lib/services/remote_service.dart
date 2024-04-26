@@ -208,26 +208,54 @@ class RemoteService {
     }
   }
 
-  Future<void> sendMessage(String chatId, String token, String message) async {
+Future<Message> sendMessage({
+    required String chatId,
+    required String token,
+    String? message,
+    File? imageFile,
+  }) async {
     var uri = Uri.parse('$url/message/$chatId');
 
-    final response = await http.post(
-      uri,
-      headers: <String, String>{
-        HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-      },
-      body: jsonEncode({'message': message}),
-    );
+    var request = http.MultipartRequest('POST', uri);
+
+    // Add message field
+    if (message != null) {
+      request.fields['payload'] = message;
+    }
+
+    // Add image file field
+    if (imageFile != null) {
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+
+      // Add image file to request
+      request.files.add(
+        http.MultipartFile(
+          'image',
+          stream,
+          length,
+          filename: imageFile.path.split('/').last,
+        ),
+      );
+    }
+
+    // Add authorization header
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader: 'Bearer $token',
+    });
+
+    // Send the request
+    var response = await http.Response.fromStream(await request.send());
 
     if (response.statusCode == 201) {
-      print('Message sent successfully');
+      var responseData = jsonDecode(response.body);
+      return Message.fromJson(responseData['data']);
     } else {
       print('Failed to send message: ${response.statusCode}');
       throw Exception('Failed to send message: ${response.statusCode}');
     }
   }
-
+  
   Future<void> saveFoundItem(String token, FoundModel foundItem) async {
     final foundToken = token;
     final url = Uri.https(

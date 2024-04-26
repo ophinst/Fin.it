@@ -1,4 +1,5 @@
 import 'package:capstone_project/models/message_model.dart';
+import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/chat_box.dart';
 import 'package:capstone_project/components/search_bar.dart';
@@ -17,9 +18,11 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   TextEditingController searchController = TextEditingController();
   List<ChatBox> chatBoxes = []; // List to store ChatBox widgets
-  List<ChatBox> filteredChatBoxes = []; // List to store filtered ChatBox widgets
+  List<ChatBox> filteredChatBoxes =
+      []; // List to store filtered ChatBox widgets
+
+  SocketService _socketService = SocketService(); // Use SocketService instance
   IO.Socket? socket;
-  
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -72,13 +75,17 @@ class _ChatPageState extends State<ChatPage> {
         // Create an instance of RemoteService
         RemoteService remoteService = RemoteService();
 
-        // Call the getChats function
-        final dynamic response = await remoteService.getChats(token);
+        // Call the getChats function with error handling
+        final dynamic response =
+            await remoteService.getChats(token).catchError((e) {
+          print('Error fetching chats: $e');
+          throw e; // Rethrow the error to be caught by the outer try-catch block
+        });
 
         // Extract list of chat objects from the response
         final List<dynamic>? chatData = response['data'];
 
-        // print(chatData);
+        print(chatData);
 
         if (chatData != null) {
           // Clear previous chat boxes
@@ -98,7 +105,7 @@ class _ChatPageState extends State<ChatPage> {
 
               // print(filteredMembers.first);
 
-              // Fetch user name and image for the first member ID
+              // Fetch user name and image for the first member ID with error handling
               String memberId = filteredMembers.first;
               String memberName = '';
               String memberImage = '';
@@ -106,27 +113,40 @@ class _ChatPageState extends State<ChatPage> {
               String recentMessageCreatedAt = '';
 
               if (filteredMembers.isNotEmpty) {
-                final user =
-                    await remoteService.getUserById(filteredMembers.first);
+                final user = await remoteService
+                    .getUserById(filteredMembers.first)
+                    .catchError((e) {
+                  print('Error fetching user: $e');
+                  throw e; // Rethrow the error to be caught by the outer try-catch block
+                });
                 if (user != null) {
+                  // print(user.reward);
                   memberName = user.name;
                   memberImage = user.image ??
                       'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
                 }
               }
 
-              // Get the most recent message and its creation date
-              final List<Message>? messagesResponse =
-                  await remoteService.getMessages(chat['chatId']);
+              // Get the most recent message and its creation date with error handling
+              final List<Message>? messagesResponse = await remoteService
+                  .getMessages(chat['chatId'])
+                  .catchError((e) {
+                print('Error fetching messages: $e');
+                throw e; // Rethrow the error to be caught by the outer try-catch block
+              });
               if (messagesResponse != null && messagesResponse.isNotEmpty) {
                 // Sort messages by creation date in descending order
                 messagesResponse
                     .sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
                 final Message recentMessageObject = messagesResponse.first;
-                recentMessage = recentMessageObject.message;
-                recentMessageCreatedAt = recentMessageObject.createdAt.toString(); // Format the creation date
-                    // print(recentMessageObject.createdAt);
+                if (recentMessageObject.message != null) {
+                  recentMessage = recentMessageObject.message!;
+                } else if (recentMessageObject.imageUrl != null) {
+                  recentMessage = 'Image';
+                }
+                recentMessageCreatedAt = recentMessageObject.createdAt
+                    .toString(); // Format the creation date
               }
 
               // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
@@ -137,7 +157,12 @@ class _ChatPageState extends State<ChatPage> {
                 memberImage: memberImage,
                 recentMessage: recentMessage,
                 recentMessageCreatedAt: recentMessageCreatedAt,
-                socket: socket,
+                updateRecentMessage: (message) {
+                  // Define the updateRecentMessage function here
+                  setState(() {
+                    recentMessage = message;
+                  });
+                },
               );
 
               // Add chatBox to chatBoxes list
@@ -181,61 +206,71 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void setOnlineUsers(users) {
-    // Handle online users received from socket
-    // Update state or perform other actions as needed
-    // print(users);
-    setState(() {
-      // Update online users state
-    });
-  }
-
-  Future<void> initializeSocket() async {
+  void initializeSocket() {
   try {
-    // Initialize socket.io connection
-    socket = IO.io('https://finit-api-ahawuso3sq-et.a.run.app', IO.OptionBuilder().setTransports(['websocket']).build());
-    // Connect to the socket
-    await socket!.connect();
-    print('Socket connected');
-    // Emit 'new-user-add' event with user ID
-    final uid = Provider.of<UserProvider>(context, listen: false).uid;
-    socket!.emit("new-user-add", uid);
-    // Listen for 'get-users' event
-    socket!.on('get-users', (users) {
-      setOnlineUsers(users);
-    });
-    socket!.on("receive-message", (data){
-      fetchData();
+    _socketService.initializeSocket().then((_) {
+      print('Socket connected');
+      final uid = Provider.of<UserProvider>(context, listen: false).uid;
+      _socketService.socket?.emit("new-user-add", uid);
+      _socketService.socket?.on("receive-message", (data) {
+        print(data);
+        final Map<String, dynamic> messageData = data as Map<String, dynamic>;
+        final String? receiverId = messageData['receiverId'];
+        final String? senderId = messageData['senderId'];
+        final String? message = messageData['message'];
+
+        if (receiverId == uid && senderId != uid && message != null) {
+          setState(() {
+            // Find the ChatBox with memberId equal to senderId
+            final chatBoxToUpdate = chatBoxes.firstWhere(
+              (chatBox) => chatBox.memberId == senderId,
+              orElse: () => ChatBox(
+                chatId: '', // Provide default values here
+                memberId: '',
+                memberName: '',
+                memberImage: '',
+                recentMessage: '',
+                recentMessageCreatedAt: '',
+                updateRecentMessage: (_) {}, // No-op function
+              ),
+            );
+
+            // Update the recent message in the found ChatBox
+            chatBoxToUpdate.updateRecentMessage(message);
+          });
+        }
+      });
     });
   } catch (e) {
     print('Failed to connect to socket: $e');
   }
 }
 
-Future<void> fetchData() async {
-  try {
-    // Set isLoading to true to show loading indicator
-    setState(() {
-      isLoading = true;
-    });
-    // Fetch chat data
-    await fetchChats();
-  } catch (e) {
-    print('Error fetching data: $e');
-  } finally {
-    // Set isLoading to false after fetching data
-    setState(() {
-      isLoading = false;
-    });
+
+  Future<void> fetchData() async {
+    try {
+      // Set isLoading to true to show loading indicator
+      setState(() {
+        isLoading = true;
+      });
+      // Fetch chat data
+      await fetchChats();
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      // Set isLoading to false after fetching data
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
 
   @override
   void initState() {
-  super.initState();
-  initializeSocket();
-  fetchData();
-}
+    super.initState();
+    fetchData();
+    initializeSocket();
+  }
 
   @override
   Widget build(BuildContext context) {

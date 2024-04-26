@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/pages/chat/preview_page.dart';
+import 'package:capstone_project/pages/finish_page.dart';
 import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/themes/theme.dart';
 import 'package:capstone_project/components/chat_bubble.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -30,159 +36,194 @@ class _ConversationPageState extends State<ConversationPage> {
   bool _isFocused = false;
   List<Message> _messages = []; // Store fetched messages here
 
-  final IO.Socket _socket = IO.io('https://finit-api-ahawuso3sq-et.a.run.app', IO.OptionBuilder().setTransports(['websocket']).build());
-
-  // late IO.Socket _socket;
+  SocketService _socketService = SocketService(); // Use SocketService instance
 
   RemoteService _remoteService =
       RemoteService(); // Create an instance of RemoteService
 
-
   _connectSocket() {
-    _socket.onConnect((data) => print('Connected'));
-    _socket.onConnectError((data) => print('Connect Error: $data'));
-    _socket.onDisconnect((data) => print('Disconnected'));
+    _socketService.socket?.onConnect((data) => print('Connected'));
+    _socketService.socket
+        ?.onConnectError((data) => print('Connect Error: $data'));
+    _socketService.socket?.onDisconnect((data) => print('Disconnected'));
   }
+
   // Method to initialize the socket
-//   Future<void> initializeSocket() async {
-//   try {
-//     // Initialize socket.io connection
-//     // Connect to the socket
-//     await _socket.connect();
-//     print('Socket connected');
-//     // Emit 'new-user-add' event with user ID
-//     final uid = Provider.of<UserProvider>(context, listen: false).uid;
-//     _socket.emit("new-user-add", uid);
-//     // Listen for incoming messages
-//     _socket.on("receive-message", (data) {
-//       print(data);
-//       // Fetch messages every time a new message is received
-//       _fetchMessages();
-//     });
-//   } catch (e) {
-//     print('Failed to connect to socket: $e');
-//   }
-// }
-// Method to initialize the socket
-Future<void> initializeSocket() async {
-  try {
-    // Initialize socket.io connection
-    await _socket.connect();
-    print('Socket connected');
-    // Emit 'new-user-add' event with user ID
-    final uid = Provider.of<UserProvider>(context, listen: false).uid;
-    _socket.emit("new-user-add", uid);
-    // Listen for incoming messages
-    _socket.on("receive-message", (data) {
-      print(data);
-      // Parse the received data
-      if (data is Map<String, dynamic> &&
-          data.containsKey('receiverId') &&
-          data.containsKey('message')) {
-        // Extract receiverId and message
-        String receiverId = data['receiverId'];
-        String messageText = data['message'];
-        // Check if the message is intended for this user
-        if (receiverId != widget.memberId) {
-          // Create a new Message object
-          Message receivedMessage = Message(
-            senderId: widget.memberId, // Assuming receiverId is senderId
-            message: messageText,
-            createdAt: DateTime.now(), // Add current time as createdAt
-          );
-          // Add the received message to the list of messages
-          setState(() {
-            _messages.add(receivedMessage);
-          });
+  Future<void> initializeSocket() async {
+    try {
+      await _socketService
+          .initializeSocket(); // Initialize socket using SocketService
+      print('Socket connected');
+      final uid = Provider.of<UserProvider>(context, listen: false).uid;
+      _socketService.socket?.emit("new-user-add", uid);
+      _socketService.socket?.on("receive-message", (data) {
+        print(data);
+        if (data is Map<String, dynamic>) {
+          String receiverId = data['receiverId'];
+          if (receiverId != widget.memberId) {
+            String? messageText = data['message'];
+            String? imageUrl = data['imageUrl'];
+            if (imageUrl != null) {
+              // If imageUrl is present
+              String senderId = data['senderId'];
+              DateTime createdAt = DateTime.now();
+              Message receivedMessage = Message(
+                senderId: senderId,
+                message: null,
+                imageUrl: imageUrl,
+                createdAt: createdAt,
+              );
+              setState(() {
+                _messages.add(receivedMessage);
+              });
+            } else if (messageText != null) {
+              // If messageText is present
+              String senderId = data['senderId'];
+              DateTime createdAt = DateTime.now();
+              Message receivedMessage = Message(
+                senderId: senderId,
+                message: messageText,
+                imageUrl: null,
+                createdAt: createdAt,
+              );
+              setState(() {
+                _messages.add(receivedMessage);
+              });
+            }
+          }
         }
-      }
-    });
-  } catch (e) {
-    print('Failed to connect to socket: $e');
+      });
+    } catch (e) {
+      print('Failed to connect to socket: $e');
+    }
   }
-}
 
+  void _sendMessageToRemote(String message, String chatId, String token) async {
+    try {
+      String senderId =
+          Provider.of<UserProvider>(context, listen: false).uid ?? '';
+      await _remoteService.sendMessage(
+          chatId: chatId, token: token, message: message);
+      // Emit message to the socket server
+      _socketService.socket?.emit("send-message", {
+        'senderId': senderId,
+        'receiverId': widget.memberId,
+        'message': message
+      });
+      print('Message sent to socket: $message'); // Confirmation message
+      // Add the sent message to the UI directly
+      Message sentMessage = Message(
+        senderId: senderId,
+        message: message,
+        createdAt: DateTime.now(),
+      );
+      setState(() {
+        _messages.add(sentMessage);
+      });
+      // Clear the text field after sending the message
+      _textEditingController.clear();
+    } catch (e) {
+      print('Error sending message: $e');
+      // Handle error appropriately
+    }
+  }
 
-void _sendMessageToRemote(String message, String chatId, String token) async {
-  try {
-    await _remoteService.sendMessage(chatId, token, message);
-    // Emit message to the socket server
-    _socket.emit("send-message", {'receiverId': widget.memberId, 'message': message});
-    print('Message sent to socket: $message'); // Confirmation message
-    // Add the sent message to the UI directly
-    Message sentMessage = Message(
-      senderId: Provider.of<UserProvider>(context, listen: false).uid ?? '',
-      message: message,
-      createdAt: DateTime.now(),
-    );
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
     setState(() {
-      _messages.add(sentMessage);
+      _isFocused = _focusNode.hasFocus;
     });
-    // Clear the text field after sending the message
-    _textEditingController.clear();
-  } catch (e) {
-    print('Error sending message: $e');
-    // Handle error appropriately
   }
-}
-
-@override
-void dispose() {
-  _focusNode.removeListener(_onFocusChange);
-  _focusNode.dispose();
-  _textEditingController.dispose();
-  _socket.disconnect(); // Disconnect the socket
-  _socket.dispose(); // Dispose the socket
-  super.dispose();
-}
-
-void _onFocusChange() {
-  setState(() {
-    _isFocused = _focusNode.hasFocus;
-  });
-}
 
 // Method to fetch messages
-void _fetchMessages() async {
-  try {
-    List<Message> messages = await RemoteService().getMessages(widget.chatId);
-    // print(messages);
-    setState(() {
-      _messages = messages;
-    });
-  } catch (e) {
-    print('Error fetching messages: $e');
+  void _fetchMessages() async {
+    try {
+      List<Message> messages = await RemoteService().getMessages(widget.chatId);
+      print(messages);
+      setState(() {
+        _messages = messages;
+      });
+    } catch (e) {
+      print('Error fetching messages: $e');
+    }
   }
-}
 
+  // Method to navigate to ImagePreviewPage and handle the result
+  Future<void> _navigateToImagePreviewPage(File imageFile) async {
+    final sentMessage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImagePreviewPage(
+          imageFile: imageFile,
+          chatId: widget.chatId,
+          memberId: widget.memberId,
+        ),
+      ),
+    );
+    if (sentMessage != null) {
+      setState(() {
+        _messages.add(sentMessage);
+      });
+    }
+  }
+
+// Function to handle selecting an image from the device's gallery
+  Future<void> _getImageFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      _navigateToImagePreviewPage(File(pickedFile.path));
+    } else {
+      // User canceled the picker
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Initialize the socket
     initializeSocket();
-    // _connectSocket();
     _focusNode = FocusNode();
     _focusNode.addListener(_onFocusChange);
     _textEditingController = TextEditingController();
-    // Call method to fetch messages
     _fetchMessages();
-    // _listenForMessages();
   }
+
   // Widget to build chat bubbles from messages
   Widget _buildChatBubbles() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: _messages.map((message) {
-        // Check if the senderId is equal to the memberId
-        bool isUserMessage = message.senderId != widget.memberId;
-        return isUserMessage
-            ? ChatBubbleUser(
-                text: message.message,
-              ) // If senderId is different, use ChatBubble
-            : ChatBubble(
-                text: message.message,
-              ); // If senderId is same, use ChatBubbleUser
+        // Check if the message is null and imageUrl is present
+        if (message.message == null && message.imageUrl != null) {
+          bool isUserMessage = message.senderId != widget.memberId;
+          return isUserMessage
+              ? ChatBubbleUser(
+                  imageUrl: message.imageUrl!,
+                )
+              : ChatBubble(
+                  imageUrl: message.imageUrl!,
+                );
+        }
+        // Check if the message is present and imageUrl is either present or not
+        else if (message.message != null) {
+          bool isUserMessage = message.senderId != widget.memberId;
+          return isUserMessage
+              ? ChatBubbleUser(
+                  text: message.message!,
+                )
+              : ChatBubble(
+                  text: message.message!,
+                );
+        } else {
+          return Container(); // Return an empty container for other cases
+        }
       }).toList(),
     );
   }
@@ -215,21 +256,31 @@ void _fetchMessages() async {
               ],
             ),
             Spacer(),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomRight: Radius.circular(12),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          FinishPage()), // Replace FinishPage with the actual page you want to navigate to
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
                 ),
-              ),
-              child: Text(
-                'FINISH TRANSACTION',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                child: Text(
+                  'FINISH TRANSACTION',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),
@@ -242,7 +293,7 @@ void _fetchMessages() async {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              reverse: true, // Reverse scrolling to start from the bottom
+              reverse: true,
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -282,8 +333,7 @@ void _fetchMessages() async {
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: TextField(
-                        controller:
-                            _textEditingController, // Attach the TextEditingController here
+                        controller: _textEditingController,
                         focusNode: _focusNode,
                         decoration: InputDecoration(
                           hintText: 'Type your message...',
@@ -297,11 +347,25 @@ void _fetchMessages() async {
                   if (!_isFocused) ...[
                     IconButton(
                       icon: Icon(
-                        Icons.near_me,
+                        Icons.send,
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        // Action to send GPS location
+                        final chatId = widget.chatId;
+                        final token =
+                            Provider.of<UserProvider>(context, listen: false)
+                                .token;
+                        final message = _textEditingController.text;
+                        ''; // Empty string for now, replace with actual imageUrl when sending an image
+                        if (token != null) {
+                          _sendMessageToRemote(message, chatId,
+                              token); // Pass imageUrl to the function
+                          _textEditingController
+                              .clear(); // Clear the text field after sending the message
+                        } else {
+                          print('One of the parameters is null');
+                          // Handle the case where one of the parameters is null
+                        }
                       },
                     ),
                     IconButton(
@@ -311,6 +375,7 @@ void _fetchMessages() async {
                       ),
                       onPressed: () {
                         // Action to send image
+                        _getImageFromGallery();
                       },
                     ),
                   ] else ...[
@@ -325,8 +390,11 @@ void _fetchMessages() async {
                             Provider.of<UserProvider>(context, listen: false)
                                 .token;
                         final message = _textEditingController.text;
+
+                        ''; // Empty string for now, replace with actual imageUrl when sending an image
                         if (token != null) {
-                          _sendMessageToRemote(message, chatId, token);
+                          _sendMessageToRemote(message, chatId,
+                              token); // Pass imageUrl to the function
                           _textEditingController
                               .clear(); // Clear the text field after sending the message
                         } else {

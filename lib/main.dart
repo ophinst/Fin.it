@@ -2,6 +2,7 @@ import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_screen.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/register_page.dart';
+import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
 import 'package:capstone_project/pages/form_lost.dart';
@@ -14,6 +15,7 @@ import 'models/user_provider.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
+  SocketService().initializeSocket();
   runApp(const MyApp());
 }
 

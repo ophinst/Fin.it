@@ -1,18 +1,20 @@
 class Message {
-   String? messageId;
-   String? chatId;
-   String senderId;
-   String message;
-   DateTime createdAt;
-   DateTime? updatedAt;
+  String? messageId;
+  String? chatId;
+  String senderId;
+  String? message; // Updated to nullable
+  DateTime createdAt;
+  DateTime? updatedAt;
+  String? imageUrl;
 
   Message({
     this.messageId,
     this.chatId,
     required this.senderId,
-    required this.message,
+    this.message, // Updated to nullable
     required this.createdAt,
     this.updatedAt,
+    this.imageUrl,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -23,18 +25,8 @@ class Message {
       message: json['message'],
       // Parse createdAt and updatedAt strings to DateTime objects
       createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      imageUrl: json['imageUrl'],
     );
-  }
-}
-class SendMessageRequestModel {
-   String message;
-
-  SendMessageRequestModel({required this.message});
-
-  Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-    };
   }
 }
