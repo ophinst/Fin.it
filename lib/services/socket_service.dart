@@ -17,7 +17,6 @@ class SocketService {
           IO.OptionBuilder()
               .setTransports(['websocket'])
               .enableAutoConnect() // Enable auto-connect
-              .enableForceNew() // Force to establish a new connection
               .build());
       _connectSocket();
       print('Socket connected');

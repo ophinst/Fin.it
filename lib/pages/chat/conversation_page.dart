@@ -54,6 +54,11 @@ class _ConversationPageState extends State<ConversationPage> {
       await _socketService
           .initializeSocket(); // Initialize socket using SocketService
       print('Socket connected');
+      // Register reconnect logic
+    _socketService.socket?.onDisconnect((_) {
+      print('Socket disconnected, reconnecting...');
+      initializeSocket(); // Reconnect
+    });
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
       _socketService.socket?.emit("new-user-add", uid);
       _socketService.socket?.on("receive-message", (data) {
