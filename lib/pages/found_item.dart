@@ -1,19 +1,33 @@
+import 'package:capstone_project/models/place.dart';
+import 'package:capstone_project/pages/map.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:capstone_project/models/found_model.dart';
 import 'package:flutter/material.dart';
 
 class FoundItemPage extends StatelessWidget {
-  const FoundItemPage({super.key});
+  final String foundId;
+  final GetFoundModel foundItem;
+
+  const FoundItemPage(
+      {required this.foundItem, required this.foundId, super.key});
 
   void tagButton() {}
   void chatButton() {}
 
   @override
   Widget build(BuildContext context) {
+    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
     Color primaryColor = Colors.white;
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(
-          Icons.arrow_back,
-          color: Colors.black,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         backgroundColor: primaryColor,
         actions: const <Widget>[
@@ -43,7 +57,7 @@ class FoundItemPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Container(
@@ -77,9 +91,9 @@ class FoundItemPage extends StatelessWidget {
                     const SizedBox(
                       height: 8.0,
                     ),
-                    const Text(
-                      'NAMA ITEM',
-                      style: TextStyle(
+                    Text(
+                      foundItem.itemName,
+                      style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'JosefinSans',
@@ -100,9 +114,9 @@ class FoundItemPage extends StatelessWidget {
                     const SizedBox(
                       height: 8.0,
                     ),
-                    const Text(
-                      'SIAMANG',
-                      style: TextStyle(
+                    Text(
+                      foundItem.foundOwner,
+                      style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'JosefinSans',
@@ -128,50 +142,42 @@ class FoundItemPage extends StatelessWidget {
                     const SizedBox(
                       height: 10.0,
                     ),
-                    TextFormField(
-                      minLines: 3,
-                      maxLines: 10,
-                      keyboardType: TextInputType.multiline,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter a description here',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
+                    Text(
+                      foundItem.itemDescription, // Display the description here
+                      style: const TextStyle(
+                        color: Colors.grey,
                       ),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.calendar_month,
                               color: Color.fromRGBO(43, 52, 153, 1),
                               size: 35,
                             ),
                             Text(
-                              'Nanti ini tanggalnya',
-                              style: TextStyle(
+                              foundItem.foundDate,
+                              style: const TextStyle(
                                   fontFamily: 'JosefinSans', fontSize: 15),
                             ),
                           ],
                         ),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.timer_sharp,
                               color: Color.fromRGBO(43, 52, 153, 1),
                               size: 35,
                             ),
                             Text(
-                              'Nanti ini jamnya',
-                              style: TextStyle(
+                              foundItem.foundTime,
+                              style: const TextStyle(
                                   fontFamily: 'JosefinSans', fontSize: 15),
                             ),
                           ],
@@ -187,7 +193,7 @@ class FoundItemPage extends StatelessWidget {
                         height: 135,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               blurRadius: 10,
                               color: Color(0x33000000),
@@ -198,7 +204,7 @@ class FoundItemPage extends StatelessWidget {
                         ),
                         child: Stack(
                           children: [
-                            Align(
+                            const Align(
                               alignment: AlignmentDirectional(0, -0.9),
                               child: Text(
                                 'Last Location!',
@@ -210,33 +216,63 @@ class FoundItemPage extends StatelessWidget {
                               ),
                             ),
                             Align(
-                              alignment: AlignmentDirectional(-0.10, 0.9),
+                              alignment: const AlignmentDirectional(-0.10, 0.9),
                               child: Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.location_pin,
                                     color: Color.fromRGBO(43, 52, 153, 1),
                                   ),
                                   Text(
-                                    'Dimana Kek',
-                                    style: TextStyle(fontFamily: 'JosefinSans'),
+                                    foundItem.placeLocation.locationDetail
+                                                .length >
+                                            40
+                                        ? '${foundItem.placeLocation.locationDetail.substring(0, 40)}...'
+                                        : foundItem
+                                            .placeLocation.locationDetail,
+                                    style: const TextStyle(
+                                        fontFamily: 'JosefinSans'),
                                   ),
                                 ],
                               ),
                             ),
                             Align(
-                              alignment: AlignmentDirectional(0, 0),
+                              alignment: const AlignmentDirectional(0, 0),
                               child: Container(
-                                child: Center(
-                                  child: Text('MAPS!',
-                                      style:
-                                          TextStyle(fontFamily: 'JosefinSans')),
-                                ),
                                 width: 333,
                                 height: 73,
                                 decoration: BoxDecoration(
                                   color: Colors.redAccent,
                                   borderRadius: BorderRadius.circular(11),
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 300, // Adjust height as needed
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MapScreen(
+                                            location: PlaceLocation(
+                                              latitude: foundItem
+                                                  .placeLocation.latitude,
+                                              longitude: foundItem
+                                                  .placeLocation.longitude,
+                                              locationDetail: foundItem
+                                                  .placeLocation.locationDetail,
+                                            ),
+                                            isSelecting:
+                                                false, // Disable selecting if just viewing
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      'https://maps.googleapis.com/maps/api/staticmap?center=${foundItem.placeLocation.latitude},${foundItem.placeLocation.longitude}&zoom=16&size=600x300&maptype=roadmap&markers=color:red%7Clabel:A%7C${foundItem.placeLocation.latitude},${foundItem.placeLocation.longitude}&key=$apiKey',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
