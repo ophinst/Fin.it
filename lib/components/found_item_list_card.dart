@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class FoundItemListCard extends StatelessWidget {
   final GetFoundModel foundItem;
   final String? formattedLocationName;
+  
   const FoundItemListCard(
       {required this.foundItem,
       required this.formattedLocationName,
