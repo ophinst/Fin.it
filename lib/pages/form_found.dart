@@ -1,4 +1,3 @@
-import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:capstone_project/models/category.dart';
@@ -164,8 +163,8 @@ class _FormFoundState extends State<FormFound> {
                       if (value == null ||
                           value.isEmpty ||
                           value.trim().length <= 1 ||
-                          value.trim().length > 150) {
-                        return 'Must be between 1 and 150 characters';
+                          value.trim().length > 256) {
+                        return 'Must be between 1 and 256 characters';
                       }
                       return null;
                     },
