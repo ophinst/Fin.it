@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class FoundItemListCard extends StatelessWidget {
   final GetFoundModel foundItem;
   final String? formattedLocationName;
-  
+
   const FoundItemListCard(
       {required this.foundItem,
       required this.formattedLocationName,
@@ -18,7 +18,10 @@ class FoundItemListCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FoundItemPage(foundItem: foundItem, foundId: foundItem.foundId,),
+            builder: (context) => FoundItemPage(
+              foundItem: foundItem,
+              foundId: foundItem.foundId,
+            ),
           ),
         );
       },
@@ -60,8 +63,11 @@ class FoundItemListCard extends StatelessWidget {
                             Icons.location_on,
                             color: Color.fromRGBO(43, 52, 153, 1),
                           ),
-                          Text(formattedLocationName ??
-                              foundItem.placeLocation.locationDetail),
+                          Text(
+                            formattedLocationName ??
+                                foundItem.placeLocation.locationDetail ??
+                                'Location detail is not available',
+                          ),
                         ],
                       ),
                     ),

@@ -224,14 +224,18 @@ class FoundItemPage extends StatelessWidget {
                                     color: Color.fromRGBO(43, 52, 153, 1),
                                   ),
                                   Text(
-                                    foundItem.placeLocation.locationDetail
-                                                .length >
-                                            40
-                                        ? '${foundItem.placeLocation.locationDetail.substring(0, 40)}...'
-                                        : foundItem
-                                            .placeLocation.locationDetail,
+                                    foundItem.placeLocation.locationDetail !=
+                                            null
+                                        ? (foundItem.placeLocation
+                                                    .locationDetail!.length >
+                                                40
+                                            ? '${foundItem.placeLocation.locationDetail!.substring(0, 40)}...'
+                                            : foundItem
+                                                .placeLocation.locationDetail!)
+                                        : 'Location detail not available',
                                     style: const TextStyle(
-                                        fontFamily: 'JosefinSans'),
+                                      fontFamily: 'JosefinSans',
+                                    ),
                                   ),
                                 ],
                               ),

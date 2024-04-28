@@ -18,19 +18,24 @@ class RemoteService {
   final Map<String, String> _locationCache = {};
   final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
 
-  Future<dynamic> getLostItems() async {
-    var client = http.Client();
+  Future<List<List<Datum>>> getLostItems(int counter) async {
+    final response = await http.get(Uri.parse('$url/lost?page=$counter'));
 
-    var uri = Uri.parse('$url/lost');
-    var response = await client.get(uri);
     if (response.statusCode == 200) {
-      var json = response.body;
-      var lostResponse = LostResponse.fromJson(jsonDecode(json));
-      return lostResponse.data;
+      Iterable currentList = json.decode(response.body)['data'];
+      List<Datum> currentData = currentList.map((model) => Datum.fromJson(model)).toList();
+
+      final nextResponse = await http.get(Uri.parse('$url/lost?page=${counter + 1}'));
+      if (nextResponse.statusCode == 200) {
+        Iterable nextList = json.decode(nextResponse.body)['data'];
+        List<Datum> nextData = nextList.map((model) => Datum.fromJson(model)).toList();
+
+        return [currentData, nextData];
+      } else {
+        throw Exception('Failed to load next data');
+      }
     } else {
-      // Handle error appropriately
-      print('Failed to fetch data: ${response.statusCode}');
-      return null;
+      throw Exception('Failed to load data');
     }
   }
 
@@ -251,7 +256,6 @@ class RemoteService {
         'category': lostItem.category,
         'latitude': lostItem.placeLocation.latitude.toString(),
         'longitude': lostItem.placeLocation.longitude.toString(),
-        'locationDetail': lostItem.placeLocation.locationDetail,
       })
       ..files.add(await http.MultipartFile.fromPath(
         'image',

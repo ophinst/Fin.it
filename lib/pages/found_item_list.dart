@@ -14,7 +14,6 @@ class FoundItemList extends StatefulWidget {
 
 class _FoundItemListState extends State<FoundItemList> {
   void foundForm(BuildContext context) {
-    // Navigate to the HomePage
     Navigator.pushNamed(context, '/add-found');
   }
 
@@ -49,7 +48,7 @@ class _FoundItemListState extends State<FoundItemList> {
   }
 
   String formatLocationName(String locationName, {int maxLength = 35}) {
-    if(locationName.length <= maxLength) {
+    if (locationName.length <= maxLength) {
       return locationName;
     }
     return '${locationName.substring(0, maxLength)}...';
@@ -131,8 +130,12 @@ class _FoundItemListState extends State<FoundItemList> {
                 : ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (context, index) {
-                      String formattedLocationName = formatLocationName(data[index].placeLocation.locationDetail);
-                      return FoundItemListCard(foundItem: data[index], formattedLocationName: formattedLocationName,);
+                      String formattedLocationName = formatLocationName(
+                          data[index].placeLocation.locationDetail ?? 'Unknown location');
+                      return FoundItemListCard(
+                        foundItem: data[index],
+                        formattedLocationName: formattedLocationName,
+                      );
                     },
                   ),
           ),
@@ -154,15 +157,16 @@ class _FoundItemListState extends State<FoundItemList> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: isLoading || counter <= 1
-                    ? null
-                    : () {
-                        setState(() {
-                          counter--;
-                        });
-                        fetchData();
-                      }),
+              icon: const Icon(Icons.arrow_back),
+              onPressed: isLoading || counter <= 1
+                  ? null
+                  : () {
+                      setState(() {
+                        counter--;
+                      });
+                      fetchData();
+                    },
+            ),
             Text(
               'Page $counter',
               style: const TextStyle(fontSize: 16),
