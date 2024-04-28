@@ -6,6 +6,7 @@ import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
+import 'package:capstone_project/models/voucher_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -38,12 +39,15 @@ class RemoteService {
 
     if (response.statusCode == 200) {
       Iterable currentList = json.decode(response.body)['data'];
-      List<GetFoundModel> currentData = currentList.map((model) => GetFoundModel.fromJson(model)).toList();
+      List<GetFoundModel> currentData =
+          currentList.map((model) => GetFoundModel.fromJson(model)).toList();
 
-      final nextResponse = await http.get(Uri.parse('$url/found?page=${counter + 1}'));
-      if(nextResponse.statusCode == 200) {
+      final nextResponse =
+          await http.get(Uri.parse('$url/found?page=${counter + 1}'));
+      if (nextResponse.statusCode == 200) {
         Iterable nextList = json.decode(nextResponse.body)['data'];
-        List<GetFoundModel> nextData = nextList.map((model) => GetFoundModel.fromJson(model)).toList();
+        List<GetFoundModel> nextData =
+            nextList.map((model) => GetFoundModel.fromJson(model)).toList();
 
         return [currentData, nextData];
       } else {
@@ -58,10 +62,28 @@ class RemoteService {
     var response = await http.get(Uri.parse('$url/found/$foundId'));
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body)['data'];
-      List<GetFoundModel> data = list.map((model) => GetFoundModel.fromJson(model)).toList();
+      List<GetFoundModel> data =
+          list.map((model) => GetFoundModel.fromJson(model)).toList();
       return data;
     } else {
       throw Exception('Failed to load data');
+    }
+  }
+
+  //reward api
+  Future<dynamic> getVoucherList() async {
+    var client = http.Client();
+
+    var uri = Uri.parse('$url/reward');
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      var json = response.body;
+      var lostResponse = VoucherResponse.fromJson(jsonDecode(json));
+      return lostResponse.data;
+    } else {
+      // Handle error appropriately
+      print('Failed to fetch data: ${response.statusCode}');
+      return null;
     }
   }
 
