@@ -27,7 +27,10 @@ class LostModel {
       'lostDate': lostDate,
       'lostTime': lostTime,
       'category': category,
-      ...placeLocation.toJson(),
+      'placeLocation': {
+        'latitude': placeLocation.latitude,
+        'longitude': placeLocation.longitude,
+      },
     };
   }
 }

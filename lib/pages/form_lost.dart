@@ -34,12 +34,14 @@ class _FormLostState extends State<FormLost> {
   var _category = Categories.Phone.toString().split('.').last;
   PlaceLocation? _placeLocation;
 
-  void _saveLostItem() {
+  void _saveItem() {
     final token = Provider.of<UserProvider>(context, listen: false).token;
     if (_formKey.currentState!.validate() && token != null) {
       _formKey.currentState!.save();
+
       String formattedDate = DateFormat('yyyy-MM-dd').format(_lostDate);
       String formattedTime = DateFormat('HH:mm:ss').format(_lostTime);
+
       LostModel lostItem = LostModel(
         image: _image,
         itemName: _itemName,
@@ -173,8 +175,8 @@ class _FormLostState extends State<FormLost> {
                       if (value == null ||
                           value.isEmpty ||
                           value.trim().length <= 1 ||
-                          value.trim().length > 150) {
-                        return 'Must be between 1 and 150 characters';
+                          value.trim().length > 256) {
+                        return 'Must be between 1 and 256 characters';
                       }
                       return null;
                     },
@@ -375,7 +377,7 @@ class _FormLostState extends State<FormLost> {
                   ),
                   MyButton(
                     buttonText: 'UPLOAD',
-                    onTap: _saveLostItem,
+                    onTap: _saveItem
                   ),
                   const SizedBox(
                     height: 24,
