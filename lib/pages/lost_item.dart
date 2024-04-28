@@ -216,22 +216,20 @@ class _LostItemPageState extends State<LostItemPage> {
                                           mapType: MapType.normal,
                                           initialCameraPosition: CameraPosition(
                                               target: LatLng(
-                                                double.parse(lostItem.latitude),
-                                                double.parse(
-                                                    lostItem.longitude),
+                                                lostItem.latitude,
+                                                lostItem.longitude,
                                               ),
                                               zoom: 14),
                                           markers: {
                                             Marker(
-                                              markerId:
-                                                  MarkerId('lostItemMarker'),
+                                              markerId: const MarkerId(
+                                                  'lostItemMarker'),
                                               position: LatLng(
-                                                double.parse(lostItem.latitude),
-                                                double.parse(
-                                                    lostItem.longitude),
+                                                lostItem.latitude,
+                                                lostItem.longitude,
                                               ),
                                               infoWindow: InfoWindow(
-                                                title: '${lostItem.itemName}',
+                                                title: lostItem.itemName,
                                                 snippet:
                                                     'This is the location of the lost item',
                                               ),
@@ -254,10 +252,8 @@ class _LostItemPageState extends State<LostItemPage> {
                                           child: FutureBuilder<String>(
                                             future: RemoteService()
                                                 .getLocationName(
-                                                    double.parse(
-                                                        lostItem.latitude),
-                                                    double.parse(
-                                                        lostItem.longitude)),
+                                                    lostItem.latitude,
+                                                    lostItem.longitude),
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState ==
                                                   ConnectionState.waiting) {
@@ -304,7 +300,7 @@ class _LostItemPageState extends State<LostItemPage> {
                               height: 10.0,
                             ),
                             TextFormField(
-                              initialValue: lostItem.itemDescription ?? '',
+                              initialValue: lostItem.itemDescription,
                               minLines: 3,
                               maxLines: 10,
                               keyboardType: TextInputType.multiline,

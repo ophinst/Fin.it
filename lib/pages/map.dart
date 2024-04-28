@@ -7,8 +7,8 @@ class MapScreen extends StatefulWidget {
   const MapScreen({
     super.key,
     this.location = const PlaceLocation(
-      latitude: '37.422',
-      longitude: '-122.084',
+      latitude: 37.422,
+      longitude: -122.084,
       locationDetail: '',
     ),
     this.isSelecting = true,
@@ -50,8 +50,8 @@ class _MapScreenState extends State<MapScreen> {
         },
         initialCameraPosition: CameraPosition(
           target: LatLng(
-            double.parse(widget.location.latitude),
-            double.parse(widget.location.longitude),
+            widget.location.latitude,
+            widget.location.longitude,
           ),
           zoom: 16,
         ),
@@ -61,8 +61,8 @@ class _MapScreenState extends State<MapScreen> {
             //The (??) is actually an if check where if the _pickedLocation is null, it will be set to the value after the (??) sign
             position: _pickedLocation ??
                 LatLng(
-                  double.parse(widget.location.latitude),
-                  double.parse(widget.location.longitude),
+                  widget.location.latitude,
+                  widget.location.longitude,
                 ),
           ),
         },

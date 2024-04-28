@@ -1,5 +1,3 @@
-
-// Class for API response containing single data object or a list of data
 class LostResponse {
   String message;
   dynamic data;
@@ -27,61 +25,48 @@ class LostResponse {
 }
 
 class Datum {
-  String lostId;
-  String uid;
-  String itemName;
-  String itemImage;
-  String? itemDescription;
-  DateTime? lostDate;
-  String? lostTime;
-  String category;
-  String latitude;
-  String longitude;
-  bool? status;
-  String lostOwner;
+  final String lostId;
+  final String uid;
+  final String itemName;
+  final String itemImage;
+  final String itemDescription;
+  final String lostDate;
+  final String lostTime;
+  final String category;
+  final double latitude;
+  final double longitude;
+  final bool status;
+  final String lostOwner;
 
   Datum({
     required this.lostId,
     required this.uid,
     required this.itemName,
     required this.itemImage,
-    this.itemDescription,
-    this.lostDate,
-    this.lostTime,
+    required this.itemDescription,
+    required this.lostDate,
+    required this.lostTime,
     required this.category,
     required this.latitude,
     required this.longitude,
-    this.status,
+    required this.status,
     required this.lostOwner,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        lostId: json["lostId"],
-        uid: json["uid"],
-        itemName: json["itemName"],
-        itemImage: json["itemImage"],
-        itemDescription: json["itemDescription"],
-        lostDate: json["lostDate"] != null ? DateTime.parse(json["lostDate"]) : null,
-        lostTime: json["lostTime"],
-        category: json["category"],
-        latitude: json["latitude"],
-        longitude: json["longitude"],
-        status: json["status"],
-        lostOwner: json["lostOwner"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "lostId": lostId,
-        "uid": uid,
-        "itemName": itemName,
-        "itemImage": itemImage,
-        "itemDescription": itemDescription,
-        "lostDate": lostDate != null ? "${lostDate!.day}-${lostDate!.month}-${lostDate!.year}" : null,
-        "lostTime": lostTime != null ? "${DateTime.parse(lostTime!).hour}:${DateTime.parse(lostTime!).minute}" : null,
-        "category": category,
-        "latitude": latitude,
-        "longitude": longitude,
-        "status": status,
-        "lostOwner": lostOwner,
-      };
+  factory Datum.fromJson(Map<String, dynamic> json) {
+    return Datum(
+      lostId: json['lostId'],
+      uid: json['uid'],
+      itemName: json['itemName'],
+      itemImage: json['itemImage'],
+      itemDescription: json['itemDescription'],
+      lostDate: json['lostDate'],
+      lostTime: json['lostTime'],
+      category: json['category'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      status: json['completionStatus'],
+      lostOwner: json['lostOwner'],
+    );
+  }
 }
