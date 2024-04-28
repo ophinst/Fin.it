@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:capstone_project/models/voucher_model.dart';
+import 'package:capstone_project/services/remote_service.dart';
 
-class VoucherDetail extends StatefulWidget {
-  const VoucherDetail({super.key});
+class VoucherDetail extends StatelessWidget {
+  final String rewardId;
+  final GetVoucherModel vouchers;
+  const VoucherDetail(
+      {required this.rewardId, required this.vouchers, super.key});
 
-  @override
-  State<VoucherDetail> createState() => _VoucherDetailState();
-}
-
-class _VoucherDetailState extends State<VoucherDetail> {
   @override
   Widget build(BuildContext context) {
     Color primaryColor = Colors.white;
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -55,8 +54,8 @@ class _VoucherDetailState extends State<VoucherDetail> {
               height: 25,
             ),
             Center(
-              child: Image.asset(
-                'assets/images/apple.png',
+              child: Image.network(
+                vouchers.rewardImage,
                 height: 200,
               ),
             ),
@@ -80,20 +79,21 @@ class _VoucherDetailState extends State<VoucherDetail> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Nama Voucher',
+                    Text(
+                      vouchers.rewardName,
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 30,
                         fontFamily: 'JosefinSans',
+                        fontWeight: FontWeight.bold,
                         color: Color.fromRGBO(43, 52, 153, 1),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    const Text(
-                      'Durasi Voucher',
+                    Text(
+                      ('Expireted in ${vouchers.rewardExpiration}'),
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         fontSize: 15,
@@ -128,6 +128,7 @@ class _VoucherDetailState extends State<VoucherDetail> {
                       height: 10.0,
                     ),
                     TextFormField(
+                      initialValue: vouchers.rewardDescription,
                       minLines: 3,
                       maxLines: 10,
                       keyboardType: TextInputType.multiline,
