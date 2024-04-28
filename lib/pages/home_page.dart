@@ -2,7 +2,9 @@
 
 import 'package:capstone_project/components/drawer.dart';
 import 'package:capstone_project/pages/profile.dart';
+import 'package:capstone_project/pages/voucher_list.dart';
 import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/pages/voucher_detail.dart';
 import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -143,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                     color: primaryColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,29 +154,19 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  Icons.wallet,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  'Rp 50.000',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.redeem,
-                                  color: Colors.white,
+                                GestureDetector(
+                                  onTap: () {
+                                    // Navigate to the desired page
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => VoucherList()),
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.redeem,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 SizedBox(
                                   width: 5,

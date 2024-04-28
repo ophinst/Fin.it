@@ -340,7 +340,7 @@ class _LostItemListState extends State<LostItemList> {
                                         style: TextStyle(fontSize: 12),
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                    )
+                                    ),
                                   ],
                                 )
                               ],
