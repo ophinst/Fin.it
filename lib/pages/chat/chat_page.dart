@@ -157,6 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                 memberImage: memberImage,
                 recentMessage: recentMessage,
                 recentMessageCreatedAt: recentMessageCreatedAt,
+                itemId: chat['itemId'],
                 updateRecentMessage: (message) {
                   // Define the updateRecentMessage function here
                   setState(() {

@@ -9,6 +9,7 @@ class ChatBox extends StatefulWidget {
   final String memberImage;
   String recentMessage; // Change to non-final to allow modification
   final String recentMessageCreatedAt;
+  String? itemId; // New parameter for itemId
   final VoidCallback? fetchChats;
   final Function(String) updateRecentMessage; // Callback function
 
@@ -19,6 +20,7 @@ class ChatBox extends StatefulWidget {
     required this.memberName,
     required this.memberImage,
     required this.recentMessage,
+    this.itemId,
     required this.recentMessageCreatedAt,
     this.fetchChats,
     required this.updateRecentMessage, // Pass the callback function
@@ -82,7 +84,8 @@ class _ChatBoxState extends State<ChatBox> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.memberName,
+                        // widget.memberName,
+                        widget.itemId ?? 'yey',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
