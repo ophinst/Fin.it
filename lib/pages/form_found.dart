@@ -163,8 +163,8 @@ class _FormFoundState extends State<FormFound> {
                       if (value == null ||
                           value.isEmpty ||
                           value.trim().length <= 1 ||
-                          value.trim().length > 150) {
-                        return 'Must be between 1 and 150 characters';
+                          value.trim().length > 256) {
+                        return 'Must be between 1 and 256 characters';
                       }
                       return null;
                     },

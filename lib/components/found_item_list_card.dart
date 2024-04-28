@@ -1,15 +1,27 @@
 import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/pages/found_item.dart';
 import 'package:flutter/material.dart';
 
 class FoundItemListCard extends StatelessWidget {
   final GetFoundModel foundItem;
   final String? formattedLocationName;
-  const FoundItemListCard({required this.foundItem, required this.formattedLocationName, super.key});
+  
+  const FoundItemListCard(
+      {required this.foundItem,
+      required this.formattedLocationName,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FoundItemPage(foundItem: foundItem, foundId: foundItem.foundId,),
+          ),
+        );
+      },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Card(
@@ -48,7 +60,8 @@ class FoundItemListCard extends StatelessWidget {
                             Icons.location_on,
                             color: Color.fromRGBO(43, 52, 153, 1),
                           ),
-                          Text(formattedLocationName ?? foundItem.placeLocation.locationDetail),
+                          Text(formattedLocationName ??
+                              foundItem.placeLocation.locationDetail),
                         ],
                       ),
                     ),

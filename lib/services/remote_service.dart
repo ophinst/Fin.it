@@ -54,6 +54,17 @@ class RemoteService {
     }
   }
 
+  Future<List<GetFoundModel>> getFoundById(String foundId) async {
+    var response = await http.get(Uri.parse('$url/found/$foundId'));
+    if (response.statusCode == 200) {
+      Iterable list = json.decode(response.body)['data'];
+      List<GetFoundModel> data = list.map((model) => GetFoundModel.fromJson(model)).toList();
+      return data;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
   Future<String> getLocationName(double latitude, double longitude) async {
     final cacheKey = '$latitude,$longitude';
     String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
@@ -62,8 +73,6 @@ class RemoteService {
     if (_locationCache.containsKey(cacheKey)) {
       return _locationCache[cacheKey]!;
     }
-
-    // apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
 
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
