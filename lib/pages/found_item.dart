@@ -1,18 +1,88 @@
+import 'package:capstone_project/models/chat_model.dart';
 import 'package:capstone_project/models/place.dart';
+import 'package:capstone_project/models/user_model.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/pages/chat/conversation_page.dart';
 import 'package:capstone_project/pages/map.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FoundItemPage extends StatelessWidget {
   final String foundId;
   final GetFoundModel foundItem;
 
-  const FoundItemPage(
+  FoundItemPage(
       {required this.foundItem, required this.foundId, super.key});
 
+  RemoteService _remoteService = RemoteService();
+
+  void getUserData() async {
+  try {
+    User? user = await _remoteService.getUserById(foundItem.uid);
+    if (user != null) {
+      print('User Name: ${user.name}');
+    } else {
+      print('User not found.');
+    }
+  } catch (e) {
+    print('Error fetching user data: $e');
+  }
+}
+
+
   void tagButton() {}
-  void chatButton() {}
+  void chatButton(BuildContext? context) async {
+  if (context == null) {
+    // Handle the case when the context is null
+    return;
+  }
+
+  try {
+    // Get user data
+    User? user = await _remoteService.getUserById(foundItem.uid);
+    String userName = user?.name ?? 'Unknown User';
+    String userImage = user?.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+
+    // Get token from userProvider
+    final token = Provider.of<UserProvider?>(context, listen: false)?.token ?? ''; // Assign empty string if token is null
+
+    // Call getChatById function
+    String itemId = foundItem.foundId;
+    String receiverId = foundItem.uid;
+    Map<String, dynamic> chatData = await _remoteService.getChatById(token, itemId, receiverId);
+
+    // Access the 'data' field from chatData
+    Map<String, dynamic>? chatInfo = chatData['data'];
+
+    if (chatInfo != null) {
+      // Create Chat object from the chatInfo map
+      Chat chat = Chat.fromJson(chatInfo);
+
+      // Navigate to ConversationPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConversationPage(
+            chatId: chat.chatId,
+            memberId: foundItem.uid,
+            memberName: userName,
+            memberImage: userImage,
+            itemId: foundItem.foundId,
+          ),
+        ),
+      );
+      
+    } else {
+      print('Error: No chat data found in the response.');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -310,7 +380,7 @@ class FoundItemPage extends StatelessWidget {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: chatButton,
+                          onPressed: () => chatButton(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(43, 52, 153, 1),

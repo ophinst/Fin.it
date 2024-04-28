@@ -19,7 +19,7 @@ import 'package:capstone_project/pages/voucher_detail.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
-  SocketService().initializeSocket();
+  // SocketService().initializeSocket();
   runApp(const MyApp());
 }
 

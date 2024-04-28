@@ -9,22 +9,22 @@ class ChatBox extends StatefulWidget {
   final String memberImage;
   String recentMessage; // Change to non-final to allow modification
   final String recentMessageCreatedAt;
-  String? itemId; // New parameter for itemId
+  final String itemId; // New parameter for itemId
   final VoidCallback? fetchChats;
   final Function(String) updateRecentMessage; // Callback function
 
   ChatBox({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.memberId,
     required this.memberName,
     required this.memberImage,
     required this.recentMessage,
-    this.itemId,
+    required this.itemId,
     required this.recentMessageCreatedAt,
     this.fetchChats,
     required this.updateRecentMessage, // Pass the callback function
-  }) : super(key: key);
+  });
 
   @override
   State<ChatBox> createState() => _ChatBoxState();
@@ -54,6 +54,7 @@ class _ChatBoxState extends State<ChatBox> {
             memberId: widget.memberId,
             memberName: widget.memberName,
             memberImage: widget.memberImage,
+            itemId: widget.itemId,
           ),
         ));
       },
@@ -84,8 +85,7 @@ class _ChatBoxState extends State<ChatBox> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        // widget.memberName,
-                        widget.itemId ?? 'yey',
+                        widget.memberName,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,

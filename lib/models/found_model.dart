@@ -62,8 +62,8 @@ class GetFoundModel {
       foundTime: json['foundTime'],
       category: json['category'],
       placeLocation: PlaceLocation(
-        latitude: json['latitude'],
-        longitude: json['longitude'],
+        latitude: json['latitude'].toString(),
+        longitude: json['longitude'].toString(),
         locationDetail: json['locationDetail'],
       ),
       foundOwner: json['foundOwner'],

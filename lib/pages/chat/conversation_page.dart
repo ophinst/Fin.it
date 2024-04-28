@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/models/founditem_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/pages/chat/preview_page.dart';
 import 'package:capstone_project/pages/finish_page.dart';
+import 'package:capstone_project/pages/finish_transaction.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +22,16 @@ class ConversationPage extends StatefulWidget {
   final String memberId;
   final String memberName;
   final String memberImage;
-  const ConversationPage({
+  final String itemId;
+  String? itemName;
+  ConversationPage({
     Key? key,
     required this.chatId,
     required this.memberId,
     required this.memberName,
     required this.memberImage,
+    required this.itemId,
+    this.itemName,
   }) : super(key: key);
 
   @override
@@ -35,6 +43,8 @@ class _ConversationPageState extends State<ConversationPage> {
   late TextEditingController _textEditingController;
   bool _isFocused = false;
   List<Message> _messages = []; // Store fetched messages here
+  // List<GetFoundModel> foundItem;
+  late String itemName = '';
 
   SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -55,10 +65,10 @@ class _ConversationPageState extends State<ConversationPage> {
           .initializeSocket(); // Initialize socket using SocketService
       print('Socket connected');
       // Register reconnect logic
-    _socketService.socket?.onDisconnect((_) {
-      print('Socket disconnected, reconnecting...');
-      initializeSocket(); // Reconnect
-    });
+      _socketService.socket?.onDisconnect((_) {
+        print('Socket disconnected, reconnecting...');
+        initializeSocket(); // Reconnect
+      });
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
       _socketService.socket?.emit("new-user-add", uid);
       _socketService.socket?.on("receive-message", (data) {
@@ -78,9 +88,12 @@ class _ConversationPageState extends State<ConversationPage> {
                 imageUrl: imageUrl,
                 createdAt: createdAt,
               );
-              setState(() {
-                _messages.add(receivedMessage);
-              });
+              // Check if the widget is mounted before calling setState
+              if (mounted) {
+                setState(() {
+                  _messages.add(receivedMessage);
+                });
+              }
             } else if (messageText != null) {
               // If messageText is present
               String senderId = data['senderId'];
@@ -91,9 +104,12 @@ class _ConversationPageState extends State<ConversationPage> {
                 imageUrl: null,
                 createdAt: createdAt,
               );
-              setState(() {
-                _messages.add(receivedMessage);
-              });
+              // Check if the widget is mounted before calling setState
+              if (mounted) {
+                setState(() {
+                  _messages.add(receivedMessage);
+                });
+              }
             }
           }
         }
@@ -160,6 +176,20 @@ class _ConversationPageState extends State<ConversationPage> {
     }
   }
 
+  Future<void> getItemDetails(String itemId) async {
+  try {
+    print(itemId);
+    dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
+    setState(() {
+      itemName = foundItem['itemName'] ?? '';
+    });
+    print(foundItem['foundId']);
+  } catch (e) {
+    print('Error fetching item details: $e');
+  }
+}
+
+
   // Method to navigate to ImagePreviewPage and handle the result
   Future<void> _navigateToImagePreviewPage(File imageFile) async {
     final sentMessage = await Navigator.push(
@@ -198,6 +228,7 @@ class _ConversationPageState extends State<ConversationPage> {
     _focusNode.addListener(_onFocusChange);
     _textEditingController = TextEditingController();
     _fetchMessages();
+    // getItemDetails(widget.itemId);
   }
 
   // Widget to build chat bubbles from messages
@@ -267,8 +298,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          FinishPage()), // Replace FinishPage with the actual page you want to navigate to
+                          FinishTransaction()), // Replace FinishPage with the actual page you want to navigate to
                 );
+                getItemDetails(widget.itemId);
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
@@ -296,6 +328,20 @@ class _ConversationPageState extends State<ConversationPage> {
       ),
       body: Column(
         children: [
+          Container(
+            color: primaryColor,
+            padding: EdgeInsets.all(8),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              itemName.isNotEmpty
+                  ? 'Transaction of $itemName'
+                  : 'Transaction details loading...',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.white),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               reverse: true,

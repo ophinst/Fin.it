@@ -232,6 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                 memberImage: '',
                 recentMessage: '',
                 recentMessageCreatedAt: '',
+                itemId: '',
                 updateRecentMessage: (_) {}, // No-op function
               ),
             );

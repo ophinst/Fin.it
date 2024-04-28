@@ -3,14 +3,14 @@ class Chat {
   final List<String> members;
   final DateTime createdAt;
   final DateTime updatedAt;
-  String? itemId;
+  final String itemId;
 
   Chat({
     required this.chatId,
     required this.members,
     required this.createdAt,
     required this.updatedAt,
-    this.itemId,
+    required this.itemId,
   });
 
   factory Chat.fromJson(Map<String, dynamic> json) {

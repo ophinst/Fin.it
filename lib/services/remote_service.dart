@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/models/founditem_model.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/message_model.dart';
@@ -63,17 +64,38 @@ class RemoteService {
     }
   }
 
-  Future<List<GetFoundModel>> getFoundById(String foundId) async {
-    var response = await http.get(Uri.parse('$url/found/$foundId'));
-    if (response.statusCode == 200) {
-      Iterable list = json.decode(response.body)['data'];
-      List<GetFoundModel> data =
-          list.map((model) => GetFoundModel.fromJson(model)).toList();
-      return data;
-    } else {
-      throw Exception('Failed to load data');
-    }
+  // Future<List<GetFoundModel>> getFoundById(String foundId) async {
+  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
+  //   if (response.statusCode == 200) {
+  //     Iterable list = json.decode(response.body)['data'];
+  //     List<GetFoundModel> data =
+  //         list.map((model) => GetFoundModel.fromJson(model)).toList();
+  //     return data;
+  //   } else {
+  //     throw Exception('Failed to load data');
+  //   }
+  // }
+
+  // Future<FoundItem> getFoundById(String foundId) async {
+  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
+  //   if (response.statusCode == 200) {
+  //     Map<String, dynamic> jsonResponse = json.decode(response.body);
+  //     FoundItem foundItem = FoundItem.fromJson(jsonResponse);
+  //     return foundItem;
+  //   } else {
+  //     throw Exception('Failed to load data');
+  //   }
+  // }
+
+  Future<dynamic> getFoundByIdJson(String foundId) async {
+  var response = await http.get(Uri.parse('$url/found/$foundId'));
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Failed to load data');
   }
+}
+
 
   //reward api
   Future<dynamic> getVoucherList() async {
@@ -123,8 +145,7 @@ class RemoteService {
   Future<Datum?> getLostItemById(String lostId) async {
     var client = http.Client();
 
-    var uri =
-        Uri.parse('$url/lost/$lostId');
+    var uri = Uri.parse('$url/lost/$lostId');
     var response = await client.get(uri);
     if (response.statusCode == 200) {
       var json = response.body;
@@ -220,6 +241,27 @@ class RemoteService {
     return null;
   }
 
+  Future<Map<String, dynamic>> getChatById(
+      String token, String itemId, String receiverId) async {
+    var client = http.Client();
+
+    var uri = Uri.parse('$url/chat/$itemId/$receiverId');
+    var response = await client.get(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      var jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print('Failed to fetch chats: ${response.statusCode}');
+      throw Exception('Failed to fetch chats: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> getChats(String token) async {
     var client = http.Client();
 
@@ -256,7 +298,7 @@ class RemoteService {
     }
   }
 
-Future<Message> sendMessage({
+  Future<Message> sendMessage({
     required String chatId,
     required String token,
     String? message,
@@ -303,7 +345,7 @@ Future<Message> sendMessage({
       throw Exception('Failed to send message: ${response.statusCode}');
     }
   }
-  
+
   Future<void> saveFoundItem(String token, FoundModel foundItem) async {
     final foundToken = token;
     final url = Uri.https(
