@@ -1,3 +1,4 @@
+import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class _ChatPageState extends State<ChatPage> {
 
   SocketService _socketService = SocketService(); // Use SocketService instance
   IO.Socket? socket;
+  RemoteService _remoteService = RemoteService();
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -50,151 +52,164 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> fetchChats() async {
-    try {
-      // Check if data has already been loaded
-      if (isLoaded) {
-        // If data has been loaded, use cached data
-        setState(() {
-          filteredChatBoxes = List.from(chatBoxes);
-          isLoading = false;
-        });
-        return;
-      }
-
-      // Set isLoading to true to show circular progress indicator
+  try {
+    // Check if data has already been loaded
+    if (isLoaded) {
+      // If data has been loaded, use cached data
       setState(() {
-        isLoading = true;
-      });
-
-      // Retrieve token and user ID from the user provider
-      final token = Provider.of<UserProvider>(context, listen: false).token;
-      final uid = Provider.of<UserProvider>(context, listen: false).uid;
-
-      // Ensure token is not null before proceeding
-      if (token != null) {
-        // Create an instance of RemoteService
-        RemoteService remoteService = RemoteService();
-
-        // Call the getChats function with error handling
-        final dynamic response =
-            await remoteService.getChats(token).catchError((e) {
-          print('Error fetching chats: $e');
-          throw e; // Rethrow the error to be caught by the outer try-catch block
-        });
-
-        // Extract list of chat objects from the response
-        final List<dynamic>? chatData = response['data'];
-
-        print(chatData);
-
-        if (chatData != null) {
-          // Clear previous chat boxes
-          setState(() {
-            chatBoxes.clear();
-            filteredChatBoxes.clear(); // Clear filtered chat boxes
-          });
-
-          // Iterate over chat objects and create ChatBox widgets
-          for (var chat in chatData) {
-            final List<dynamic>? members = chat['members'];
-
-            if (members != null && uid != null) {
-              // Filter out member IDs that are not equal to the UID
-              final filteredMembers =
-                  members.where((memberId) => memberId != uid).toList();
-
-              // print(filteredMembers.first);
-
-              // Fetch user name and image for the first member ID with error handling
-              String memberId = filteredMembers.first;
-              String memberName = '';
-              String memberImage = '';
-              String recentMessage = '';
-              String recentMessageCreatedAt = '';
-
-              if (filteredMembers.isNotEmpty) {
-                final user = await remoteService
-                    .getUserById(filteredMembers.first)
-                    .catchError((e) {
-                  print('Error fetching user: $e');
-                  throw e; // Rethrow the error to be caught by the outer try-catch block
-                });
-                if (user != null) {
-                  // print(user.reward);
-                  memberName = user.name;
-                  memberImage = user.image ??
-                      'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
-                }
-              }
-
-              // Get the most recent message and its creation date with error handling
-              final List<Message>? messagesResponse = await remoteService
-                  .getMessages(chat['chatId'])
-                  .catchError((e) {
-                print('Error fetching messages: $e');
-                throw e; // Rethrow the error to be caught by the outer try-catch block
-              });
-              if (messagesResponse != null && messagesResponse.isNotEmpty) {
-                // Sort messages by creation date in descending order
-                messagesResponse
-                    .sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-                final Message recentMessageObject = messagesResponse.first;
-                if (recentMessageObject.message != null) {
-                  recentMessage = recentMessageObject.message!;
-                } else if (recentMessageObject.imageUrl != null) {
-                  recentMessage = 'Image';
-                }
-                recentMessageCreatedAt = recentMessageObject.createdAt
-                    .toString(); // Format the creation date
-              }
-
-              // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
-              final chatBox = ChatBox(
-                chatId: chat['chatId'],
-                memberId: memberId,
-                memberName: memberName,
-                memberImage: memberImage,
-                recentMessage: recentMessage,
-                recentMessageCreatedAt: recentMessageCreatedAt,
-                itemId: chat['itemId'],
-                updateRecentMessage: (message) {
-                  // Define the updateRecentMessage function here
-                  setState(() {
-                    recentMessage = message;
-                  });
-                },
-              );
-
-              // Add chatBox to chatBoxes list
-              chatBoxes.add(chatBox);
-            }
-          }
-
-          // Sort chatBoxes based on recentMessageCreatedAt
-          chatBoxes.sort((a, b) =>
-              b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
-
-          // Assign chatBoxes to filteredChatBoxes
-          setState(() {
-            filteredChatBoxes = List.from(chatBoxes);
-            isLoaded = true; // Set isLoaded to true
-          });
-        } else {
-          print('No chat data found');
-        }
-      } else {
-        print('Token is null');
-      }
-    } catch (e) {
-      print('Error fetching chats: $e');
-    } finally {
-      // Set isLoading to false to hide circular progress indicator
-      setState(() {
+        filteredChatBoxes = List.from(chatBoxes);
         isLoading = false;
       });
+      return;
     }
+
+    // Set isLoading to true to show circular progress indicator
+    setState(() {
+      isLoading = true;
+    });
+
+    // Retrieve token and user ID from the user provider
+    final token = Provider.of<UserProvider>(context, listen: false).token;
+    final uid = Provider.of<UserProvider>(context, listen: false).uid;
+
+    // Ensure token is not null before proceeding
+    if (token != null) {
+      // Create an instance of RemoteService
+      RemoteService remoteService = RemoteService();
+
+      // Call the getChats function with error handling
+      final dynamic response = await remoteService.getChats(token).catchError((e) {
+        print('Error fetching chats: $e');
+        throw e; // Rethrow the error to be caught by the outer try-catch block
+      });
+
+      // Extract list of chat objects from the response
+      final List<dynamic>? chatData = response['data'];
+
+      print(chatData);
+
+      if (chatData != null) {
+        // Clear previous chat boxes
+        setState(() {
+          chatBoxes.clear();
+          filteredChatBoxes.clear(); // Clear filtered chat boxes
+        });
+
+        // Iterate over chat objects and create ChatBox widgets
+        for (var chat in chatData) {
+          final List<dynamic>? members = chat['members'];
+
+          if (members != null && uid != null) {
+            // Filter out member IDs that are not equal to the UID
+            final filteredMembers = members.where((memberId) => memberId != uid).toList();
+
+            // Fetch user name and image for the first member ID with error handling
+            String memberId = filteredMembers.first;
+            String memberName = '';
+            String memberImage = '';
+            String recentMessage = '';
+            String recentMessageCreatedAt = '';
+
+            if (filteredMembers.isNotEmpty) {
+              final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
+                print('Error fetching user: $e');
+                throw e; // Rethrow the error to be caught by the outer try-catch block
+              });
+              if (user != null) {
+                // print(user.reward);
+                memberName = user.name;
+                memberImage = user.image ??
+                    'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
+              }
+            }
+
+            // Get the most recent message and its creation date with error handling
+            final List<Message>? messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
+              print('Error fetching messages: $e');
+              throw e; // Rethrow the error to be caught by the outer try-catch block
+            });
+            if (messagesResponse != null && messagesResponse.isNotEmpty) {
+              // Sort messages by creation date in descending order
+              messagesResponse.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+              final Message recentMessageObject = messagesResponse.first;
+              if (recentMessageObject.message != null) {
+                recentMessage = recentMessageObject.message!;
+              } else if (recentMessageObject.imageUrl != null) {
+                recentMessage = 'Image';
+              }
+              recentMessageCreatedAt = recentMessageObject.createdAt.toString(); // Format the creation date
+            }
+
+            // Fetch item details for the itemId
+            final String itemId = chat['itemId'];
+            String itemName = 'Loading'; // Default item name while fetching
+            if (itemId.startsWith('fou')) {
+              // If itemId starts with 'fou', call getFoundByIdJson
+              dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
+              setState(() {
+                itemName = foundItem['itemName'] ?? '';
+              });
+            } else if (itemId.startsWith('los')) {
+              // If itemId starts with 'los', call getLostItemById
+              Datum? lostItem = await remoteService.getLostItemById(itemId);
+              if (lostItem != null) {
+                setState(() {
+                  itemName = lostItem.itemName ?? '';
+                });
+              } else {
+                print('Lost item not found for ID: $itemId');
+              }
+            } else {
+              print('Invalid itemId format');
+            }
+
+            // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
+            final chatBox = ChatBox(
+              chatId: chat['chatId'],
+              memberId: memberId,
+              memberName: memberName,
+              memberImage: memberImage,
+              recentMessage: recentMessage,
+              recentMessageCreatedAt: recentMessageCreatedAt,
+              itemId: itemId,
+              itemName: itemName, // Pass the fetched item name here
+              updateRecentMessage: (message) {
+                // Define the updateRecentMessage function here
+                setState(() {
+                  recentMessage = message;
+                });
+              },
+            );
+
+            // Add chatBox to chatBoxes list
+            chatBoxes.add(chatBox);
+          }
+        }
+
+        // Sort chatBoxes based on recentMessageCreatedAt
+        chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+
+        // Assign chatBoxes to filteredChatBoxes
+        setState(() {
+          filteredChatBoxes = List.from(chatBoxes);
+          isLoaded = true; // Set isLoaded to true
+        });
+      } else {
+        print('No chat data found');
+      }
+    } else {
+      print('Token is null');
+    }
+  } catch (e) {
+    print('Error fetching chats: $e');
+  } finally {
+    // Set isLoading to false to hide circular progress indicator
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   // Search function to filter chat boxes by member name or recent message
   void searchChats(String query) {
@@ -208,46 +223,46 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void initializeSocket() {
-  try {
-    _socketService.initializeSocket().then((_) {
-      print('Socket connected');
-      final uid = Provider.of<UserProvider>(context, listen: false).uid;
-      _socketService.socket?.emit("new-user-add", uid);
-      _socketService.socket?.on("receive-message", (data) {
-        print(data);
-        final Map<String, dynamic> messageData = data as Map<String, dynamic>;
-        final String? receiverId = messageData['receiverId'];
-        final String? senderId = messageData['senderId'];
-        final String? message = messageData['message'];
+    try {
+      _socketService.initializeSocket().then((_) {
+        print('Socket connected');
+        final uid = Provider.of<UserProvider>(context, listen: false).uid;
+        _socketService.socket?.emit("new-user-add", uid);
+        _socketService.socket?.on("receive-message", (data) {
+          print(data);
+          final Map<String, dynamic> messageData = data as Map<String, dynamic>;
+          final String? receiverId = messageData['receiverId'];
+          final String? senderId = messageData['senderId'];
+          final String? message = messageData['message'];
 
-        if (receiverId == uid && senderId != uid && message != null) {
-          setState(() {
-            // Find the ChatBox with memberId equal to senderId
-            final chatBoxToUpdate = chatBoxes.firstWhere(
-              (chatBox) => chatBox.memberId == senderId,
-              orElse: () => ChatBox(
-                chatId: '', // Provide default values here
-                memberId: '',
-                memberName: '',
-                memberImage: '',
-                recentMessage: '',
-                recentMessageCreatedAt: '',
-                itemId: '',
-                updateRecentMessage: (_) {}, // No-op function
-              ),
-            );
+          if (receiverId == uid && senderId != uid && message != null) {
+            setState(() {
+              // Find the ChatBox with memberId equal to senderId
+              final chatBoxToUpdate = chatBoxes.firstWhere(
+                (chatBox) => chatBox.memberId == senderId,
+                orElse: () => ChatBox(
+                  chatId: '', // Provide default values here
+                  memberId: '',
+                  memberName: '',
+                  memberImage: '',
+                  recentMessage: '',
+                  recentMessageCreatedAt: '',
+                  itemId: '',
+                  itemName: '',
+                  updateRecentMessage: (_) {}, // No-op function
+                ),
+              );
 
-            // Update the recent message in the found ChatBox
-            chatBoxToUpdate.updateRecentMessage(message);
-          });
-        }
+              // Update the recent message in the found ChatBox
+              chatBoxToUpdate.updateRecentMessage(message);
+            });
+          }
+        });
       });
-    });
-  } catch (e) {
-    print('Failed to connect to socket: $e');
+    } catch (e) {
+      print('Failed to connect to socket: $e');
+    }
   }
-}
-
 
   Future<void> fetchData() async {
     try {
@@ -277,83 +292,86 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(13.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'LOST & FOUND',
-                      style: TextStyle(
-                        fontFamily: 'josefinSans',
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                const Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 25,
-                        top: 25,
-                      ),
-                      child: Text(
-                        'Chat',
+      body: RefreshIndicator(
+        onRefresh: () => fetchData(),
+        child: SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(13.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'LOST & FOUND',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'JosefinSans',
+                          fontFamily: 'josefinSans',
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
-                  height: 2,
-                  color: Colors.black,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 25,
+                    ],
+                  ),
+                  const Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 25,
+                          top: 25,
                         ),
-                        child: SrcBar(
-                          searchController: searchController,
-                          onSearch: searchChats,
+                        child: Text(
+                          'Chat',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'JosefinSans',
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                // Show circular progress indicator if loading, else show chat boxes
-                isLoading
-                    ? CircularProgressIndicator()
-                    : Column(
-                        children: [
-                          for (var chatBox in filteredChatBoxes)
-                            Column(
-                              children: [
-                                chatBox,
-                                SizedBox(
-                                    height:
-                                        10), // Add SizedBox between ChatBoxes
-                              ],
-                            ),
-                        ],
+                    ],
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
+                    height: 2,
+                    color: Colors.black,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 25,
+                          ),
+                          child: SrcBar(
+                            searchController: searchController,
+                            onSearch: searchChats,
+                          ),
+                        ),
                       ),
-                SizedBox(height: 10),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  // Show circular progress indicator if loading, else show chat boxes
+                  isLoading
+                      ? CircularProgressIndicator()
+                      : Column(
+                          children: [
+                            for (var chatBox in filteredChatBoxes)
+                              Column(
+                                children: [
+                                  chatBox,
+                                  SizedBox(
+                                      height:
+                                          10), // Add SizedBox between ChatBoxes
+                                ],
+                              ),
+                          ],
+                        ),
+                  SizedBox(height: 10),
+                ],
+              ),
             ),
           ),
         ),

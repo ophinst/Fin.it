@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:capstone_project/models/found_model.dart';
-import 'package:capstone_project/models/founditem_model.dart';
+import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/pages/chat/preview_page.dart';
-import 'package:capstone_project/pages/finish_page.dart';
 import 'package:capstone_project/pages/finish_transaction.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:capstone_project/services/socket_service.dart';
@@ -23,7 +20,7 @@ class ConversationPage extends StatefulWidget {
   final String memberName;
   final String memberImage;
   final String itemId;
-  String? itemName;
+  final String itemName;
   ConversationPage({
     Key? key,
     required this.chatId,
@@ -31,7 +28,7 @@ class ConversationPage extends StatefulWidget {
     required this.memberName,
     required this.memberImage,
     required this.itemId,
-    this.itemName,
+    required this.itemName,
   }) : super(key: key);
 
   @override
@@ -44,7 +41,6 @@ class _ConversationPageState extends State<ConversationPage> {
   bool _isFocused = false;
   List<Message> _messages = []; // Store fetched messages here
   // List<GetFoundModel> foundItem;
-  late String itemName = '';
 
   SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -176,19 +172,31 @@ class _ConversationPageState extends State<ConversationPage> {
     }
   }
 
-  Future<void> getItemDetails(String itemId) async {
-  try {
-    print(itemId);
-    dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
-    setState(() {
-      itemName = foundItem['itemName'] ?? '';
-    });
-    print(foundItem['foundId']);
-  } catch (e) {
-    print('Error fetching item details: $e');
-  }
-}
-
+//   Future<void> getItemDetails(String itemId) async {
+//   try {
+//     if (itemId.startsWith('fou')) {
+//       // If itemId starts with 'fou', call getFoundByIdJson
+//       dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
+//       setState(() {
+//         itemName = foundItem['itemName'] ?? '';
+//       });
+//     } else if (itemId.startsWith('los')) {
+//       // If itemId starts with 'los', call getLostItemById
+//       Datum? lostItem = await _remoteService.getLostItemById(itemId);
+//       if (lostItem != null) {
+//         setState(() {
+//           itemName = lostItem.itemName ?? '';
+//         });
+//       } else {
+//         print('Lost item not found for ID: $itemId');
+//       }
+//     } else {
+//       print('Invalid itemId format');
+//     }
+//   } catch (e) {
+//     print('Error fetching item details: $e');
+//   }
+// }
 
   // Method to navigate to ImagePreviewPage and handle the result
   Future<void> _navigateToImagePreviewPage(File imageFile) async {
@@ -300,7 +308,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       builder: (context) =>
                           FinishTransaction()), // Replace FinishPage with the actual page you want to navigate to
                 );
-                getItemDetails(widget.itemId);
+                // getItemDetails(widget.itemId);
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
@@ -333,9 +341,7 @@ class _ConversationPageState extends State<ConversationPage> {
             padding: EdgeInsets.all(8),
             alignment: Alignment.centerLeft,
             child: Text(
-              itemName.isNotEmpty
-                  ? 'Transaction of $itemName'
-                  : 'Transaction details loading...',
+              'Transaction of: ${widget.itemName}',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

@@ -87,10 +87,12 @@ class RemoteService {
   //   }
   // }
 
-  Future<dynamic> getFoundByIdJson(String foundId) async {
-  var response = await http.get(Uri.parse('$url/found/$foundId'));
+  Future<dynamic> getFoundByIdJson(String itemId) async {
+  var response = await http.get(Uri.parse('$url/found/$itemId'));
   if (response.statusCode == 200) {
-    return json.decode(response.body);
+    var responseData = json.decode(response.body);
+    var data = responseData['data']; // Extracting the 'data' field
+    return data;
   } else {
     throw Exception('Failed to load data');
   }
