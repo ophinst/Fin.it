@@ -1,47 +1,63 @@
-import 'package:capstone_project/pages/chat/conversation_page.dart';
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeAgo;
+import 'package:capstone_project/pages/chat/conversation_page.dart';
 
-class ChatBox extends StatelessWidget {
+class ChatBox extends StatefulWidget {
   final String chatId;
+  final String memberId;
   final String memberName;
   final String memberImage;
-  final String recentMessage;
+  String recentMessage; // Change to non-final to allow modification
   final String recentMessageCreatedAt;
-  const ChatBox({
-    Key? key,
+  final String itemId; // New parameter for itemId
+  final String itemName; // New parameter for itemId
+  final VoidCallback? fetchChats;
+  final Function(String) updateRecentMessage; // Callback function
+
+  ChatBox({
+    super.key,
     required this.chatId,
+    required this.memberId,
     required this.memberName,
     required this.memberImage,
     required this.recentMessage,
+    required this.itemId,
+    required this.itemName,
     required this.recentMessageCreatedAt,
-  }) : super(key: key);
+    this.fetchChats,
+    required this.updateRecentMessage, // Pass the callback function
+  });
 
-  String formatCreatedAt(String createdAt) {
-    // Parse the createdAt string into a DateTime object
-    final createdAtDateTime = DateTime.parse(createdAt);
+  @override
+  State<ChatBox> createState() => _ChatBoxState();
+}
 
-    // Calculate the difference between the createdAt time and the current device time
-    final difference = DateTime.now().difference(createdAtDateTime);
+class _ChatBoxState extends State<ChatBox> {
 
-    // Check if the difference is less than 24 hours
-    if (difference.inHours < 24) {
-      // Display only the time in hour and minutes
-      return '${createdAtDateTime.hour.toString().padLeft(2, '0')}:${createdAtDateTime.minute.toString().padLeft(2, '0')}';
-    } else {
-      // Display just the date and month
-      return '${createdAtDateTime.day.toString().padLeft(2, '0')}-${createdAtDateTime.month.toString().padLeft(2, '0')}';
-    }
-  }
+  void updateRecentMessage(String newMessage) {
+  setState(() {
+    widget.recentMessage = newMessage;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
+    // Parse recentMessageCreatedAt to DateTime
+    DateTime createdAtDateTime = DateTime.parse(widget.recentMessageCreatedAt);
+
+    // Format the difference between createdAtDateTime and current time using timeago
+    String formattedTimeAgo =
+        timeAgo.format(createdAtDateTime, locale: 'en_short');
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ConversationPage(
-            chatId: chatId,
-            memberName: memberName,
-            // memberImage: memberImage,
+            chatId: widget.chatId,
+            memberId: widget.memberId,
+            memberName: widget.memberName,
+            memberImage: widget.memberImage,
+            itemId: widget.itemId,
+            itemName: widget.itemName,
           ),
         ));
       },
@@ -57,7 +73,7 @@ class ChatBox extends StatelessWidget {
                   children: [
                     ClipOval(
                       child: Image.network(
-                        memberImage,
+                        widget.memberImage,
                         width: 55,
                         height: 55,
                         fit: BoxFit.cover,
@@ -72,7 +88,7 @@ class ChatBox extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        memberName,
+                        '${widget.memberName} (${widget.itemName})',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -82,7 +98,7 @@ class ChatBox extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            recentMessage,
+                            widget.recentMessage,
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 12,
@@ -97,7 +113,7 @@ class ChatBox extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      formatCreatedAt(recentMessageCreatedAt),
+                      formattedTimeAgo,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 12,

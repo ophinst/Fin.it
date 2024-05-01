@@ -2,8 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class FinishTransaction extends StatelessWidget {
-  const FinishTransaction({super.key});
-  void finishTrans() {}
+  const FinishTransaction({Key? key});
+
+  void finishTrans(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Transaction complete, thank you'),
+        duration: Duration(seconds: 2), // Adjust the duration as needed
+      ),
+    );
+    // Navigate back to the homepage after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.popUntil(context, ModalRoute.withName('/home'));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Color primaryColor = Colors.white;
@@ -73,7 +86,7 @@ class FinishTransaction extends StatelessWidget {
               height: 20,
             ),
             const Text(
-              'NAMA ITEM',
+              'Macbook',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -84,7 +97,7 @@ class FinishTransaction extends StatelessWidget {
               height: 10,
             ),
             const Text(
-              'Date',
+              '2024-04-28',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
@@ -159,7 +172,7 @@ class FinishTransaction extends StatelessWidget {
         width: 350,
         child: FloatingActionButton(
           onPressed: () {
-            finishTrans();
+            finishTrans(context);
           },
           child: Text(
             'Finish Transaction',

@@ -1,9 +1,15 @@
 import 'package:capstone_project/models/lost_item_model.dart';
+import 'package:capstone_project/models/user_model.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/pages/chat/conversation_page.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+
+import '../models/chat_model.dart';
 
 class LostItemPage extends StatefulWidget {
   final String? lostId;
@@ -17,6 +23,7 @@ class LostItemPage extends StatefulWidget {
 
 class _LostItemPageState extends State<LostItemPage> {
   late Future<Datum?> _lostItemFuture;
+  RemoteService _remoteService = RemoteService();
 
   @override
   void initState() {
@@ -26,7 +33,56 @@ class _LostItemPageState extends State<LostItemPage> {
 
   void tagButton() {}
 
-  void chatButton() {}
+  void chatButton(BuildContext? context, Datum? lostItem) async {
+  if (context == null || lostItem == null) {
+    // Handle the case when the context or lostItem is null
+    return;
+  }
+
+  try {
+    // Get user data
+    User? user = await _remoteService.getUserById(lostItem.uid);
+    String userName = user?.name ?? 'Unknown User';
+    String userImage = user?.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+
+    // Get token from userProvider
+    final token = Provider.of<UserProvider?>(context, listen: false)?.token ?? ''; // Assign empty string if token is null
+
+    // Call getChatById function
+    String itemId = lostItem.lostId; // Using foundId instead of lostId
+    String receiverId = lostItem.uid; // Assuming foundItem is available
+    Map<String, dynamic> chatData = await _remoteService.getChatById(token, itemId, receiverId);
+
+    // Access the 'data' field from chatData
+    Map<String, dynamic>? chatInfo = chatData['data'];
+
+    if (chatInfo != null) {
+      // Create Chat object from the chatInfo map
+      Chat chat = Chat.fromJson(chatInfo);
+
+      // Navigate to ConversationPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConversationPage(
+            chatId: chat.chatId,
+            memberId: lostItem.uid,
+            memberName: userName,
+            memberImage: userImage,
+            itemId: lostItem.lostId,
+            itemName: lostItem.itemName,
+          ),
+        ),
+      );
+      
+    } else {
+      print('Error: No chat data found in the response.');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
 
   // int _currentIndex = 0;
 
@@ -341,7 +397,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                   ),
                                 ),
                                 ElevatedButton(
-                                  onPressed: chatButton,
+                                  onPressed: () => chatButton(context,lostItem),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         const Color.fromRGBO(43, 52, 153, 1),

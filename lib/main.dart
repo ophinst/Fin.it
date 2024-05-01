@@ -1,8 +1,10 @@
 import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
+import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/home_screen.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/register_page.dart';
+import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
 import 'package:capstone_project/pages/form_lost.dart';
@@ -18,6 +20,7 @@ import 'package:capstone_project/pages/voucher_detail.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
+  // SocketService().initializeSocket();
   runApp(const MyApp());
 }
 
@@ -39,6 +42,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/home': (context) => HomeScreen(),
+          '/homepage': (context) => HomePage(),
           '/register': (context) => RegisterPage(),
           '/login': (context) => LoginPage(),
           '/lost': (context) => LostItemList(),

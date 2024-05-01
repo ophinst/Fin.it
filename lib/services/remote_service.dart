@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/models/founditem_model.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/loginModel.dart';
-import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/message_model.dart';
+import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
 import 'package:capstone_project/models/voucher_model.dart';
@@ -11,11 +12,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:io';
 
 class RemoteService {
   final Map<String, String> _locationCache = {};
+  // final String url = "http://localhost:8080/api";
   final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
 
   Future<List<List<Datum>>> getLostItems(int counter) async {
@@ -63,17 +64,40 @@ class RemoteService {
     }
   }
 
-  Future<List<GetFoundModel>> getFoundById(String foundId) async {
-    var response = await http.get(Uri.parse('$url/found/$foundId'));
-    if (response.statusCode == 200) {
-      Iterable list = json.decode(response.body)['data'];
-      List<GetFoundModel> data =
-          list.map((model) => GetFoundModel.fromJson(model)).toList();
-      return data;
-    } else {
-      throw Exception('Failed to load data');
-    }
+  // Future<List<GetFoundModel>> getFoundById(String foundId) async {
+  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
+  //   if (response.statusCode == 200) {
+  //     Iterable list = json.decode(response.body)['data'];
+  //     List<GetFoundModel> data =
+  //         list.map((model) => GetFoundModel.fromJson(model)).toList();
+  //     return data;
+  //   } else {
+  //     throw Exception('Failed to load data');
+  //   }
+  // }
+
+  // Future<FoundItem> getFoundById(String foundId) async {
+  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
+  //   if (response.statusCode == 200) {
+  //     Map<String, dynamic> jsonResponse = json.decode(response.body);
+  //     FoundItem foundItem = FoundItem.fromJson(jsonResponse);
+  //     return foundItem;
+  //   } else {
+  //     throw Exception('Failed to load data');
+  //   }
+  // }
+
+  Future<dynamic> getFoundByIdJson(String itemId) async {
+  var response = await http.get(Uri.parse('$url/found/$itemId'));
+  if (response.statusCode == 200) {
+    var responseData = json.decode(response.body);
+    var data = responseData['data']; // Extracting the 'data' field
+    return data;
+  } else {
+    throw Exception('Failed to load data');
   }
+}
+
 
   //reward api
   Future<dynamic> getVoucherList() async {
@@ -106,6 +130,8 @@ class RemoteService {
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
+      print('=================');
+      print(apiKey);
       final decodedResponse = json.decode(response.body);
       final results = decodedResponse['results'];
       if (results != null && results.isNotEmpty) {
@@ -121,8 +147,7 @@ class RemoteService {
   Future<Datum?> getLostItemById(String lostId) async {
     var client = http.Client();
 
-    var uri =
-        Uri.parse('https://finit-api-ahawuso3sq-et.a.run.app/api/lost/$lostId');
+    var uri = Uri.parse('$url/lost/$lostId');
     var response = await client.get(uri);
     if (response.statusCode == 200) {
       var json = response.body;
@@ -218,6 +243,111 @@ class RemoteService {
     return null;
   }
 
+  Future<Map<String, dynamic>> getChatById(
+      String token, String itemId, String receiverId) async {
+    var client = http.Client();
+
+    var uri = Uri.parse('$url/chat/$itemId/$receiverId');
+    var response = await client.get(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      var jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print('Failed to fetch chats: ${response.statusCode}');
+      throw Exception('Failed to fetch chats: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getChats(String token) async {
+    var client = http.Client();
+
+    var uri = Uri.parse('$url/chat');
+    var response = await client.get(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print('Failed to fetch chats: ${response.statusCode}');
+      throw Exception('Failed to fetch chats: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Message>> getMessages(String chatId) async {
+    var client = http.Client();
+
+    var uri = Uri.parse('$url/message/$chatId');
+    var response = await client.get(uri);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      var messageData = jsonData['data'] as List<dynamic>;
+      return messageData.map((json) => Message.fromJson(json)).toList();
+    } else {
+      print('Failed to fetch messages: ${response.statusCode}');
+      throw Exception('Failed to fetch messages: ${response.statusCode}');
+    }
+  }
+
+  Future<Message> sendMessage({
+    required String chatId,
+    required String token,
+    String? message,
+    File? imageFile,
+  }) async {
+    var uri = Uri.parse('$url/message/$chatId');
+
+    var request = http.MultipartRequest('POST', uri);
+
+    // Add message field
+    if (message != null) {
+      request.fields['payload'] = message;
+    }
+
+    // Add image file field
+    if (imageFile != null) {
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+
+      // Add image file to request
+      request.files.add(
+        http.MultipartFile(
+          'image',
+          stream,
+          length,
+          filename: imageFile.path.split('/').last,
+        ),
+      );
+    }
+
+    // Add authorization header
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader: 'Bearer $token',
+    });
+
+    // Send the request
+    var response = await http.Response.fromStream(await request.send());
+
+    if (response.statusCode == 201) {
+      var responseData = jsonDecode(response.body);
+      return Message.fromJson(responseData['data']);
+    } else {
+      print('Failed to send message: ${response.statusCode}');
+      throw Exception('Failed to send message: ${response.statusCode}');
+    }
+  }
+
   Future<void> saveFoundItem(String token, FoundModel foundItem) async {
     final foundToken = token;
     final url = Uri.https(
@@ -278,41 +408,5 @@ class RemoteService {
       Map<String, dynamic> responseJson = json.decode(responseBody);
       print("Message from server: ${responseJson['message']}");
     });
-  }
-
-  Future<Map<String, dynamic>> getChats(String token) async {
-    var client = http.Client();
-
-    var uri = Uri.parse('$url/chat');
-    var response = await client.get(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      return jsonData;
-    } else {
-      print('Failed to fetch chats: ${response.statusCode}');
-      throw Exception('Failed to fetch chats: ${response.statusCode}');
-    }
-  }
-
-  Future<List<Message>> getMessages(String chatId) async {
-    var client = http.Client();
-
-    var uri = Uri.parse('$url/message/$chatId');
-    var response = await client.get(uri);
-
-    if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      var messageData = jsonData['data'] as List<dynamic>;
-      return messageData.map((json) => Message.fromJson(json)).toList();
-    } else {
-      print('Failed to fetch messages: ${response.statusCode}');
-      throw Exception('Failed to fetch messages: ${response.statusCode}');
-    }
   }
 }
