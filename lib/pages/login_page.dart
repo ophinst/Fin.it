@@ -4,8 +4,8 @@ import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/services/remote_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:convert'; // Import the dart:convert library
 import 'package:capstone_project/components/loading_HUD.dart';
 import 'package:provider/provider.dart';
@@ -68,12 +68,12 @@ class _LoginPageState extends State<LoginPage> {
             controller: ScrollController(),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset(
-                'assets/images/google.png',
-                width: 180,
+              SvgPicture.asset(
+                'assets/login-image/20.svg',
+                semanticsLabel: 'Login SVG image',
+                height: 250,
               ),
               const SizedBox(height: 25),
-              // new here?
               const Text(
                 'Welcome Back!',
                 style: TextStyle(
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                           });
                           //check token available or not
                           if (value.token != null && value.token!.isNotEmpty) {
-                            final snackBar =
+                            const snackBar =
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                           } else {
-                            final snackBar =
+                            const snackBar =
                                 SnackBar(content: Text("Login Failed"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
