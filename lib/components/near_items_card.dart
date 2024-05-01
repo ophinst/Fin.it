@@ -34,19 +34,6 @@ class NearItemsCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      // Column(
-                      //   children: [
-                      //     Image.asset(
-                      //       'assets/images/iphone.jpg',
-                      //       width: 75,
-                      //       height: 100,
-                      //       fit: BoxFit.cover,
-                      //     ),
-                      //   ],
-                      // ),
-                      const SizedBox(
-                        width: 15,
-                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -58,21 +45,21 @@ class NearItemsCard extends StatelessWidget {
                                     : ''),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                                fontSize: 16),
+                                color: Color.fromRGBO(43, 52, 153, 1),
+                                fontSize: 30),
                           ),
                           const SizedBox(
                             height: 5,
                           ),
                           Text(
                             foundNearItems != null
-                                ? foundNearItems!.locationDetail.length <= 17
+                                ? foundNearItems!.locationDetail.length <= 30
                                     ? foundNearItems!.locationDetail
-                                    : '${foundNearItems!.locationDetail.substring(0, 17)}...'
+                                    : '${foundNearItems!.locationDetail.substring(0, 30)}...'
                                 : (lostNearItems != null
-                                    ? lostNearItems!.locationDetail.length <= 17
+                                    ? lostNearItems!.locationDetail.length <= 30
                                         ? lostNearItems!.locationDetail
-                                        : '${lostNearItems!.locationDetail.substring(0, 17)}...'
+                                        : '${lostNearItems!.locationDetail.substring(0, 30)}...'
                                     : ''),
                             style: const TextStyle(
                               fontWeight: FontWeight.w500,
@@ -86,9 +73,9 @@ class NearItemsCard extends StatelessWidget {
                           ),
                           Text(
                             foundNearItems != null
-                                ? '${foundNearItems!.foundDate}, ${foundNearItems!.foundTime}'
+                                ? foundNearItems!.foundDate
                                 : (lostNearItems != null
-                                    ? '${lostNearItems!.lostDate}, ${lostNearItems!.lostTime}'
+                                    ? lostNearItems!.lostDate
                                     : 'Undefined date & time'),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w500,
@@ -100,11 +87,11 @@ class NearItemsCard extends StatelessWidget {
                       const SizedBox(
                         width: 35,
                       ),
+                      const Spacer(),
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Text(
                                 'Status',

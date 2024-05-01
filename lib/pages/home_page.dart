@@ -1,6 +1,8 @@
 import 'package:capstone_project/components/drawer.dart';
 import 'package:capstone_project/components/near_items_card.dart';
 import 'package:capstone_project/models/near_items_model.dart';
+import 'package:capstone_project/models/place.dart';
+import 'package:capstone_project/pages/map.dart';
 import 'package:capstone_project/pages/profile.dart';
 import 'package:capstone_project/pages/voucher_list.dart';
 import 'package:capstone_project/models/user_provider.dart';
@@ -92,7 +94,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(_userLocation);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final String _name = userProvider.name ?? "Unknown";
     return Scaffold(
@@ -274,28 +275,58 @@ class _HomePageState extends State<HomePage> {
                           height: 5,
                         ),
                         Container(
-                            height: 100,
-                            decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(15)),
-                            child: _userLocation != null
-                                ? GoogleMap(
-                                    mapType: MapType.normal,
-                                    initialCameraPosition: CameraPosition(
-                                      target: _userLocation!,
-                                      zoom: 14,
-                                    ),
-                                    markers: {
-                                      Marker(
-                                        markerId:
-                                            const MarkerId('userLocation'),
-                                        position: _userLocation!,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: _userLocation != null
+                              ? Stack(
+                                  children: [
+                                    GoogleMap(
+                                      mapType: MapType.normal,
+                                      initialCameraPosition: CameraPosition(
+                                        target: _userLocation!,
+                                        zoom: 14,
                                       ),
-                                    },
-                                  )
-                                : const Center(
-                                    child: CircularProgressIndicator(),
-                                  )),
+                                      markers: {
+                                        Marker(
+                                          markerId:
+                                              const MarkerId('userLocation'),
+                                          position: _userLocation!,
+                                        ),
+                                      },
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MapScreen(
+                                              location: PlaceLocation(
+                                                latitude:
+                                                    _userLocation!.latitude,
+                                                longitude:
+                                                    _userLocation!.longitude,
+                                              ),
+                                              isSelecting:
+                                                  false,
+                                                  foundItems: foundItems,
+                                                  lostItems: lostItems,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        color: Colors.transparent,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                        ),
                       ],
                     ),
                   ),
@@ -351,17 +382,21 @@ class _HomePageState extends State<HomePage> {
                                         ...lostItems
                                       ];
                                       combinedItems.shuffle();
-                                      return NearItemsCard(
-                                        foundNearItems: combinedItems[index]
-                                                is FoundNearItem
-                                            ? combinedItems[index]
-                                                as FoundNearItem
-                                            : null,
-                                        lostNearItems:
-                                            combinedItems[index] is LostNearItem
-                                                ? combinedItems[index]
-                                                    as LostNearItem
-                                                : null,
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: NearItemsCard(
+                                          foundNearItems: combinedItems[index]
+                                                  is FoundNearItem
+                                              ? combinedItems[index]
+                                                  as FoundNearItem
+                                              : null,
+                                          lostNearItems: combinedItems[index]
+                                                  is LostNearItem
+                                              ? combinedItems[index]
+                                                  as LostNearItem
+                                              : null,
+                                        ),
                                       );
                                     },
                                   )
