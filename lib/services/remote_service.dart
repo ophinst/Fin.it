@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:capstone_project/models/found_model.dart';
-import 'package:capstone_project/models/founditem_model.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/message_model.dart';
@@ -24,12 +23,15 @@ class RemoteService {
 
     if (response.statusCode == 200) {
       Iterable currentList = json.decode(response.body)['data'];
-      List<Datum> currentData = currentList.map((model) => Datum.fromJson(model)).toList();
+      List<Datum> currentData =
+          currentList.map((model) => Datum.fromJson(model)).toList();
 
-      final nextResponse = await http.get(Uri.parse('$url/lost?page=${counter + 1}'));
+      final nextResponse =
+          await http.get(Uri.parse('$url/lost?page=${counter + 1}'));
       if (nextResponse.statusCode == 200) {
         Iterable nextList = json.decode(nextResponse.body)['data'];
-        List<Datum> nextData = nextList.map((model) => Datum.fromJson(model)).toList();
+        List<Datum> nextData =
+            nextList.map((model) => Datum.fromJson(model)).toList();
 
         return [currentData, nextData];
       } else {
@@ -64,40 +66,33 @@ class RemoteService {
     }
   }
 
-  // Future<List<GetFoundModel>> getFoundById(String foundId) async {
-  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
-  //   if (response.statusCode == 200) {
-  //     Iterable list = json.decode(response.body)['data'];
-  //     List<GetFoundModel> data =
-  //         list.map((model) => GetFoundModel.fromJson(model)).toList();
-  //     return data;
-  //   } else {
-  //     throw Exception('Failed to load data');
-  //   }
-  // }
-
-  // Future<FoundItem> getFoundById(String foundId) async {
-  //   var response = await http.get(Uri.parse('$url/found/$foundId'));
-  //   if (response.statusCode == 200) {
-  //     Map<String, dynamic> jsonResponse = json.decode(response.body);
-  //     FoundItem foundItem = FoundItem.fromJson(jsonResponse);
-  //     return foundItem;
-  //   } else {
-  //     throw Exception('Failed to load data');
-  //   }
-  // }
-
   Future<dynamic> getFoundByIdJson(String itemId) async {
   var response = await http.get(Uri.parse('$url/found/$itemId'));
-  if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
     var responseData = json.decode(response.body);
     var data = responseData['data']; // Extracting the 'data' field
-    return data;
-  } else {
-    throw Exception('Failed to load data');
+      return data;
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
-}
 
+  Future<Map<String, dynamic>> getNearItems(double latitude, double longitude) async {
+    final uri = Uri.parse('$url/nearby/$latitude/$longitude');
+    
+    try {
+      final response = await http.get(uri);
+      
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception('Failed to load near items');
+      }
+    } catch (e) {
+      throw Exception('Failed to load near items: $e');
+    }
+  }
 
   //reward api
   Future<dynamic> getVoucherList() async {
@@ -386,6 +381,7 @@ class RemoteService {
         'category': lostItem.category,
         'latitude': lostItem.placeLocation.latitude.toString(),
         'longitude': lostItem.placeLocation.longitude.toString(),
+        'locationDetail': lostItem.placeLocation.locationDetail.toString(),
       })
       ..files.add(await http.MultipartFile.fromPath(
         'image',

@@ -1,3 +1,4 @@
+import 'package:capstone_project/models/near_items_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:capstone_project/models/place.dart';
@@ -12,10 +13,14 @@ class MapScreen extends StatefulWidget {
       locationDetail: '',
     ),
     this.isSelecting = true,
+    this.foundItems,
+    this.lostItems,
   });
 
   final PlaceLocation location;
   final bool isSelecting;
+  final List<FoundNearItem>? foundItems;
+  final List<LostNearItem>? lostItems;
 
   @override
   State<StatefulWidget> createState() {
@@ -25,6 +30,79 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng? _pickedLocation;
+
+  List<String> foundItemIds = [];
+  List<double> foundItemLatitudes = [];
+  List<double> foundItemLongitudes = [];
+
+  List<String> lostItemIds = [];
+  List<double> lostItemLatitudes = [];
+  List<double> lostItemLongitudes = [];
+
+  final Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _updateMarkers();
+  }
+
+  void _updateMarkers() {
+    _markers.clear();
+    List<Marker> markers = [];
+
+    // Markers for user's current location
+    if (_pickedLocation != null && widget.isSelecting) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('user_location'),
+          position: _pickedLocation!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed,
+          ),
+        ),
+      );
+    }
+
+    // Markers for found items
+    if (widget.foundItems != null) {
+      for (var foundItem in widget.foundItems!) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(foundItem.foundId),
+            position: LatLng(foundItem.latitude, foundItem.longitude),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueViolet,
+            ),
+          ),
+        );
+      }
+    }
+
+    // Markers for lost items
+    if (widget.lostItems != null) {
+      for (var lostItem in widget.lostItems!) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(lostItem.lostId),
+            position: LatLng(lostItem.latitude, lostItem.longitude),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueBlue,
+            ),
+          ),
+        );
+      }
+    }
+
+    if (markers.isNotEmpty) {
+      _markers.add(markers.first);
+    }
+
+    _markers.addAll(markers);
+
+    setState(() {
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +121,14 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       body: GoogleMap(
-        onTap: !widget.isSelecting ? null : (position) {
-          setState(() {
-            _pickedLocation = position;
-          });
-        },
+        onTap: !widget.isSelecting
+            ? null
+            : (position) {
+                setState(() {
+                  _pickedLocation = position;
+                  _updateMarkers();
+                });
+              },
         initialCameraPosition: CameraPosition(
           target: LatLng(
             widget.location.latitude,
@@ -55,17 +136,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           zoom: 16,
         ),
-        markers: (_pickedLocation == null && widget.isSelecting) ? {} : {
-          Marker(
-            markerId: const MarkerId('m1'),
-            //The (??) is actually an if check where if the _pickedLocation is null, it will be set to the value after the (??) sign
-            position: _pickedLocation ??
-                LatLng(
-                  widget.location.latitude,
-                  widget.location.longitude,
-                ),
-          ),
-        },
+        markers: _markers,
       ),
     );
   }
