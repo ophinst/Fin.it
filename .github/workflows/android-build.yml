@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+        GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
     steps:
       - uses: actions/checkout@v3
@@ -29,5 +31,8 @@ jobs:
         run: flutter upgrade
       - name: Get dependencies
         run: flutter pub get
+      - name: Create .env file
+        run: |
+          echo "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}" > .env
       - name: Start release build
         run: flutter build appbundle
