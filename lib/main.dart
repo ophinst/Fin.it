@@ -1,3 +1,4 @@
+import 'package:capstone_project/pages/chat/chat_page.dart';
 import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
           '/found': (context) => FoundItemList(),
           '/add-lost': (context) => FormLost(),
           '/add-found': (context) => FormFound(),
+          '/chat': (context) => ChatPage(),
         },
       ),
     );

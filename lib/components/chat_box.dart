@@ -11,6 +11,7 @@ class ChatBox extends StatefulWidget {
   final String recentMessageCreatedAt;
   final String itemId; // New parameter for itemId
   final String itemName; // New parameter for itemId
+  final String itemDate; // New parameter for itemId
   final VoidCallback? fetchChats;
   final Function(String) updateRecentMessage; // Callback function
 
@@ -23,6 +24,7 @@ class ChatBox extends StatefulWidget {
     required this.recentMessage,
     required this.itemId,
     required this.itemName,
+    required this.itemDate,
     required this.recentMessageCreatedAt,
     this.fetchChats,
     required this.updateRecentMessage, // Pass the callback function
@@ -58,6 +60,7 @@ class _ChatBoxState extends State<ChatBox> {
             memberImage: widget.memberImage,
             itemId: widget.itemId,
             itemName: widget.itemName,
+            itemDate: widget.itemDate,
           ),
         ));
       },

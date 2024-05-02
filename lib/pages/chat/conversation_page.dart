@@ -21,6 +21,7 @@ class ConversationPage extends StatefulWidget {
   final String memberImage;
   final String itemId;
   final String itemName;
+  final String itemDate;
   ConversationPage({
     Key? key,
     required this.chatId,
@@ -29,6 +30,7 @@ class ConversationPage extends StatefulWidget {
     required this.memberImage,
     required this.itemId,
     required this.itemName,
+    required this.itemDate,
   }) : super(key: key);
 
   @override
@@ -40,7 +42,9 @@ class _ConversationPageState extends State<ConversationPage> {
   late TextEditingController _textEditingController;
   bool _isFocused = false;
   List<Message> _messages = []; // Store fetched messages here
-  // List<GetFoundModel> foundItem;
+  late String itemStatus = '';
+  bool foundUserStatus = false; // Variable to store foundUserStatus
+  bool lostUserStatus = false; // Variable to store lostUserStatus
 
   SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -59,10 +63,10 @@ class _ConversationPageState extends State<ConversationPage> {
     try {
       await _socketService
           .initializeSocket(); // Initialize socket using SocketService
-      print('Socket connected');
+      // print('Socket connected');
       // Register reconnect logic
       _socketService.socket?.onDisconnect((_) {
-        print('Socket disconnected, reconnecting...');
+        // print('Socket disconnected, reconnecting...');
         initializeSocket(); // Reconnect
       });
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
@@ -172,31 +176,52 @@ class _ConversationPageState extends State<ConversationPage> {
     }
   }
 
-//   Future<void> getItemDetails(String itemId) async {
-//   try {
-//     if (itemId.startsWith('fou')) {
-//       // If itemId starts with 'fou', call getFoundByIdJson
-//       dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
-//       setState(() {
-//         itemName = foundItem['itemName'] ?? '';
-//       });
-//     } else if (itemId.startsWith('los')) {
-//       // If itemId starts with 'los', call getLostItemById
-//       Datum? lostItem = await _remoteService.getLostItemById(itemId);
-//       if (lostItem != null) {
-//         setState(() {
-//           itemName = lostItem.itemName ?? '';
-//         });
-//       } else {
-//         print('Lost item not found for ID: $itemId');
-//       }
-//     } else {
-//       print('Invalid itemId format');
-//     }
-//   } catch (e) {
-//     print('Error fetching item details: $e');
-//   }
-// }
+  Future<void> getItemDetails(String itemId) async {
+  try {
+    if (itemId.startsWith('fou')) {
+      dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
+      if (foundItem != null) {
+        foundUserStatus = foundItem['foundUserStatus']; // Update class-level variable
+        lostUserStatus = foundItem['lostUserStatus']; // Update class-level variable
+        if (!foundUserStatus && !lostUserStatus) {
+          itemStatus = 'Available';
+        } else if (!lostUserStatus && foundUserStatus) {
+          itemStatus = 'Awaiting founder approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting lost user approval';
+        } else {
+          itemStatus = 'Item Claimed';
+        }
+      } else {
+        print('Found item not found for ID: $itemId');
+      }
+    } else if (itemId.startsWith('los')) {
+      Datum? lostItem = await _remoteService.getLostItemById(itemId);
+      if (lostItem != null) {
+        foundUserStatus = lostItem.foundUserStatus; // Update class-level variable
+        lostUserStatus = lostItem.lostUserStatus; // Update class-level variable
+        if (!foundUserStatus && !lostUserStatus) {
+          itemStatus = 'Available';
+        } else if (!lostUserStatus && foundUserStatus) {
+          itemStatus = 'Awaiting founder approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting lost user approval';
+        } else {
+          itemStatus = 'Item Claimed';
+        }
+      } else {
+        print('Lost item not found for ID: $itemId');
+      }
+    } else {
+      print('Invalid itemId format');
+    }
+    // Update the UI after fetching item details
+    setState(() {});
+  } catch (e) {
+    print('Error fetching item details: $e');
+  }
+}
+
 
   // Method to navigate to ImagePreviewPage and handle the result
   Future<void> _navigateToImagePreviewPage(File imageFile) async {
@@ -236,7 +261,8 @@ class _ConversationPageState extends State<ConversationPage> {
     _focusNode.addListener(_onFocusChange);
     _textEditingController = TextEditingController();
     _fetchMessages();
-    // getItemDetails(widget.itemId);
+    getItemDetails(widget.itemId);
+    itemStatus = 'Loading...';
   }
 
   // Widget to build chat bubbles from messages
@@ -305,8 +331,15 @@ class _ConversationPageState extends State<ConversationPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          FinishTransaction()), // Replace FinishPage with the actual page you want to navigate to
+                      builder: (context) => FinishTransaction(
+                            itemId: widget.itemId,
+                            itemName: widget.itemName,
+                            itemDate: widget.itemDate,
+                            foundUserStatus:
+                                foundUserStatus, // Pass foundUserStatus
+                            lostUserStatus:
+                                lostUserStatus, // Pass lostUserStatus
+                          )), // Replace FinishPage with the actual page you want to navigate to
                 );
                 // getItemDetails(widget.itemId);
               },
@@ -338,14 +371,26 @@ class _ConversationPageState extends State<ConversationPage> {
         children: [
           Container(
             color: primaryColor,
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.all(12),
             alignment: Alignment.centerLeft,
-            child: Text(
-              'Transaction of: ${widget.itemName}',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Transaction of: ${widget.itemName}',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.white),
+                ),
+                Text(
+                  itemStatus,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.yellow),
+                )
+              ],
             ),
           ),
           Expanded(

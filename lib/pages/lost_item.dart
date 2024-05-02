@@ -71,6 +71,7 @@ class _LostItemPageState extends State<LostItemPage> {
             memberImage: userImage,
             itemId: lostItem.lostId,
             itemName: lostItem.itemName,
+            itemDate: lostItem.lostDate,
           ),
         ),
       );

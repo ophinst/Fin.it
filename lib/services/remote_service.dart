@@ -80,6 +80,34 @@ class RemoteService {
     }
   }
 
+  Future<dynamic> getFoundByIdJson(String itemId) async {
+  var response = await http.get(Uri.parse('$url/found/$itemId'));
+    if (response.statusCode == 200) {
+    var responseData = json.decode(response.body);
+    var data = responseData['data']; // Extracting the 'data' field
+      return data;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+   Future<Map<String, dynamic>> getNearItems(double latitude, double longitude) async {
+    final uri = Uri.parse('$url/nearby/$latitude/$longitude');
+    
+    try {
+      final response = await http.get(uri);
+      
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception('Failed to load near items');
+      }
+    } catch (e) {
+      throw Exception('Failed to load near items: $e');
+    }
+  }
+
   //reward api
   Future<dynamic> getVoucherList() async {
     var client = http.Client();
@@ -391,4 +419,52 @@ class RemoteService {
       print("Message from server: ${responseJson['message']}");
     });
   }
+
+  Future<void> finishLostTransaction(String token, String lostId) async {
+  final uri = Uri.parse('$url/lost/$lostId');
+
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Lost transaction finished successfully');
+    } else {
+      print('Failed to finish lost transaction: ${response.statusCode}');
+      throw Exception('Failed to finish lost transaction');
+    }
+  } catch (e) {
+    print('Error finishing lost transaction: $e');
+    throw Exception('Error finishing lost transaction: $e');
+  }
+}
+  Future<void> finishFoundTransaction(String token, String foundId) async {
+  final uri = Uri.parse('$url/found/$foundId');
+
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Lost transaction finished successfully');
+    } else {
+      print('Failed to finish lost transaction: ${response.statusCode}');
+      throw Exception('Failed to finish lost transaction');
+    }
+  } catch (e) {
+    print('Error finishing lost transaction: $e');
+    throw Exception('Error finishing lost transaction: $e');
+  }
+}
+
 }

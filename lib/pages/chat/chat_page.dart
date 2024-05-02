@@ -24,7 +24,6 @@ class _ChatPageState extends State<ChatPage> {
 
   SocketService _socketService = SocketService(); // Use SocketService instance
   IO.Socket? socket;
-  RemoteService _remoteService = RemoteService();
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -143,12 +142,14 @@ class _ChatPageState extends State<ChatPage> {
 
             // Fetch item details for the itemId
             final String itemId = chat['itemId'];
-            String itemName = 'Loading'; // Default item name while fetching
+            late String itemName = 'Loading'; // Default item name while fetching
+            late String itemDate = 'Loading'; 
             if (itemId.startsWith('fou')) {
               // If itemId starts with 'fou', call getFoundByIdJson
               dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
               setState(() {
                 itemName = foundItem['itemName'] ?? '';
+                itemDate = foundItem['foundDate'] ?? '';
               });
             } else if (itemId.startsWith('los')) {
               // If itemId starts with 'los', call getLostItemById
@@ -156,6 +157,7 @@ class _ChatPageState extends State<ChatPage> {
               if (lostItem != null) {
                 setState(() {
                   itemName = lostItem.itemName ?? '';
+                  itemDate = lostItem.lostDate ?? '';
                 });
               } else {
                 print('Lost item not found for ID: $itemId');
@@ -174,6 +176,7 @@ class _ChatPageState extends State<ChatPage> {
               recentMessageCreatedAt: recentMessageCreatedAt,
               itemId: itemId,
               itemName: itemName, // Pass the fetched item name here
+              itemDate: itemDate,
               updateRecentMessage: (message) {
                 // Define the updateRecentMessage function here
                 setState(() {
@@ -249,6 +252,7 @@ class _ChatPageState extends State<ChatPage> {
                   recentMessageCreatedAt: '',
                   itemId: '',
                   itemName: '',
+                  itemDate: '',
                   updateRecentMessage: (_) {}, // No-op function
                 ),
               );

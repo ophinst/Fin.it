@@ -1,8 +1,32 @@
+import 'package:capstone_project/models/lost_item_model.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 
-class FinishTransaction extends StatelessWidget {
-  const FinishTransaction({Key? key});
+class FinishTransaction extends StatefulWidget {
+  final String itemId;
+  final String itemName;
+  final String itemDate;
+  final bool foundUserStatus;
+  final bool lostUserStatus;
+
+  FinishTransaction({
+    super.key,
+    required this.itemId,
+    required this.itemName,
+    required this.itemDate,
+    required this.foundUserStatus,
+    required this.lostUserStatus,
+  });
+
+  @override
+  State<FinishTransaction> createState() => _FinishTransactionState();
+}
+
+class _FinishTransactionState extends State<FinishTransaction> {
+  final RemoteService _remoteService = RemoteService();
 
   void finishTrans(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -15,6 +39,51 @@ class FinishTransaction extends StatelessWidget {
     Future.delayed(Duration(seconds: 2), () {
       Navigator.popUntil(context, ModalRoute.withName('/home'));
     });
+  }
+
+  // Function to handle finishing transaction based on item ID
+  // Function to handle finishing transaction based on item ID
+Future<void> finishTransaction(String token) async {
+  try {
+    if (widget.itemId.startsWith('fou')) {
+      // If itemId starts with 'fou'
+      dynamic foundItem =
+          await _remoteService.getFoundByIdJson(widget.itemId);
+      if (foundItem != null) {
+        String foundId = foundItem['uid']; // Extract UID from foundItem
+        await _remoteService.finishFoundTransaction(
+            token, widget.itemId); // Finish found transaction
+        // Call finishTrans upon successful completion
+        finishTrans(context);
+      } else {
+        print('Found item not found for ID: ${widget.itemId}');
+      }
+    } else if (widget.itemId.startsWith('los')) {
+      // If itemId starts with 'los'
+      Datum? lostItem = await _remoteService.getLostItemById(widget.itemId);
+      if (lostItem != null) {
+        String lostId = lostItem.uid; // Extract UID from lostItem
+        await _remoteService.finishLostTransaction(
+            token, widget.itemId); // Finish lost transaction
+        // Call finishTrans upon successful completion
+        finishTrans(context);
+      } else {
+        print('Lost item not found for ID: ${widget.itemId}');
+      }
+    } else {
+      print('Invalid itemId format');
+    }
+  } catch (e) {
+    print('Error finishing transaction: $e');
+  }
+}
+
+
+  @override
+  void initState() {
+    super.initState;
+    // print('Found user ${widget.foundUserStatus}');
+    // print('Lost user ${widget.lostUserStatus}');
   }
 
   @override
@@ -85,8 +154,8 @@ class FinishTransaction extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Text(
-              'Macbook',
+            Text(
+              widget.itemName,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -96,12 +165,51 @@ class FinishTransaction extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            const Text(
-              '2024-04-28',
+            Text(
+              widget.itemDate,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 fontFamily: 'JosefinSans',
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Text('Found User Status'),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: widget.foundUserStatus
+                            ? Colors.green
+                            : Colors.red, // Set color based on foundUserStatus
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('Lost User Status'),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: widget.lostUserStatus
+                            ? Colors.green
+                            : Colors.red, // Set color based on lostUserStatus
+                      )
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(
@@ -172,7 +280,9 @@ class FinishTransaction extends StatelessWidget {
         width: 350,
         child: FloatingActionButton(
           onPressed: () {
-            finishTrans(context);
+            final token =
+                Provider.of<UserProvider>(context, listen: false).token ?? '';
+            finishTransaction(token);
           },
           child: Text(
             'Finish Transaction',
