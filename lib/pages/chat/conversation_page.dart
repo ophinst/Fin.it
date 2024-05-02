@@ -23,7 +23,7 @@ class ConversationPage extends StatefulWidget {
   final String itemName;
   final String itemDate;
   ConversationPage({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.memberId,
     required this.memberName,
@@ -31,7 +31,7 @@ class ConversationPage extends StatefulWidget {
     required this.itemId,
     required this.itemName,
     required this.itemDate,
-  }) : super(key: key);
+  });
 
   @override
   State<ConversationPage> createState() => _ConversationPageState();
@@ -46,9 +46,9 @@ class _ConversationPageState extends State<ConversationPage> {
   bool foundUserStatus = false; // Variable to store foundUserStatus
   bool lostUserStatus = false; // Variable to store lostUserStatus
 
-  SocketService _socketService = SocketService(); // Use SocketService instance
+  final SocketService _socketService = SocketService(); // Use SocketService instance
 
-  RemoteService _remoteService =
+  final RemoteService _remoteService =
       RemoteService(); // Create an instance of RemoteService
 
   _connectSocket() {
@@ -72,7 +72,6 @@ class _ConversationPageState extends State<ConversationPage> {
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
       _socketService.socket?.emit("new-user-add", uid);
       _socketService.socket?.on("receive-message", (data) {
-        print(data);
         if (data is Map<String, dynamic>) {
           String receiverId = data['receiverId'];
           if (receiverId != widget.memberId) {
@@ -115,7 +114,6 @@ class _ConversationPageState extends State<ConversationPage> {
         }
       });
     } catch (e) {
-      print('Failed to connect to socket: $e');
     }
   }
 
@@ -131,7 +129,7 @@ class _ConversationPageState extends State<ConversationPage> {
         'receiverId': widget.memberId,
         'message': message
       });
-      print('Message sent to socket: $message'); // Confirmation message
+      // Confirmation message
       // Add the sent message to the UI directly
       Message sentMessage = Message(
         senderId: senderId,
@@ -144,7 +142,6 @@ class _ConversationPageState extends State<ConversationPage> {
       // Clear the text field after sending the message
       _textEditingController.clear();
     } catch (e) {
-      print('Error sending message: $e');
       // Handle error appropriately
     }
   }
@@ -167,12 +164,10 @@ class _ConversationPageState extends State<ConversationPage> {
   void _fetchMessages() async {
     try {
       List<Message> messages = await RemoteService().getMessages(widget.chatId);
-      print(messages);
       setState(() {
         _messages = messages;
       });
     } catch (e) {
-      print('Error fetching messages: $e');
     }
   }
 
@@ -193,7 +188,6 @@ class _ConversationPageState extends State<ConversationPage> {
           itemStatus = 'Item Claimed';
         }
       } else {
-        print('Found item not found for ID: $itemId');
       }
     } else if (itemId.startsWith('los')) {
       Datum? lostItem = await _remoteService.getLostItemById(itemId);
@@ -210,15 +204,12 @@ class _ConversationPageState extends State<ConversationPage> {
           itemStatus = 'Item Claimed';
         }
       } else {
-        print('Lost item not found for ID: $itemId');
       }
     } else {
-      print('Invalid itemId format');
     }
     // Update the UI after fetching item details
     setState(() {});
   } catch (e) {
-    print('Error fetching item details: $e');
   }
 }
 
@@ -312,20 +303,20 @@ class _ConversationPageState extends State<ConversationPage> {
                   backgroundImage: NetworkImage(widget.memberImage),
                   radius: 16, // Adjust the size as needed
                 ),
-                SizedBox(width: 8), // Adjust the spacing between image and text
+                const SizedBox(width: 8), // Adjust the spacing between image and text
                 Container(
                   // Wrap the Text widget with Container
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth: 90), // Adjust the maximum width as needed
                   child: Text(
                     widget.memberName,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                     overflow: TextOverflow.ellipsis, // Handle long names
                   ),
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -344,15 +335,15 @@ class _ConversationPageState extends State<ConversationPage> {
                 // getItemDetails(widget.itemId);
               },
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomRight: Radius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'FINISH TRANSACTION',
                   style: TextStyle(
                     color: Colors.black,
@@ -364,28 +355,28 @@ class _ConversationPageState extends State<ConversationPage> {
             ),
           ],
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: const [],
       ),
       body: Column(
         children: [
           Container(
             color: primaryColor,
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             alignment: Alignment.centerLeft,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Transaction of: ${widget.itemName}',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.white),
                 ),
                 Text(
                   itemStatus,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: Colors.yellow),
@@ -402,9 +393,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
@@ -429,7 +420,7 @@ class _ConversationPageState extends State<ConversationPage> {
                 children: [
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 5),
+                      margin: const EdgeInsets.symmetric(vertical: 5),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20.0),
@@ -437,7 +428,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       child: TextField(
                         controller: _textEditingController,
                         focusNode: _focusNode,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Type your message...',
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 16.0),
@@ -448,7 +439,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   ),
                   if (!_isFocused) ...[
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),
@@ -465,13 +456,12 @@ class _ConversationPageState extends State<ConversationPage> {
                           _textEditingController
                               .clear(); // Clear the text field after sending the message
                         } else {
-                          print('One of the parameters is null');
                           // Handle the case where one of the parameters is null
                         }
                       },
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.photo_camera,
                         color: Colors.white,
                       ),
@@ -482,7 +472,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                   ] else ...[
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),
@@ -500,7 +490,6 @@ class _ConversationPageState extends State<ConversationPage> {
                           _textEditingController
                               .clear(); // Clear the text field after sending the message
                         } else {
-                          print('One of the parameters is null');
                           // Handle the case where one of the parameters is null
                         }
                       },

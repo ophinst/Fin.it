@@ -30,13 +30,13 @@ class _FinishTransactionState extends State<FinishTransaction> {
 
   void finishTrans(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Transaction complete, thank you'),
         duration: Duration(seconds: 2), // Adjust the duration as needed
       ),
     );
     // Navigate back to the homepage after a delay
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.popUntil(context, ModalRoute.withName('/home'));
     });
   }
@@ -50,7 +50,6 @@ Future<void> finishTransaction(String token) async {
       dynamic foundItem =
           await _remoteService.getFoundByIdJson(widget.itemId);
       if (foundItem != null) {
-        String foundId = foundItem['uid']; // Extract UID from foundItem
         await _remoteService.finishFoundTransaction(
             token, widget.itemId); // Finish found transaction
         // Call finishTrans upon successful completion
@@ -62,7 +61,6 @@ Future<void> finishTransaction(String token) async {
       // If itemId starts with 'los'
       Datum? lostItem = await _remoteService.getLostItemById(widget.itemId);
       if (lostItem != null) {
-        String lostId = lostItem.uid; // Extract UID from lostItem
         await _remoteService.finishLostTransaction(
             token, widget.itemId); // Finish lost transaction
         // Call finishTrans upon successful completion
@@ -92,7 +90,7 @@ Future<void> finishTransaction(String token) async {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
           ),
@@ -127,7 +125,7 @@ Future<void> finishTransaction(String token) async {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
                 Padding(
                   padding: EdgeInsets.only(
@@ -156,7 +154,7 @@ Future<void> finishTransaction(String token) async {
             ),
             Text(
               widget.itemName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'JosefinSans',
@@ -167,7 +165,7 @@ Future<void> finishTransaction(String token) async {
             ),
             Text(
               widget.itemDate,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 fontFamily: 'JosefinSans',
@@ -183,8 +181,8 @@ Future<void> finishTransaction(String token) async {
                 children: [
                   Column(
                     children: [
-                      Text('Found User Status'),
-                      SizedBox(
+                      const Text('Found User Status'),
+                      const SizedBox(
                         height: 15,
                       ),
                       Icon(
@@ -197,8 +195,8 @@ Future<void> finishTransaction(String token) async {
                   ),
                   Column(
                     children: [
-                      Text('Lost User Status'),
-                      SizedBox(
+                      const Text('Lost User Status'),
+                      const SizedBox(
                         height: 15,
                       ),
                       Icon(
@@ -225,7 +223,7 @@ Future<void> finishTransaction(String token) async {
                     fontFamily: 'JosefinSans',
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
                 RatingBar.builder(
@@ -233,8 +231,8 @@ Future<void> finishTransaction(String token) async {
                   minRating: 1,
                   direction: Axis.horizontal,
                   itemCount: 5,
-                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => Icon(
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
                     Icons.star,
                     color: Colors.amber,
                   ),
@@ -284,7 +282,7 @@ Future<void> finishTransaction(String token) async {
                 Provider.of<UserProvider>(context, listen: false).token ?? '';
             finishTransaction(token);
           },
-          child: Text(
+          child: const Text(
             'Finish Transaction',
             style: TextStyle(color: Colors.white),
           ),
