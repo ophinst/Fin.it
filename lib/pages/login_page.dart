@@ -1,16 +1,12 @@
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_formfield.dart';
-import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:convert'; // Import the dart:convert library
 import 'package:capstone_project/components/loading_HUD.dart';
 import 'package:provider/provider.dart';
-// import 'package:get/get_navigation/get_navigation.dart';
-// import 'package:get/get_navigation/get_navigation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -69,11 +65,10 @@ class _LoginPageState extends State<LoginPage> {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               SvgPicture.asset(
-                'assets/login-image/20.svg',
-                semanticsLabel: 'Login SVG image',
-                height: 250,
+                'assets/images/login2.svg',
+                width: 250,
               ),
-              const SizedBox(height: 25),
+
               const Text(
                 'Welcome Back!',
                 style: TextStyle(
@@ -130,17 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                     padding: EdgeInsets.only(
                       right: 29.0,
                     ),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          fontFamily: 'JosefinSans',
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 30),
 
@@ -149,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                     buttonText: 'Login',
                     onTap: () {
                       if (validateAndSave()) {
-                        debugPrint(jsonEncode(requestModel.toJson()));
+                        // debugPrint(jsonEncode(requestModel.toJson()));
 
                         setState(() {
                           isApiCallProcess = true;
@@ -201,58 +185,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 15),
 
-                  // or continue with
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                            'Or continue with',
-                            style: TextStyle(
-                              fontFamily: 'josefinSans',
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(
                     height: 25,
-                  ),
-
-                  // sign up methods
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SquareTile(imagePath: 'assets/images/google.png'),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      SquareTile(imagePath: 'assets/images/apple.png'),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      SquareTile(imagePath: 'assets/images/fb.png'),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 35,
                   ),
 
                   //Sign in texts
@@ -265,9 +199,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontFamily: 'josefinSans',
                           fontWeight: FontWeight.w500,
                         ),
-                      ),
-                      const SizedBox(
-                        width: 4,
                       ),
                       TextButton(
                         onPressed: () {

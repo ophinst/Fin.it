@@ -3,11 +3,12 @@ import 'package:capstone_project/pages/form_lost.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
+import 'package:capstone_project/pages/recent_activity.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}): super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final screens = [
     FoundItemList(),
-    FormLost(),
+    ActivityList(),
     HomePage(),
     ChatPage(),
     LostItemList(),
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final items = <Widget>[
       Icon(
-        Icons.visibility_off,
+        Icons.visibility,
         color: Colors.white,
       ),
       Icon(
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
       ),
       Icon(
-        Icons.visibility,
+        Icons.visibility_off,
         color: Colors.white,
       ),
     ];
@@ -65,9 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
         items: items,
         onTap: (index) {
           setState(() {
-          this.index = index;
-          lostId = null;
-          }); 
+            this.index = index;
+            lostId = null;
+          });
         },
       ),
     );

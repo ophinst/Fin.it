@@ -1,10 +1,8 @@
-import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/home_screen.dart';
 import 'package:capstone_project/pages/login_page.dart';
 import 'package:capstone_project/pages/register_page.dart';
-import 'package:capstone_project/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
 import 'package:capstone_project/pages/form_lost.dart';
@@ -12,9 +10,6 @@ import 'package:capstone_project/pages/form_found.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'models/user_provider.dart';
-import 'package:capstone_project/pages/finish_transaction.dart';
-import 'package:capstone_project/pages/voucher_list.dart';
-import 'package:capstone_project/pages/voucher_detail.dart';
 
 // import 'package:capstone_project/components/list_item_lost.dart';
 
@@ -38,7 +33,6 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         home: LoginPage(),
-        //home: VoucherList(),
         initialRoute: '/',
         routes: {
           '/home': (context) => HomeScreen(),

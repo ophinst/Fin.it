@@ -7,8 +7,11 @@ import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
 import 'package:capstone_project/models/voucher_model.dart';
+import 'package:capstone_project/models/recentact_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -67,22 +70,23 @@ class RemoteService {
   }
 
   Future<dynamic> getFoundByIdJson(String itemId) async {
-  var response = await http.get(Uri.parse('$url/found/$itemId'));
+    var response = await http.get(Uri.parse('$url/found/$itemId'));
     if (response.statusCode == 200) {
-    var responseData = json.decode(response.body);
-    var data = responseData['data']; // Extracting the 'data' field
+      var responseData = json.decode(response.body);
+      var data = responseData['data']; // Extracting the 'data' field
       return data;
     } else {
       throw Exception('Failed to load data');
     }
   }
 
-  Future<Map<String, dynamic>> getNearItems(double latitude, double longitude) async {
+  Future<Map<String, dynamic>> getNearItems(
+      double latitude, double longitude) async {
     final uri = Uri.parse('$url/nearby/$latitude/$longitude');
-    
+
     try {
       final response = await http.get(uri);
-      
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         return data;
@@ -108,6 +112,31 @@ class RemoteService {
       // Handle error appropriately
       print('Failed to fetch data: ${response.statusCode}');
       return null;
+    }
+  }
+
+  //recent activity API
+  Future<Map<String, dynamic>> getRecentAct(String? token) async {
+    final usrToken = token;
+
+    final uri = Uri.parse(
+        '$url/recent'); // Ensure 'url' is defined somewhere in your code
+
+    try {
+      final response = await http.get(uri, headers: {
+        'Authorization':
+            'Bearer $usrToken', // Use the token in the Authorization header
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception(
+            'Failed to load recent activities. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load recent activities: $e');
     }
   }
 
