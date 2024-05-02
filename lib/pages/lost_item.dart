@@ -12,9 +12,8 @@ import '../models/chat_model.dart';
 
 class LostItemPage extends StatefulWidget {
   final String? lostId;
-  // final LostItem? lostItem;
 
-  const LostItemPage({Key? key, required this.lostId}) : super(key: key);
+  const LostItemPage({super.key, required this.lostId});
 
   @override
   State<LostItemPage> createState() => _LostItemPageState();
@@ -22,7 +21,7 @@ class LostItemPage extends StatefulWidget {
 
 class _LostItemPageState extends State<LostItemPage> {
   late Future<Datum?> _lostItemFuture;
-  RemoteService _remoteService = RemoteService();
+  final RemoteService _remoteService = RemoteService();
 
   @override
   void initState() {
@@ -92,7 +91,7 @@ class _LostItemPageState extends State<LostItemPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
           ),
@@ -126,7 +125,7 @@ class _LostItemPageState extends State<LostItemPage> {
         future: _lostItemFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
@@ -136,7 +135,7 @@ class _LostItemPageState extends State<LostItemPage> {
           } else {
             Datum? lostItem = snapshot.data;
             if (lostItem == null) {
-              return Center(
+              return const Center(
                 child: Text('No data found'),
               );
             } else {
@@ -189,7 +188,7 @@ class _LostItemPageState extends State<LostItemPage> {
                             ),
                             Text(
                               lostItem.itemName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'JosefinSans',
@@ -212,7 +211,7 @@ class _LostItemPageState extends State<LostItemPage> {
                             ),
                             Text(
                               lostItem.lostOwner,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'JosefinSans',
@@ -226,14 +225,14 @@ class _LostItemPageState extends State<LostItemPage> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.calendar_month,
                                       color: Color.fromRGBO(43, 52, 153, 1),
                                       size: 35,
                                     ),
                                     Text(
-                                      '${lostItem.lostDate}',
-                                      style: TextStyle(
+                                      lostItem.lostDate,
+                                      style: const TextStyle(
                                           fontFamily: 'JosefinSans',
                                           fontSize: 15),
                                     ),
@@ -241,14 +240,14 @@ class _LostItemPageState extends State<LostItemPage> {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.timer_sharp,
                                       color: Color.fromRGBO(43, 52, 153, 1),
                                       size: 35,
                                     ),
                                     Text(
-                                      '${lostItem.lostTime}',
-                                      style: TextStyle(
+                                      lostItem.lostTime,
+                                      style: const TextStyle(
                                           fontFamily: 'JosefinSans',
                                           fontSize: 15),
                                     ),
@@ -264,7 +263,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                 child: Column(
                                   children: [
                                     Padding(
-                                      padding: EdgeInsets.all(10),
+                                      padding: const EdgeInsets.all(10),
                                       child: SizedBox(
                                         height: 200,
                                         // width: 100,
@@ -296,7 +295,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.location_pin,
                                           color: Color.fromRGBO(43, 52, 153, 1),
                                         ),
@@ -313,7 +312,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                             builder: (context, snapshot) {
                                               if (snapshot.connectionState ==
                                                   ConnectionState.waiting) {
-                                                return Text('Loading...');
+                                                return const Text('Loading...');
                                               } else if (snapshot.hasError) {
                                                 return Text(
                                                     'Error: ${snapshot.error}');

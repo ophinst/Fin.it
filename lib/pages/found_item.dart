@@ -17,21 +17,7 @@ class FoundItemPage extends StatelessWidget {
   FoundItemPage(
       {required this.foundItem, required this.foundId, super.key});
 
-  RemoteService _remoteService = RemoteService();
-
-//   void getUserData() async {
-//   try {
-//     User? user = await _remoteService.getUserById(foundItem.uid);
-//     if (user != null) {
-//       print('User Name: ${user.name}');
-//     } else {
-//       print('User not found.');
-//     }
-//   } catch (e) {
-//     print('Error fetching user data: $e');
-//   }
-// }
-
+  final RemoteService _remoteService = RemoteService();
 
   void tagButton() {}
   void chatButton(BuildContext? context) async {

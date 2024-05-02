@@ -1,3 +1,6 @@
+import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/models/place.dart';
+
 class FoundNearItem {
   final String foundId;
   final String uid;
@@ -17,25 +20,24 @@ class FoundNearItem {
   final String foundOwner;
   final String type;
 
-  FoundNearItem({
-    required this.foundId,
-    required this.uid,
-    required this.itemName,
-    required this.itemDescription,
-    required this.foundDate,
-    required this.foundTime,
-    required this.category,
-    required this.latitude,
-    required this.longitude,
-    required this.locationDetail,
-    required this.completionStatus,
-    required this.lostUserStatus,
-    required this.foundUserStatus,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.foundOwner,
-    required this.type
-  });
+  FoundNearItem(
+      {required this.foundId,
+      required this.uid,
+      required this.itemName,
+      required this.itemDescription,
+      required this.foundDate,
+      required this.foundTime,
+      required this.category,
+      required this.latitude,
+      required this.longitude,
+      required this.locationDetail,
+      required this.completionStatus,
+      required this.lostUserStatus,
+      required this.foundUserStatus,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.foundOwner,
+      required this.type});
 
   factory FoundNearItem.fromJson(Map<String, dynamic> json) {
     return FoundNearItem(
@@ -56,6 +58,24 @@ class FoundNearItem {
       updatedAt: json['updatedAt'],
       foundOwner: json['foundOwner'],
       type: json['type'],
+    );
+  }
+
+  GetFoundModel toGetFoundModel() {
+    return GetFoundModel(
+      foundId: foundId,
+      uid: uid,
+      itemName: itemName,
+      itemDescription: itemDescription,
+      foundDate: foundDate,
+      foundTime: foundTime,
+      category: category,
+      placeLocation: PlaceLocation(
+        latitude: latitude,
+        longitude: longitude,
+        locationDetail: locationDetail,
+      ),
+      foundOwner: foundOwner,
     );
   }
 }
@@ -81,27 +101,26 @@ class LostNearItem {
   final String lostOwner;
   final String type;
 
-  LostNearItem({
-    required this.lostId,
-    required this.uid,
-    required this.itemName,
-    required this.itemImage,
-    required this.itemDescription,
-    required this.lostDate,
-    required this.lostTime,
-    required this.category,
-    required this.latitude,
-    required this.longitude,
-    required this.locationDetail,
-    required this.completionStatus,
-    required this.lostUserStatus,
-    required this.foundUserStatus,
-    required this.foundUserId,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.lostOwner,
-    required this.type
-  });
+  LostNearItem(
+      {required this.lostId,
+      required this.uid,
+      required this.itemName,
+      required this.itemImage,
+      required this.itemDescription,
+      required this.lostDate,
+      required this.lostTime,
+      required this.category,
+      required this.latitude,
+      required this.longitude,
+      required this.locationDetail,
+      required this.completionStatus,
+      required this.lostUserStatus,
+      required this.foundUserStatus,
+      required this.foundUserId,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.lostOwner,
+      required this.type});
 
   factory LostNearItem.fromJson(Map<String, dynamic> json) {
     return LostNearItem(
