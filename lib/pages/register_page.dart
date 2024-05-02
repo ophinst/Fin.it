@@ -5,8 +5,9 @@ import 'package:capstone_project/components/my_textfield.dart';
 import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/services/remote_service.dart';
-import 'dart:convert'; // Import the dart:convert librarys
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -66,8 +67,10 @@ class _RegisterPageState extends State<RegisterPage> {
             controller: ScrollController(),
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const SizedBox(height: 50),
-
+              SvgPicture.asset(
+                'assets/images/register.svg',
+                width: 150,
+              ),
               // new here?
               const Text(
                 'New Here?',
@@ -181,60 +184,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 15),
-
-              // or continue with
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(
-                          fontFamily: 'josefinSans',
-                          color: Colors.grey[700],
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-
-              // sign up methods
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SquareTile(imagePath: 'assets/images/google.png'),
-                  SizedBox(
-                    width: 30,
-                  ),
-                  SquareTile(imagePath: 'assets/images/apple.png'),
-                  SizedBox(
-                    width: 30,
-                  ),
-                  SquareTile(imagePath: 'assets/images/fb.png'),
-                ],
-              ),
-              const SizedBox(
-                height: 35,
-              ),
 
               //Sign in texts
               Row(

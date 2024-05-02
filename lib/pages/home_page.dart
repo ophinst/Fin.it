@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: EdgeInsets.only(right: 20),
             child: Text(
-              'LOST & FOUND',
+              'FIN.IT : Lost and Found',
               style: TextStyle(
                   color: Colors.black,
                   fontFamily: 'JosefinSans',
@@ -195,49 +195,49 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        const Row(
-                          children: [
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.arrow_circle_up,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  'Pay',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.add_box,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  'Top Up',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     Column(
+                        //       children: [
+                        //         Icon(
+                        //           Icons.arrow_circle_up,
+                        //           color: Colors.white,
+                        //           size: 30,
+                        //         ),
+                        //         SizedBox(
+                        //           width: 5,
+                        //         ),
+                        //         Text(
+                        //           'Pay',
+                        //           style: TextStyle(
+                        //               color: Colors.white,
+                        //               fontWeight: FontWeight.w700),
+                        //         )
+                        //       ],
+                        //     ),
+                        //     SizedBox(
+                        //       width: 20,
+                        //     ),
+                        //     Column(
+                        //       children: [
+                        //         Icon(
+                        //           Icons.add_box,
+                        //           color: Colors.white,
+                        //           size: 30,
+                        //         ),
+                        //         SizedBox(
+                        //           width: 5,
+                        //         ),
+                        //         Text(
+                        //           'Top Up',
+                        //           style: TextStyle(
+                        //               color: Colors.white,
+                        //               fontWeight: FontWeight.w700),
+                        //         )
+                        //       ],
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),
@@ -309,10 +309,9 @@ class _HomePageState extends State<HomePage> {
                                                 longitude:
                                                     _userLocation!.longitude,
                                               ),
-                                              isSelecting:
-                                                  false,
-                                                  foundItems: foundItems,
-                                                  lostItems: lostItems,
+                                              isSelecting: false,
+                                              foundItems: foundItems,
+                                              lostItems: lostItems,
                                             ),
                                           ),
                                         );
