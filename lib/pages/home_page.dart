@@ -1,10 +1,12 @@
-// ignore_for_file: unnecessary_const
-
 import 'package:capstone_project/components/drawer.dart';
+import 'package:capstone_project/components/near_items_card.dart';
+import 'package:capstone_project/models/near_items_model.dart';
+import 'package:capstone_project/models/place.dart';
+import 'package:capstone_project/pages/map.dart';
 import 'package:capstone_project/pages/profile.dart';
 import 'package:capstone_project/pages/voucher_list.dart';
 import 'package:capstone_project/models/user_provider.dart';
-import 'package:capstone_project/pages/voucher_detail.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,8 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  // final String? name;
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -22,12 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   LatLng? _userLocation;
-
-  @override
-  void initState() {
-    super.initState();
-    _getUserLocation(); // Call the method to get the user's location
-  }
+  final RemoteService _remoteService = RemoteService();
 
   // Method to get the user's current location
   void _getUserLocation() async {
@@ -43,6 +39,10 @@ class _HomePageState extends State<HomePage> {
       // Use the retrieved position
       setState(() {
         _userLocation = LatLng(position.latitude, position.longitude);
+        // Fetch near items after getting user location
+        if (_userLocation != null) {
+          _getNearItems(_userLocation!.latitude, _userLocation!.longitude);
+        }
       });
     } else {
       // Permissions not granted, handle accordingly
@@ -60,10 +60,41 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  List<FoundNearItem> foundItems = [];
+  List<LostNearItem> lostItems = [];
+  void _getNearItems(double latitude, double longitude) async {
+    try {
+      final response = await _remoteService.getNearItems(latitude, longitude);
+
+      if (response['data'] != null) {
+        List<dynamic> data = response['data'];
+        setState(() {
+          foundItems = data
+              .where((item) => item != null && item['type'] == 'Found Item')
+              .map((item) => FoundNearItem.fromJson(item))
+              .toList();
+          lostItems = data
+              .where((item) => item != null && item['type'] == 'Lost Item')
+              .map((item) => LostNearItem.fromJson(item))
+              .toList();
+        });
+      } else {
+        print('API returned null or empty data');
+      }
+    } catch (error) {
+      print('Error fetching near items: $error');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation();
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final String _uid = userProvider.uid ?? "Unknown";
     final String _name = userProvider.name ?? "Unknown";
     return Scaffold(
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
@@ -94,25 +125,6 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(13.0),
             child: Column(
               children: [
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     IconButton(
-                //       icon: const Icon(
-                //         Icons.account_circle_outlined,
-                //         color: Colors.black,
-                //         size: 40,
-                //       ),
-                //       onPressed: () {
-                //         Navigator.push(
-                //           context,
-                //           MaterialPageRoute(
-                //               builder: (context) => const ProfilePage()),
-                //         );
-                //       },
-                //     ),
-                //   ],
-                // ),
                 const SizedBox(
                   height: 5,
                 ),
@@ -129,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text(
                       _name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.w700,
                         color: Color.fromRGBO(43, 52, 153, 1),
@@ -146,7 +158,8 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -160,18 +173,19 @@ class _HomePageState extends State<HomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => VoucherList()),
+                                          builder: (context) =>
+                                              const VoucherList()),
                                     );
                                   },
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.redeem,
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 5,
                                 ),
-                                Text(
+                                const Text(
                                   '100',
                                   style: TextStyle(
                                       color: Colors.white,
@@ -181,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        Row(
+                        const Row(
                           children: [
                             Column(
                               children: [
@@ -261,25 +275,58 @@ class _HomePageState extends State<HomePage> {
                           height: 5,
                         ),
                         Container(
-                            height: 100,
-                            decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(15)),
-                            child: _userLocation != null
-                                ? GoogleMap(
-                                    mapType: MapType.normal,
-                                    initialCameraPosition: CameraPosition(
-                                        target: _userLocation!, zoom: 14),
-                                    markers: {
-                                      Marker(
-                                        markerId: MarkerId('userLocation'),
-                                        position: _userLocation!,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: _userLocation != null
+                              ? Stack(
+                                  children: [
+                                    GoogleMap(
+                                      mapType: MapType.normal,
+                                      initialCameraPosition: CameraPosition(
+                                        target: _userLocation!,
+                                        zoom: 14,
                                       ),
-                                    },
-                                  )
-                                : Center(
-                                    child: CircularProgressIndicator(),
-                                  )),
+                                      markers: {
+                                        Marker(
+                                          markerId:
+                                              const MarkerId('userLocation'),
+                                          position: _userLocation!,
+                                        ),
+                                      },
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MapScreen(
+                                              location: PlaceLocation(
+                                                latitude:
+                                                    _userLocation!.latitude,
+                                                longitude:
+                                                    _userLocation!.longitude,
+                                              ),
+                                              isSelecting:
+                                                  false,
+                                                  foundItems: foundItems,
+                                                  lostItems: lostItems,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        color: Colors.transparent,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                        ),
                       ],
                     ),
                   ),
@@ -319,236 +366,46 @@ class _HomePageState extends State<HomePage> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 10),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Column(
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.search,
-                                    color: Color.fromRGBO(43, 52, 153, 1),
-                                  ),
-                                  Text(
-                                    'Lost it',
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(43, 52, 153, 1),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/iphone.jpg',
-                                        width:
-                                            75, // set the width as per your requirement
-                                        height:
-                                            100, // set the height as per your requirement
-                                        fit: BoxFit
-                                            .cover, // adjust the fit as needed
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  const Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Kepala Orang',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black,
-                                            fontSize: 16),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        'Jl. Phasmorant no.666',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        'Yesterday, 23.59',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                            fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    width: 45,
-                                  ),
-                                  const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Status',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black,
-                                                fontSize: 16),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.incomplete_circle,
-                                            color: Colors.black,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                          ),
-                                        ],
-                                      )
-                                    ],
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.4,
+                            child: foundItems.isNotEmpty || lostItems.isNotEmpty
+                                ? ListView.builder(
+                                    itemCount:
+                                        foundItems.length + lostItems.length,
+                                    itemBuilder: (context, index) {
+                                      List<dynamic> combinedItems = [
+                                        ...foundItems,
+                                        ...lostItems
+                                      ];
+                                      combinedItems.shuffle();
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: NearItemsCard(
+                                          foundNearItems: combinedItems[index]
+                                                  is FoundNearItem
+                                              ? combinedItems[index]
+                                                  as FoundNearItem
+                                              : null,
+                                          lostNearItems: combinedItems[index]
+                                                  is LostNearItem
+                                              ? combinedItems[index]
+                                                  as LostNearItem
+                                              : null,
+                                        ),
+                                      );
+                                    },
                                   )
-                                ],
-                              )
-                            ],
+                                : const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Column(
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.search,
-                                    color: Color.fromRGBO(43, 52, 153, 1),
-                                  ),
-                                  Text(
-                                    'Lost it',
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(43, 52, 153, 1),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/iphone.jpg',
-                                        width:
-                                            75, // set the width as per your requirement
-                                        height:
-                                            100, // set the height as per your requirement
-                                        fit: BoxFit
-                                            .cover, // adjust the fit as needed
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  const Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Kepala Orang',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.black,
-                                            fontSize: 16),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        'Jl. Phasmorant no.666',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                            fontSize: 14),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        'Yesterday, 23.59',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                            fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    width: 45,
-                                  ),
-                                  const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Status',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black,
-                                                fontSize: 16),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.incomplete_circle,
-                                            color: Colors.red,
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.black,
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -557,14 +414,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavBar(
-      //   selectedIndex: _selectedIndex,
-      //   onItemSelected: (index) {
-      //     setState(() {
-      //       _selectedIndex = index;
-      //     });
-      //   },
-      // ),
     );
   }
 }
