@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: "12.x"
-      - uses: actions/setup-dart@v1
+      - uses: dart-lang/setup-dart@v1.6.4 # Correct action and version
         with:
           dart-sdk-version: '3.0.6' # Specify the Dart SDK version here
       - uses: subosito/flutter-action@v2
