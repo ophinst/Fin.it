@@ -17,13 +17,16 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: "12.x"
-      - uses: dart-lang/setup-dart@v1.6.4 # Correct action and version
-        with:
-          dart-sdk-version: '3.0.6' # Specify the Dart SDK version here
+      - name: Download and Install Dart SDK
+        run: |
+          wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.6-stable.tar.xz
+          tar xf flutter_linux_3.10.6-stable.tar.xz
+          export DART_SDK=$(pwd)/flutter_linux_3.10.6-stable.tar.xz
+          export PATH="$PATH:$DART_SDK/bin"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: 2.8.1 # Specify the Flutter version here
+          flutter-version: 2.8.1
           architecture: x64
           cache: false
           pub-cache-path: default
