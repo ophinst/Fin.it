@@ -1,10 +1,8 @@
 class RegisterResponseModel {
-  // final bool success;
   final String? message;
   final String? token;
   final String? name;
   RegisterResponseModel({
-    // required this.success,
     this.message,
     this.token,
     this.name,

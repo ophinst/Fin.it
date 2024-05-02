@@ -21,6 +21,8 @@ class _FoundItemListState extends State<FoundItemList> {
   var counter = 1;
   final RemoteService _remoteService = RemoteService();
   bool isLoading = true;
+  bool isExtend = false;
+  ScrollController _scrollController = new ScrollController();
 
   fetchData() async {
     setState(() {
@@ -58,9 +60,19 @@ class _FoundItemListState extends State<FoundItemList> {
   void initState() {
     super.initState();
     fetchData();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 15) {
+        setState(() {
+          isExtend = true;
+        });
+      } else {
+        setState(() {
+          isExtend = false;
+        });
+      }
+    });
   }
 
-  bool isExtend = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +91,7 @@ class _FoundItemListState extends State<FoundItemList> {
           Padding(
             padding: EdgeInsets.only(right: 12),
             child: Text(
-              'LOST & FOUND',
+              'Found Item List',
               style: TextStyle(
                   color: Colors.black,
                   fontFamily: 'JosefinSans',
@@ -99,7 +111,7 @@ class _FoundItemListState extends State<FoundItemList> {
                   top: 25,
                 ),
                 child: Text(
-                  'Found Something?',
+                  'Lost Something?',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 24,
@@ -128,10 +140,12 @@ class _FoundItemListState extends State<FoundItemList> {
                     child: CircularProgressIndicator(),
                   )
                 : ListView.builder(
+                    controller: _scrollController,
                     itemCount: data.length,
                     itemBuilder: (context, index) {
                       String formattedLocationName = formatLocationName(
-                          data[index].placeLocation.locationDetail ?? 'Unknown location');
+                          data[index].placeLocation.locationDetail ??
+                              'Unknown location');
                       return FoundItemListCard(
                         foundItem: data[index],
                         formattedLocationName: formattedLocationName,

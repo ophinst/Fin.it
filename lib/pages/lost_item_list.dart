@@ -20,6 +20,7 @@ class _LostItemListState extends State<LostItemList> {
   var counter = 1;
   var isLoading = true;
   bool isExtend = false;
+  ScrollController _scrollController = new ScrollController();
 
   String? selectedCategory;
 
@@ -57,6 +58,17 @@ class _LostItemListState extends State<LostItemList> {
   void initState() {
     super.initState();
     fetchData();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 15) {
+        setState(() {
+          isExtend = true;
+        });
+      } else {
+        setState(() {
+          isExtend = false;
+        });
+      }
+    });
   }
 
   // List<Datum>? filterLostsByCategory(String? category) {
@@ -94,7 +106,7 @@ class _LostItemListState extends State<LostItemList> {
           Padding(
             padding: EdgeInsets.only(right: 12),
             child: Text(
-              'LOST & FOUND',
+              'Lost Item List',
               style: TextStyle(
                   color: Colors.black,
                   fontFamily: 'JosefinSans',
@@ -105,6 +117,7 @@ class _LostItemListState extends State<LostItemList> {
         ],
       ),
       body: ListView(
+        controller: _scrollController,
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const Row(

@@ -94,7 +94,8 @@ class _FormLostState extends State<FormLost> {
                       labelText: "Input Name Here",
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black, width: 3),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 3),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -364,21 +365,8 @@ class _FormLostState extends State<FormLost> {
                   const SizedBox(
                     height: 20,
                   ),
-                  const Text(
-                    "Active Forum Discussion",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const RadioBtn(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  MyButton(
-                    buttonText: 'UPLOAD',
-                    onTap: _saveItem
-                  ),
+
+                  MyButton(buttonText: 'UPLOAD', onTap: _saveItem),
                   const SizedBox(
                     height: 24,
                   ),

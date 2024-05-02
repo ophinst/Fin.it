@@ -13,8 +13,15 @@ class UserProvider extends ChangeNotifier {
     notifyListeners(); // Notify the listeners about the change
   }
 
+  //method to remove user data when logout
+  Future<void> logout() async {
+    _uid = null;
+    _name = null;
+    _token = null;
+    notifyListeners(); // Notify listeners about the change
+  }
+
   String? get uid => _uid;
   String? get name => _name;
   String? get token => _token;
 }
-
