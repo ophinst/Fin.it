@@ -35,7 +35,10 @@ class Datum {
   final String category;
   final double latitude;
   final double longitude;
-  final bool status;
+  final bool completionStatus;
+  final bool foundUserStatus;
+  final bool lostUserStatus;
+  String? foundUserId;
   final String lostOwner;
 
   Datum({
@@ -49,7 +52,10 @@ class Datum {
     required this.category,
     required this.latitude,
     required this.longitude,
-    required this.status,
+    required this.completionStatus,
+    required this.foundUserStatus,
+    required this.lostUserStatus,
+    this.foundUserId,
     required this.lostOwner,
   });
 
@@ -65,7 +71,10 @@ class Datum {
       category: json['category'],
       latitude: json['latitude'],
       longitude: json['longitude'],
-      status: json['completionStatus'],
+      completionStatus: json['completionStatus'],
+      foundUserStatus: json['foundUserStatus'],
+      lostUserStatus: json['lostUserStatus'],
+      foundUserId: json['foundUserId'],
       lostOwner: json['lostOwner'],
     );
   }

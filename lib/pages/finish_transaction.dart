@@ -1,20 +1,87 @@
+import 'package:capstone_project/models/lost_item_model.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 
-class FinishTransaction extends StatelessWidget {
-  const FinishTransaction({Key? key});
+class FinishTransaction extends StatefulWidget {
+  final String itemId;
+  final String itemName;
+  final String itemDate;
+  final bool foundUserStatus;
+  final bool lostUserStatus;
+
+  FinishTransaction({
+    super.key,
+    required this.itemId,
+    required this.itemName,
+    required this.itemDate,
+    required this.foundUserStatus,
+    required this.lostUserStatus,
+  });
+
+  @override
+  State<FinishTransaction> createState() => _FinishTransactionState();
+}
+
+class _FinishTransactionState extends State<FinishTransaction> {
+  final RemoteService _remoteService = RemoteService();
 
   void finishTrans(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Transaction complete, thank you'),
         duration: Duration(seconds: 2), // Adjust the duration as needed
       ),
     );
     // Navigate back to the homepage after a delay
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.popUntil(context, ModalRoute.withName('/home'));
     });
+  }
+
+  // Function to handle finishing transaction based on item ID
+  // Function to handle finishing transaction based on item ID
+Future<void> finishTransaction(String token) async {
+  try {
+    if (widget.itemId.startsWith('fou')) {
+      // If itemId starts with 'fou'
+      dynamic foundItem =
+          await _remoteService.getFoundByIdJson(widget.itemId);
+      if (foundItem != null) {
+        await _remoteService.finishFoundTransaction(
+            token, widget.itemId); // Finish found transaction
+        // Call finishTrans upon successful completion
+        finishTrans(context);
+      } else {
+        print('Found item not found for ID: ${widget.itemId}');
+      }
+    } else if (widget.itemId.startsWith('los')) {
+      // If itemId starts with 'los'
+      Datum? lostItem = await _remoteService.getLostItemById(widget.itemId);
+      if (lostItem != null) {
+        await _remoteService.finishLostTransaction(
+            token, widget.itemId); // Finish lost transaction
+        // Call finishTrans upon successful completion
+        finishTrans(context);
+      } else {
+        print('Lost item not found for ID: ${widget.itemId}');
+      }
+    } else {
+      print('Invalid itemId format');
+    }
+  } catch (e) {
+    print('Error finishing transaction: $e');
+  }
+}
+
+
+  @override
+  void initState() {
+    super.initState;
+    // print('Found user ${widget.foundUserStatus}');
+    // print('Lost user ${widget.lostUserStatus}');
   }
 
   @override
@@ -23,7 +90,7 @@ class FinishTransaction extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
           ),
@@ -58,7 +125,7 @@ class FinishTransaction extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
                 Padding(
                   padding: EdgeInsets.only(
@@ -85,9 +152,9 @@ class FinishTransaction extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Text(
-              'Macbook',
-              style: TextStyle(
+            Text(
+              widget.itemName,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'JosefinSans',
@@ -96,12 +163,51 @@ class FinishTransaction extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            const Text(
-              '2024-04-28',
-              style: TextStyle(
+            Text(
+              widget.itemDate,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
                 fontFamily: 'JosefinSans',
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      const Text('Found User Status'),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: widget.foundUserStatus
+                            ? Colors.green
+                            : Colors.red, // Set color based on foundUserStatus
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text('Lost User Status'),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: widget.lostUserStatus
+                            ? Colors.green
+                            : Colors.red, // Set color based on lostUserStatus
+                      )
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(
@@ -117,7 +223,7 @@ class FinishTransaction extends StatelessWidget {
                     fontFamily: 'JosefinSans',
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 15,
                 ),
                 RatingBar.builder(
@@ -125,8 +231,8 @@ class FinishTransaction extends StatelessWidget {
                   minRating: 1,
                   direction: Axis.horizontal,
                   itemCount: 5,
-                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => Icon(
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
                     Icons.star,
                     color: Colors.amber,
                   ),
@@ -172,9 +278,11 @@ class FinishTransaction extends StatelessWidget {
         width: 350,
         child: FloatingActionButton(
           onPressed: () {
-            finishTrans(context);
+            final token =
+                Provider.of<UserProvider>(context, listen: false).token ?? '';
+            finishTransaction(token);
           },
-          child: Text(
+          child: const Text(
             'Finish Transaction',
             style: TextStyle(color: Colors.white),
           ),

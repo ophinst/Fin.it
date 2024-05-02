@@ -7,11 +7,8 @@ import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
 import 'package:capstone_project/models/voucher_model.dart';
-import 'package:capstone_project/models/recentact_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:capstone_project/models/user_provider.dart';
-import 'package:provider/provider.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -64,6 +61,18 @@ class RemoteService {
       } else {
         throw Exception('Failed to load next data');
       }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<List<GetFoundModel>> getFoundById(String foundId) async {
+    var response = await http.get(Uri.parse('$url/found/$foundId'));
+    if (response.statusCode == 200) {
+      Iterable list = json.decode(response.body)['data'];
+      List<GetFoundModel> data =
+          list.map((model) => GetFoundModel.fromJson(model)).toList();
+      return data;
     } else {
       throw Exception('Failed to load data');
     }
@@ -434,4 +443,52 @@ class RemoteService {
       print("Message from server: ${responseJson['message']}");
     });
   }
+
+  Future<void> finishLostTransaction(String token, String lostId) async {
+  final uri = Uri.parse('$url/lost/$lostId');
+
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Lost transaction finished successfully');
+    } else {
+      print('Failed to finish lost transaction: ${response.statusCode}');
+      throw Exception('Failed to finish lost transaction');
+    }
+  } catch (e) {
+    print('Error finishing lost transaction: $e');
+    throw Exception('Error finishing lost transaction: $e');
+  }
+}
+  Future<void> finishFoundTransaction(String token, String foundId) async {
+  final uri = Uri.parse('$url/found/$foundId');
+
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Lost transaction finished successfully');
+    } else {
+      print('Failed to finish lost transaction: ${response.statusCode}');
+      throw Exception('Failed to finish lost transaction');
+    }
+  } catch (e) {
+    print('Error finishing lost transaction: $e');
+    throw Exception('Error finishing lost transaction: $e');
+  }
+}
+
 }

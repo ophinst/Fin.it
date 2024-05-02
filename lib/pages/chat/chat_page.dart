@@ -10,7 +10,7 @@ import 'package:capstone_project/models/user_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -22,9 +22,8 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatBox> filteredChatBoxes =
       []; // List to store filtered ChatBox widgets
 
-  SocketService _socketService = SocketService(); // Use SocketService instance
+  final SocketService _socketService = SocketService(); // Use SocketService instance
   IO.Socket? socket;
-  RemoteService _remoteService = RemoteService();
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -79,14 +78,12 @@ class _ChatPageState extends State<ChatPage> {
 
       // Call the getChats function with error handling
       final dynamic response = await remoteService.getChats(token).catchError((e) {
-        print('Error fetching chats: $e');
         throw e; // Rethrow the error to be caught by the outer try-catch block
       });
 
       // Extract list of chat objects from the response
       final List<dynamic>? chatData = response['data'];
 
-      print(chatData);
 
       if (chatData != null) {
         // Clear previous chat boxes
@@ -112,7 +109,6 @@ class _ChatPageState extends State<ChatPage> {
 
             if (filteredMembers.isNotEmpty) {
               final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
-                print('Error fetching user: $e');
                 throw e; // Rethrow the error to be caught by the outer try-catch block
               });
               if (user != null) {
@@ -124,11 +120,10 @@ class _ChatPageState extends State<ChatPage> {
             }
 
             // Get the most recent message and its creation date with error handling
-            final List<Message>? messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
-              print('Error fetching messages: $e');
+            final List<Message> messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
               throw e; // Rethrow the error to be caught by the outer try-catch block
             });
-            if (messagesResponse != null && messagesResponse.isNotEmpty) {
+            if (messagesResponse.isNotEmpty) {
               // Sort messages by creation date in descending order
               messagesResponse.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
@@ -143,25 +138,26 @@ class _ChatPageState extends State<ChatPage> {
 
             // Fetch item details for the itemId
             final String itemId = chat['itemId'];
-            String itemName = 'Loading'; // Default item name while fetching
+            late String itemName = 'Loading'; // Default item name while fetching
+            late String itemDate = 'Loading'; 
             if (itemId.startsWith('fou')) {
               // If itemId starts with 'fou', call getFoundByIdJson
               dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
               setState(() {
                 itemName = foundItem['itemName'] ?? '';
+                itemDate = foundItem['foundDate'] ?? '';
               });
             } else if (itemId.startsWith('los')) {
               // If itemId starts with 'los', call getLostItemById
               Datum? lostItem = await remoteService.getLostItemById(itemId);
               if (lostItem != null) {
                 setState(() {
-                  itemName = lostItem.itemName ?? '';
+                  itemName = lostItem.itemName;
+                  itemDate = lostItem.lostDate;
                 });
               } else {
-                print('Lost item not found for ID: $itemId');
               }
             } else {
-              print('Invalid itemId format');
             }
 
             // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
@@ -174,6 +170,7 @@ class _ChatPageState extends State<ChatPage> {
               recentMessageCreatedAt: recentMessageCreatedAt,
               itemId: itemId,
               itemName: itemName, // Pass the fetched item name here
+              itemDate: itemDate,
               updateRecentMessage: (message) {
                 // Define the updateRecentMessage function here
                 setState(() {
@@ -196,13 +193,10 @@ class _ChatPageState extends State<ChatPage> {
           isLoaded = true; // Set isLoaded to true
         });
       } else {
-        print('No chat data found');
       }
     } else {
-      print('Token is null');
     }
   } catch (e) {
-    print('Error fetching chats: $e');
   } finally {
     // Set isLoading to false to hide circular progress indicator
     setState(() {
@@ -225,11 +219,9 @@ class _ChatPageState extends State<ChatPage> {
   void initializeSocket() {
     try {
       _socketService.initializeSocket().then((_) {
-        print('Socket connected');
         final uid = Provider.of<UserProvider>(context, listen: false).uid;
         _socketService.socket?.emit("new-user-add", uid);
         _socketService.socket?.on("receive-message", (data) {
-          print(data);
           final Map<String, dynamic> messageData = data as Map<String, dynamic>;
           final String? receiverId = messageData['receiverId'];
           final String? senderId = messageData['senderId'];
@@ -249,6 +241,7 @@ class _ChatPageState extends State<ChatPage> {
                   recentMessageCreatedAt: '',
                   itemId: '',
                   itemName: '',
+                  itemDate: '',
                   updateRecentMessage: (_) {}, // No-op function
                 ),
               );
@@ -260,7 +253,6 @@ class _ChatPageState extends State<ChatPage> {
         });
       });
     } catch (e) {
-      print('Failed to connect to socket: $e');
     }
   }
 
@@ -273,7 +265,6 @@ class _ChatPageState extends State<ChatPage> {
       // Fetch chat data
       await fetchChats();
     } catch (e) {
-      print('Error fetching data: $e');
     } finally {
       // Set isLoading to false after fetching data
       setState(() {
@@ -300,7 +291,7 @@ class _ChatPageState extends State<ChatPage> {
               padding: const EdgeInsets.all(13.0),
               child: Column(
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
@@ -341,7 +332,7 @@ class _ChatPageState extends State<ChatPage> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 25,
                           ),
                           child: SrcBar(
@@ -352,24 +343,24 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // Show circular progress indicator if loading, else show chat boxes
                   isLoading
-                      ? CircularProgressIndicator()
+                      ? const CircularProgressIndicator()
                       : Column(
                           children: [
                             for (var chatBox in filteredChatBoxes)
                               Column(
                                 children: [
                                   chatBox,
-                                  SizedBox(
+                                  const SizedBox(
                                       height:
                                           10), // Add SizedBox between ChatBoxes
                                 ],
                               ),
                           ],
                         ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

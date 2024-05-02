@@ -4,7 +4,6 @@ import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/pages/chat/conversation_page.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +70,7 @@ class _LostItemPageState extends State<LostItemPage> {
             memberImage: userImage,
             itemId: lostItem.lostId,
             itemName: lostItem.itemName,
+            itemDate: lostItem.lostDate,
           ),
         ),
       );

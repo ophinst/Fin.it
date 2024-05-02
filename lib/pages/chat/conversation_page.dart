@@ -21,15 +21,17 @@ class ConversationPage extends StatefulWidget {
   final String memberImage;
   final String itemId;
   final String itemName;
+  final String itemDate;
   ConversationPage({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.memberId,
     required this.memberName,
     required this.memberImage,
     required this.itemId,
     required this.itemName,
-  }) : super(key: key);
+    required this.itemDate,
+  });
 
   @override
   State<ConversationPage> createState() => _ConversationPageState();
@@ -40,11 +42,13 @@ class _ConversationPageState extends State<ConversationPage> {
   late TextEditingController _textEditingController;
   bool _isFocused = false;
   List<Message> _messages = []; // Store fetched messages here
-  // List<GetFoundModel> foundItem;
+  late String itemStatus = '';
+  bool foundUserStatus = false; // Variable to store foundUserStatus
+  bool lostUserStatus = false; // Variable to store lostUserStatus
 
-  SocketService _socketService = SocketService(); // Use SocketService instance
+  final SocketService _socketService = SocketService(); // Use SocketService instance
 
-  RemoteService _remoteService =
+  final RemoteService _remoteService =
       RemoteService(); // Create an instance of RemoteService
 
   _connectSocket() {
@@ -59,16 +63,15 @@ class _ConversationPageState extends State<ConversationPage> {
     try {
       await _socketService
           .initializeSocket(); // Initialize socket using SocketService
-      print('Socket connected');
+      // print('Socket connected');
       // Register reconnect logic
       _socketService.socket?.onDisconnect((_) {
-        print('Socket disconnected, reconnecting...');
+        // print('Socket disconnected, reconnecting...');
         initializeSocket(); // Reconnect
       });
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
       _socketService.socket?.emit("new-user-add", uid);
       _socketService.socket?.on("receive-message", (data) {
-        print(data);
         if (data is Map<String, dynamic>) {
           String receiverId = data['receiverId'];
           if (receiverId != widget.memberId) {
@@ -111,7 +114,6 @@ class _ConversationPageState extends State<ConversationPage> {
         }
       });
     } catch (e) {
-      print('Failed to connect to socket: $e');
     }
   }
 
@@ -127,7 +129,7 @@ class _ConversationPageState extends State<ConversationPage> {
         'receiverId': widget.memberId,
         'message': message
       });
-      print('Message sent to socket: $message'); // Confirmation message
+      // Confirmation message
       // Add the sent message to the UI directly
       Message sentMessage = Message(
         senderId: senderId,
@@ -140,7 +142,6 @@ class _ConversationPageState extends State<ConversationPage> {
       // Clear the text field after sending the message
       _textEditingController.clear();
     } catch (e) {
-      print('Error sending message: $e');
       // Handle error appropriately
     }
   }
@@ -163,40 +164,55 @@ class _ConversationPageState extends State<ConversationPage> {
   void _fetchMessages() async {
     try {
       List<Message> messages = await RemoteService().getMessages(widget.chatId);
-      print(messages);
       setState(() {
         _messages = messages;
       });
     } catch (e) {
-      print('Error fetching messages: $e');
     }
   }
 
-//   Future<void> getItemDetails(String itemId) async {
-//   try {
-//     if (itemId.startsWith('fou')) {
-//       // If itemId starts with 'fou', call getFoundByIdJson
-//       dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
-//       setState(() {
-//         itemName = foundItem['itemName'] ?? '';
-//       });
-//     } else if (itemId.startsWith('los')) {
-//       // If itemId starts with 'los', call getLostItemById
-//       Datum? lostItem = await _remoteService.getLostItemById(itemId);
-//       if (lostItem != null) {
-//         setState(() {
-//           itemName = lostItem.itemName ?? '';
-//         });
-//       } else {
-//         print('Lost item not found for ID: $itemId');
-//       }
-//     } else {
-//       print('Invalid itemId format');
-//     }
-//   } catch (e) {
-//     print('Error fetching item details: $e');
-//   }
-// }
+  Future<void> getItemDetails(String itemId) async {
+  try {
+    if (itemId.startsWith('fou')) {
+      dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
+      if (foundItem != null) {
+        foundUserStatus = foundItem['foundUserStatus']; // Update class-level variable
+        lostUserStatus = foundItem['lostUserStatus']; // Update class-level variable
+        if (!foundUserStatus && !lostUserStatus) {
+          itemStatus = 'Available';
+        } else if (!lostUserStatus && foundUserStatus) {
+          itemStatus = 'Awaiting founder approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting lost user approval';
+        } else {
+          itemStatus = 'Item Claimed';
+        }
+      } else {
+      }
+    } else if (itemId.startsWith('los')) {
+      Datum? lostItem = await _remoteService.getLostItemById(itemId);
+      if (lostItem != null) {
+        foundUserStatus = lostItem.foundUserStatus; // Update class-level variable
+        lostUserStatus = lostItem.lostUserStatus; // Update class-level variable
+        if (!foundUserStatus && !lostUserStatus) {
+          itemStatus = 'Available';
+        } else if (!lostUserStatus && foundUserStatus) {
+          itemStatus = 'Awaiting founder approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting lost user approval';
+        } else {
+          itemStatus = 'Item Claimed';
+        }
+      } else {
+      }
+    } else {
+    }
+    // Update the UI after fetching item details
+    setState(() {});
+  } catch (e) {
+  }
+}
+
 
   // Method to navigate to ImagePreviewPage and handle the result
   Future<void> _navigateToImagePreviewPage(File imageFile) async {
@@ -236,7 +252,8 @@ class _ConversationPageState extends State<ConversationPage> {
     _focusNode.addListener(_onFocusChange);
     _textEditingController = TextEditingController();
     _fetchMessages();
-    // getItemDetails(widget.itemId);
+    getItemDetails(widget.itemId);
+    itemStatus = 'Loading...';
   }
 
   // Widget to build chat bubbles from messages
@@ -286,40 +303,47 @@ class _ConversationPageState extends State<ConversationPage> {
                   backgroundImage: NetworkImage(widget.memberImage),
                   radius: 16, // Adjust the size as needed
                 ),
-                SizedBox(width: 8), // Adjust the spacing between image and text
+                const SizedBox(width: 8), // Adjust the spacing between image and text
                 Container(
                   // Wrap the Text widget with Container
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxWidth: 90), // Adjust the maximum width as needed
                   child: Text(
                     widget.memberName,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                     overflow: TextOverflow.ellipsis, // Handle long names
                   ),
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          FinishTransaction()), // Replace FinishPage with the actual page you want to navigate to
+                      builder: (context) => FinishTransaction(
+                            itemId: widget.itemId,
+                            itemName: widget.itemName,
+                            itemDate: widget.itemDate,
+                            foundUserStatus:
+                                foundUserStatus, // Pass foundUserStatus
+                            lostUserStatus:
+                                lostUserStatus, // Pass lostUserStatus
+                          )), // Replace FinishPage with the actual page you want to navigate to
                 );
                 // getItemDetails(widget.itemId);
               },
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomRight: Radius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'FINISH TRANSACTION',
                   style: TextStyle(
                     color: Colors.black,
@@ -331,21 +355,33 @@ class _ConversationPageState extends State<ConversationPage> {
             ),
           ],
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: const [],
       ),
       body: Column(
         children: [
           Container(
             color: primaryColor,
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             alignment: Alignment.centerLeft,
-            child: Text(
-              'Transaction of: ${widget.itemName}',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Transaction of: ${widget.itemName}',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.white),
+                ),
+                Text(
+                  itemStatus,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.yellow),
+                )
+              ],
             ),
           ),
           Expanded(
@@ -357,9 +393,9 @@ class _ConversationPageState extends State<ConversationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
@@ -384,7 +420,7 @@ class _ConversationPageState extends State<ConversationPage> {
                 children: [
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 5),
+                      margin: const EdgeInsets.symmetric(vertical: 5),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20.0),
@@ -392,7 +428,7 @@ class _ConversationPageState extends State<ConversationPage> {
                       child: TextField(
                         controller: _textEditingController,
                         focusNode: _focusNode,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Type your message...',
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 16.0),
@@ -403,7 +439,7 @@ class _ConversationPageState extends State<ConversationPage> {
                   ),
                   if (!_isFocused) ...[
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),
@@ -420,13 +456,12 @@ class _ConversationPageState extends State<ConversationPage> {
                           _textEditingController
                               .clear(); // Clear the text field after sending the message
                         } else {
-                          print('One of the parameters is null');
                           // Handle the case where one of the parameters is null
                         }
                       },
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.photo_camera,
                         color: Colors.white,
                       ),
@@ -437,7 +472,7 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                   ] else ...[
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),
@@ -455,7 +490,6 @@ class _ConversationPageState extends State<ConversationPage> {
                           _textEditingController
                               .clear(); // Clear the text field after sending the message
                         } else {
-                          print('One of the parameters is null');
                           // Handle the case where one of the parameters is null
                         }
                       },

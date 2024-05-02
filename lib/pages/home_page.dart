@@ -2,6 +2,7 @@ import 'package:capstone_project/components/drawer.dart';
 import 'package:capstone_project/components/near_items_card.dart';
 import 'package:capstone_project/models/near_items_model.dart';
 import 'package:capstone_project/models/place.dart';
+import 'package:capstone_project/models/user_model.dart';
 import 'package:capstone_project/pages/map.dart';
 import 'package:capstone_project/pages/profile.dart';
 import 'package:capstone_project/pages/voucher_list.dart';
@@ -24,6 +25,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   LatLng? _userLocation;
   final RemoteService _remoteService = RemoteService();
+  int? _userPoints;
+
+  // Method to fetch user's points
+  void _fetchUserPoints() async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final String userId = userProvider.uid ?? '';
+      User? user = await _remoteService.getUserById(userId);
+      setState(() {
+        _userPoints = user?.points;
+      });
+    } catch (e) {
+      print('Error fetching user points: $e');
+    }
+  }
 
   // Method to get the user's current location
   void _getUserLocation() async {
@@ -90,6 +106,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getUserLocation();
+    _fetchUserPoints();
   }
 
   @override
@@ -185,8 +202,8 @@ class _HomePageState extends State<HomePage> {
                                 const SizedBox(
                                   width: 5,
                                 ),
-                                const Text(
-                                  '100',
+                                Text(
+                                  'Points: ${_userPoints ?? 'N/A'}',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700),

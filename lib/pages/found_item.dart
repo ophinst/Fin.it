@@ -72,6 +72,7 @@ class FoundItemPage extends StatelessWidget {
             memberImage: userImage,
             itemId: foundItem.foundId,
             itemName: foundItem.itemName,
+            itemDate: foundItem.foundDate,
           ),
         ),
       );
