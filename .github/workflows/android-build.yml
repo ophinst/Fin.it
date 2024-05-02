@@ -27,12 +27,16 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: "12.x"
-      # 10   
+      # 10
+      - name: Print pubspec.yaml path
+        id: print_path
+        run: echo "::set-output name=path::$(pwd)/pubspec.yaml"
+      
       - uses: subosito/flutter-action@v2
         with:
-          # 11
           channel: stable
-          flutter-version-file: ./pubspec.yaml # path to pubspec.yaml
+          flutter-version-file: ${{ steps.print_path.outputs.path }}
+          
       # 12
       - name: Get dependencies
         run: flutter pub get
