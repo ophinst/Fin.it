@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: "16.x" # Adjusted to a version that comes with a compatible Dart SDK version
+          java-version: "17.x"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
