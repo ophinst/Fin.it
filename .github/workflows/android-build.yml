@@ -16,13 +16,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: "12.x"
-      - name: Download and Install Dart SDK
-        run: |
-          wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.6-stable.tar.xz
-          tar xf flutter_linux_3.10.6-stable.tar.xz
-          export DART_SDK=$(pwd)/flutter_linux_3.10.6-stable.tar.xz
-          export PATH="$PATH:$DART_SDK/bin"
+          java-version: "16.x" # Adjusted to a version that comes with a compatible Dart SDK version
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
