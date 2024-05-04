@@ -32,61 +32,63 @@ class _LostItemPageState extends State<LostItemPage> {
   void tagButton() {}
 
   void chatButton(BuildContext? context, Datum? lostItem) async {
-  if (context == null || lostItem == null) {
-    // Handle the case when the context or lostItem is null
-    return;
-  }
-
-  try {
-    // Get user data
-    User? user = await _remoteService.getUserById(lostItem.uid);
-    String userName = user?.name ?? 'Unknown User';
-    String userImage = user?.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
-
-    // Get token from userProvider
-    final token = Provider.of<UserProvider?>(context, listen: false)?.token ?? ''; // Assign empty string if token is null
-
-    // Call getChatById function
-    String itemId = lostItem.lostId; // Using foundId instead of lostId
-    String receiverId = lostItem.uid; // Assuming foundItem is available
-    Map<String, dynamic> chatData = await _remoteService.getChatById(token, itemId, receiverId);
-
-    // Access the 'data' field from chatData
-    Map<String, dynamic>? chatInfo = chatData['data'];
-
-    if (chatInfo != null) {
-      // Create Chat object from the chatInfo map
-      Chat chat = Chat.fromJson(chatInfo);
-
-      // Navigate to ConversationPage
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConversationPage(
-            chatId: chat.chatId,
-            memberId: lostItem.uid,
-            memberName: userName,
-            memberImage: userImage,
-            itemId: lostItem.lostId,
-            itemName: lostItem.itemName,
-            itemDate: lostItem.lostDate,
-          ),
-        ),
-      );
-      
-    } else {
-      print('Error: No chat data found in the response.');
+    if (context == null || lostItem == null) {
+      // Handle the case when the context or lostItem is null
+      return;
     }
-  } catch (e) {
-    print('Error: $e');
-  }
-}
 
+    try {
+      // Get user data
+      User? user = await _remoteService.getUserById(lostItem.uid);
+      String userName = user?.name ?? 'Unknown User';
+      String userImage = user?.image ??
+          'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+
+      // Get token from userProvider
+      final token = Provider.of<UserProvider?>(context, listen: false)?.token ??
+          ''; // Assign empty string if token is null
+
+      // Call getChatById function
+      String itemId = lostItem.lostId; // Using foundId instead of lostId
+      String receiverId = lostItem.uid; // Assuming foundItem is available
+      Map<String, dynamic> chatData =
+          await _remoteService.getChatById(token, itemId, receiverId);
+
+      // Access the 'data' field from chatData
+      Map<String, dynamic>? chatInfo = chatData['data'];
+
+      if (chatInfo != null) {
+        // Create Chat object from the chatInfo map
+        Chat chat = Chat.fromJson(chatInfo);
+
+        // Navigate to ConversationPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ConversationPage(
+              chatId: chat.chatId,
+              memberId: lostItem.uid,
+              memberName: userName,
+              memberImage: userImage,
+              itemId: lostItem.lostId,
+              itemName: lostItem.itemName,
+              itemDate: lostItem.lostDate,
+            ),
+          ),
+        );
+      } else {
+        print('Error: No chat data found in the response.');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   // int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider?>(context);
     Color primaryColor = Colors.white;
     return Scaffold(
       appBar: AppBar(
@@ -139,6 +141,8 @@ class _LostItemPageState extends State<LostItemPage> {
                 child: Text('No data found'),
               );
             } else {
+              bool isCurrentUser =
+                  userProvider != null && lostItem.uid == userProvider.uid;
               return SingleChildScrollView(
                 controller: ScrollController(),
                 child: Column(
@@ -395,25 +399,27 @@ class _LostItemPageState extends State<LostItemPage> {
                                     ),
                                   ),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () => chatButton(context,lostItem),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromRGBO(43, 52, 153, 1),
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 10.0,
-                                      bottom: 10.0,
-                                      left: 18.0,
-                                      right: 18.0,
+                                if (!isCurrentUser)
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        chatButton(context, lostItem),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color.fromRGBO(43, 52, 153, 1),
                                     ),
-                                    child: Text(
-                                      'CHAT',
-                                      style: TextStyle(color: Colors.white),
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(
+                                        top: 10.0,
+                                        bottom: 10.0,
+                                        left: 18.0,
+                                        right: 18.0,
+                                      ),
+                                      child: Text(
+                                        'CHAT',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ],

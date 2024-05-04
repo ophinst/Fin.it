@@ -317,22 +317,21 @@ class _ConversationPageState extends State<ConversationPage> {
               ],
             ),
             const Spacer(),
+            if (!(foundUserStatus && lostUserStatus)) // Check if neither found nor lost
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => FinishTransaction(
-                            itemId: widget.itemId,
-                            itemName: widget.itemName,
-                            itemDate: widget.itemDate,
-                            foundUserStatus:
-                                foundUserStatus, // Pass foundUserStatus
-                            lostUserStatus:
-                                lostUserStatus, // Pass lostUserStatus
-                          )), // Replace FinishPage with the actual page you want to navigate to
+                    builder: (context) => FinishTransaction(
+                      itemId: widget.itemId,
+                      itemName: widget.itemName,
+                      itemDate: widget.itemDate,
+                      foundUserStatus: foundUserStatus,
+                      lostUserStatus: lostUserStatus,
+                    ),
+                  ),
                 );
-                // getItemDetails(widget.itemId);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
