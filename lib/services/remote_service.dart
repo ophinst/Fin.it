@@ -163,8 +163,6 @@ class RemoteService {
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      print('=================');
-      print(apiKey);
       final decodedResponse = json.decode(response.body);
       final results = decodedResponse['results'];
       if (results != null && results.isNotEmpty) {
