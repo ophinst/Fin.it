@@ -22,7 +22,8 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatBox> filteredChatBoxes =
       []; // List to store filtered ChatBox widgets
 
-  final SocketService _socketService = SocketService(); // Use SocketService instance
+  final SocketService _socketService =
+      SocketService(); // Use SocketService instance
   IO.Socket? socket;
 
   var isLoaded = false;
@@ -51,159 +52,167 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> fetchChats() async {
-  try {
-    // Check if data has already been loaded
-    if (isLoaded) {
-      // If data has been loaded, use cached data
-      setState(() {
-        filteredChatBoxes = List.from(chatBoxes);
-        isLoading = false;
-      });
-      return;
-    }
-
-    // Set isLoading to true to show circular progress indicator
-    setState(() {
-      isLoading = true;
-    });
-
-    // Retrieve token and user ID from the user provider
-    final token = Provider.of<UserProvider>(context, listen: false).token;
-    final uid = Provider.of<UserProvider>(context, listen: false).uid;
-
-    // Ensure token is not null before proceeding
-    if (token != null) {
-      // Create an instance of RemoteService
-      RemoteService remoteService = RemoteService();
-
-      // Call the getChats function with error handling
-      final dynamic response = await remoteService.getChats(token).catchError((e) {
-        throw e; // Rethrow the error to be caught by the outer try-catch block
-      });
-
-      // Extract list of chat objects from the response
-      final List<dynamic>? chatData = response['data'];
-
-
-      if (chatData != null) {
-        // Clear previous chat boxes
-        setState(() {
-          chatBoxes.clear();
-          filteredChatBoxes.clear(); // Clear filtered chat boxes
-        });
-
-        // Iterate over chat objects and create ChatBox widgets
-        for (var chat in chatData) {
-          final List<dynamic>? members = chat['members'];
-
-          if (members != null && uid != null) {
-            // Filter out member IDs that are not equal to the UID
-            final filteredMembers = members.where((memberId) => memberId != uid).toList();
-
-            // Fetch user name and image for the first member ID with error handling
-            String memberId = filteredMembers.first;
-            String memberName = '';
-            String memberImage = '';
-            String recentMessage = '';
-            String recentMessageCreatedAt = '';
-
-            if (filteredMembers.isNotEmpty) {
-              final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
-                throw e; // Rethrow the error to be caught by the outer try-catch block
-              });
-              if (user != null) {
-                // print(user.reward);
-                memberName = user.name;
-                memberImage = user.image ??
-                    'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
-              }
-            }
-
-            // Get the most recent message and its creation date with error handling
-            final List<Message> messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
-              throw e; // Rethrow the error to be caught by the outer try-catch block
-            });
-            if (messagesResponse.isNotEmpty) {
-              // Sort messages by creation date in descending order
-              messagesResponse.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-              final Message recentMessageObject = messagesResponse.first;
-              if (recentMessageObject.message != null) {
-                recentMessage = recentMessageObject.message!;
-              } else if (recentMessageObject.imageUrl != null) {
-                recentMessage = 'Image';
-              }
-              recentMessageCreatedAt = recentMessageObject.createdAt.toString(); // Format the creation date
-            }
-
-            // Fetch item details for the itemId
-            final String itemId = chat['itemId'];
-            late String itemName = 'Loading'; // Default item name while fetching
-            late String itemDate = 'Loading'; 
-            if (itemId.startsWith('fou')) {
-              // If itemId starts with 'fou', call getFoundByIdJson
-              dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
-              setState(() {
-                itemName = foundItem['itemName'] ?? '';
-                itemDate = foundItem['foundDate'] ?? '';
-              });
-            } else if (itemId.startsWith('los')) {
-              // If itemId starts with 'los', call getLostItemById
-              Datum? lostItem = await remoteService.getLostItemById(itemId);
-              if (lostItem != null) {
-                setState(() {
-                  itemName = lostItem.itemName;
-                  itemDate = lostItem.lostDate;
-                });
-              } else {
-              }
-            } else {
-            }
-
-            // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
-            final chatBox = ChatBox(
-              chatId: chat['chatId'],
-              memberId: memberId,
-              memberName: memberName,
-              memberImage: memberImage,
-              recentMessage: recentMessage,
-              recentMessageCreatedAt: recentMessageCreatedAt,
-              itemId: itemId,
-              itemName: itemName, // Pass the fetched item name here
-              itemDate: itemDate,
-              updateRecentMessage: (message) {
-                // Define the updateRecentMessage function here
-                setState(() {
-                  recentMessage = message;
-                });
-              },
-            );
-
-            // Add chatBox to chatBoxes list
-            chatBoxes.add(chatBox);
-          }
-        }
-
-        // Sort chatBoxes based on recentMessageCreatedAt
-        chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
-
-        // Assign chatBoxes to filteredChatBoxes
+    try {
+      // Check if data has already been loaded
+      if (isLoaded) {
+        // If data has been loaded, use cached data
         setState(() {
           filteredChatBoxes = List.from(chatBoxes);
-          isLoaded = true; // Set isLoaded to true
+          isLoading = false;
         });
-      } else {
+        return;
       }
-    } else {
+
+      // Set isLoading to true to show circular progress indicator
+      setState(() {
+        isLoading = true;
+      });
+
+      // Retrieve token and user ID from the user provider
+      final token = Provider.of<UserProvider>(context, listen: false).token;
+      final uid = Provider.of<UserProvider>(context, listen: false).uid;
+
+      // Ensure token is not null before proceeding
+      if (token != null) {
+        // Create an instance of RemoteService
+        RemoteService remoteService = RemoteService();
+
+        // Call the getChats function with error handling
+        final dynamic response =
+            await remoteService.getChats(token).catchError((e) {
+          throw e; // Rethrow the error to be caught by the outer try-catch block
+        });
+
+        // Extract list of chat objects from the response
+        final List<dynamic>? chatData = response['data'];
+
+        if (chatData != null) {
+          // Clear previous chat boxes
+          setState(() {
+            chatBoxes.clear();
+            filteredChatBoxes.clear(); // Clear filtered chat boxes
+          });
+
+          // Iterate over chat objects and create ChatBox widgets
+          for (var chat in chatData) {
+            final List<dynamic>? members = chat['members'];
+
+            if (members != null && uid != null) {
+              // Filter out member IDs that are not equal to the UID
+              final filteredMembers =
+                  members.where((memberId) => memberId != uid).toList();
+
+              // Fetch user name and image for the first member ID with error handling
+              String memberId = filteredMembers.first;
+              String memberName = '';
+              String memberImage = '';
+              String recentMessage =
+                  'Start Chatting Now!'; // Default message when recent message is null
+              String recentMessageCreatedAt =
+                  '2000-01-01T00:00:00.000Z'; // Default creation date when recent message creation date is null
+
+              if (filteredMembers.isNotEmpty) {
+                final user = await remoteService
+                    .getUserById(filteredMembers.first)
+                    .catchError((e) {
+                  throw e; // Rethrow the error to be caught by the outer try-catch block
+                });
+                if (user != null) {
+                  // print(user.reward);
+                  memberName = user.name;
+                  memberImage = user.image ??
+                      'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
+                }
+              }
+
+              // Get the most recent message and its creation date with error handling
+              final List<Message> messagesResponse = await remoteService
+                  .getMessages(chat['chatId'])
+                  .catchError((e) {
+                throw e; // Rethrow the error to be caught by the outer try-catch block
+              });
+              if (messagesResponse.isNotEmpty) {
+                // Sort messages by creation date in descending order
+                messagesResponse
+                    .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                final Message recentMessageObject = messagesResponse.first;
+                if (recentMessageObject.message != null) {
+                  recentMessage = recentMessageObject.message!;
+                } else if (recentMessageObject.imageUrl != null) {
+                  recentMessage = 'Image';
+                }
+                recentMessageCreatedAt = recentMessageObject.createdAt
+                    .toString(); // Format the creation date
+              }
+
+              // Fetch item details for the itemId
+              final String itemId = chat['itemId'];
+              late String itemName =
+                  'Loading'; // Default item name while fetching
+              late String itemDate = 'Loading';
+              if (itemId.startsWith('fou')) {
+                // If itemId starts with 'fou', call getFoundByIdJson
+                dynamic foundItem =
+                    await remoteService.getFoundByIdJson(itemId);
+                setState(() {
+                  itemName = foundItem['itemName'] ?? '';
+                  itemDate = foundItem['foundDate'] ?? '';
+                });
+              } else if (itemId.startsWith('los')) {
+                // If itemId starts with 'los', call getLostItemById
+                Datum? lostItem = await remoteService.getLostItemById(itemId);
+                if (lostItem != null) {
+                  setState(() {
+                    itemName = lostItem.itemName;
+                    itemDate = lostItem.lostDate;
+                  });
+                } else {}
+              } else {}
+
+              // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
+              final chatBox = ChatBox(
+                chatId: chat['chatId'],
+                memberId: memberId,
+                memberName: memberName,
+                memberImage: memberImage,
+                recentMessage: recentMessage,
+                recentMessageCreatedAt: recentMessageCreatedAt,
+                itemId: itemId,
+                itemName: itemName, // Pass the fetched item name here
+                itemDate: itemDate,
+                updateRecentMessage: (message) {
+                  // Define the updateRecentMessage function here
+                  setState(() {
+                    recentMessage = message;
+                  });
+                },
+              );
+
+              // Add chatBox to chatBoxes list
+              chatBoxes.add(chatBox);
+            }
+          }
+
+          // Sort chatBoxes based on recentMessageCreatedAt
+          chatBoxes.sort((a, b) =>
+              b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+
+          // Assign chatBoxes to filteredChatBoxes
+          setState(() {
+            filteredChatBoxes = List.from(chatBoxes);
+            isLoaded = true; // Set isLoaded to true
+          });
+        }
+      } else {}
+    } catch (e) {
+    } finally {
+      // Set isLoading to false to hide circular progress indicator
+      setState(() {
+        isLoading = false;
+      });
     }
-  } catch (e) {
-  } finally {
-    // Set isLoading to false to hide circular progress indicator
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
   // Search function to filter chat boxes by member name or recent message
   void searchChats(String query) {
@@ -252,8 +261,7 @@ class _ChatPageState extends State<ChatPage> {
           }
         });
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> fetchData() async {

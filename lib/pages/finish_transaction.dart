@@ -42,7 +42,6 @@ class _FinishTransactionState extends State<FinishTransaction> {
   }
 
   // Function to handle finishing transaction based on item ID
-  // Function to handle finishing transaction based on item ID
 Future<void> finishTransaction(String token) async {
   try {
     if (widget.itemId.startsWith('fou')) {

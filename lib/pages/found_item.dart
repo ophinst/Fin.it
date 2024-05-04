@@ -14,10 +14,9 @@ class FoundItemPage extends StatelessWidget {
   final String foundId;
   final GetFoundModel foundItem;
 
-  FoundItemPage(
-      {required this.foundItem, required this.foundId, super.key});
+  FoundItemPage({required this.foundItem, required this.foundId, super.key});
 
-  RemoteService _remoteService = RemoteService();
+  final RemoteService _remoteService = RemoteService();
 
 //   void getUserData() async {
 //   try {
@@ -32,63 +31,64 @@ class FoundItemPage extends StatelessWidget {
 //   }
 // }
 
-
   void tagButton() {}
   void chatButton(BuildContext? context) async {
-  if (context == null) {
-    // Handle the case when the context is null
-    return;
-  }
-
-  try {
-    // Get user data
-    User? user = await _remoteService.getUserById(foundItem.uid);
-    String userName = user?.name ?? 'Unknown User';
-    String userImage = user?.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
-
-    // Get token from userProvider
-    final token = Provider.of<UserProvider?>(context, listen: false)?.token ?? ''; // Assign empty string if token is null
-
-    // Call getChatById function
-    String itemId = foundItem.foundId;
-    String receiverId = foundItem.uid;
-    Map<String, dynamic> chatData = await _remoteService.getChatById(token, itemId, receiverId);
-
-    // Access the 'data' field from chatData
-    Map<String, dynamic>? chatInfo = chatData['data'];
-
-    if (chatInfo != null) {
-      // Create Chat object from the chatInfo map
-      Chat chat = Chat.fromJson(chatInfo);
-
-      // Navigate to ConversationPage
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ConversationPage(
-            chatId: chat.chatId,
-            memberId: foundItem.uid,
-            memberName: userName,
-            memberImage: userImage,
-            itemId: foundItem.foundId,
-            itemName: foundItem.itemName,
-            itemDate: foundItem.foundDate,
-          ),
-        ),
-      );
-      
-    } else {
-      print('Error: No chat data found in the response.');
+    if (context == null) {
+      // Handle the case when the context is null
+      return;
     }
-  } catch (e) {
-    print('Error: $e');
-  }
-}
 
+    try {
+      // Get user data
+      User? user = await _remoteService.getUserById(foundItem.uid);
+      String userName = user?.name ?? 'Unknown User';
+      String userImage = user?.image ??
+          'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+
+      // Get token from userProvider
+      final token = Provider.of<UserProvider?>(context, listen: false)?.token ??
+          ''; // Assign empty string if token is null
+
+      // Call getChatById function
+      String itemId = foundItem.foundId;
+      String receiverId = foundItem.uid;
+      Map<String, dynamic> chatData =
+          await _remoteService.getChatById(token, itemId, receiverId);
+
+      // Access the 'data' field from chatData
+      Map<String, dynamic>? chatInfo = chatData['data'];
+
+      if (chatInfo != null) {
+        // Create Chat object from the chatInfo map
+        Chat chat = Chat.fromJson(chatInfo);
+
+        // Navigate to ConversationPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ConversationPage(
+              chatId: chat.chatId,
+              memberId: foundItem.uid,
+              memberName: userName,
+              memberImage: userImage,
+              itemId: foundItem.foundId,
+              itemName: foundItem.itemName,
+              itemDate: foundItem.foundDate,
+            ),
+          ),
+        );
+      } else {
+      }
+    } catch (e) {
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider?>(context);
     String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
+    bool isCurrentUser =
+        userProvider != null && foundItem.uid == userProvider.uid;
     Color primaryColor = Colors.white;
     return Scaffold(
       appBar: AppBar(
@@ -381,25 +381,26 @@ class FoundItemPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () => chatButton(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromRGBO(43, 52, 153, 1),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                              top: 10.0,
-                              bottom: 10.0,
-                              left: 18.0,
-                              right: 18.0,
+                        if (!isCurrentUser)
+                          ElevatedButton(
+                            onPressed: () => chatButton(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromRGBO(43, 52, 153, 1),
                             ),
-                            child: Text(
-                              'CHAT',
-                              style: TextStyle(color: Colors.white),
+                            child: const Padding(
+                              padding: EdgeInsets.only(
+                                top: 10.0,
+                                bottom: 10.0,
+                                left: 18.0,
+                                right: 18.0,
+                              ),
+                              child: Text(
+                                'CHAT',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ],
