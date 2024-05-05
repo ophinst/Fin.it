@@ -71,23 +71,6 @@ class _LostItemListState extends State<LostItemList> {
     });
   }
 
-  // List<Datum>? filterLostsByCategory(String? category) {
-  //   if (category == null || category.isEmpty) {
-  //     return allLosts; // Return all lost items if no category is selected
-  //   }
-  //   return allLosts?.where((item) => item.category == category).toList();
-  // }
-
-  // void searchLostItems(String query) {
-  //   List<Datum> searchResult = allLosts!
-  //       .where((lostItem) =>
-  //           lostItem.itemName.toLowerCase().contains(query.toLowerCase()))
-  //       .toList();
-  //   setState(() {
-  //     displayedLosts = searchResult;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isApiCallProcess = false;
+
   @override
   void initState() {
     super.initState();

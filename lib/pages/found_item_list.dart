@@ -111,7 +111,7 @@ class _FoundItemListState extends State<FoundItemList> {
                   top: 25,
                 ),
                 child: Text(
-                  'Lost Something?',
+                  'Found Something?',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 24,
