@@ -56,20 +56,18 @@ class FoundItemListCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 64),
-                    child: Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Color.fromRGBO(43, 52, 153, 1),
-                          ),
-                          Text(
-                            formattedLocationName ??
-                                foundItem.placeLocation.locationDetail ??
-                                'Location detail is not available',
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          color: Color.fromRGBO(43, 52, 153, 1),
+                        ),
+                        Text(
+                          formattedLocationName ??
+                              foundItem.placeLocation.locationDetail ??
+                              'Location detail is not available',
+                        ),
+                      ],
                     ),
                   ),
                 ],

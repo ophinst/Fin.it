@@ -1,5 +1,7 @@
+import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/models/recentact_model.dart';
-
+import 'package:capstone_project/pages/found_item.dart';
+import 'package:capstone_project/pages/lost_item.dart';
 import 'package:flutter/material.dart';
 
 class ActivityCard extends StatelessWidget {
@@ -11,44 +13,98 @@ class ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GetFoundModel foundItem;
+
     return GestureDetector(
       // onTap: () {
-      //   if (foundItem.foundId != null) {
+      //   if (foundAct?.foundId != null) {
       //     Navigator.push(
       //       context,
       //       MaterialPageRoute(
       //         builder: (context) => FoundItemPage(
-      //           foundItem: foundItem,
-      //           foundId: foundItem.foundId,
+      //           foundId: foundAct!.foundId,
       //         ),
       //       ),
       //     );
-      //   } else {
+      //   } else if (lostAct?.lostId != null) {
       //     Navigator.push(
       //       context,
       //       MaterialPageRoute(
       //         builder: (context) => LostItemPage(
-      //           lostId: lostItem.lostId,
+      //           lostId: lostAct!.lostId,
       //         ),
       //       ),
       //     );
+      //   } else {
+      //     Text('no data');
       //   }
       // },
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: Card(
-          child: Column(
-            children: [
-              Text(
-                foundAct != null
-                    ? foundAct!.itemName
-                    : (lostAct != null ? lostAct!.itemName : ''),
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.search,
+                      size: 30,
+                      color: Color.fromRGBO(43, 52, 153, 1),
+                    ),
+                    Text(
+                      foundAct != null
+                          ? "Item Found"
+                          : (lostAct != null ? 'Item Lost' : 'No Item Yet'),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 20),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  foundAct != null
+                      ? foundAct!.itemName
+                      : (lostAct != null ? lostAct!.itemName : 'No Item Yet'),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(43, 52, 153, 1),
+                      fontSize: 26),
+                ),
+                const SizedBox(
+                  height: 7,
+                ),
+                Text(
+                  foundAct != null
+                      ? foundAct!.locationDetail
+                      : (lostAct != null ? lostAct!.locationDetail : ''),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.normal,
                     color: Colors.black,
-                    fontSize: 16),
-              ),
-            ],
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  foundAct != null
+                      ? foundAct!.foundDate
+                      : (lostAct != null ? lostAct!.lostDate : ''),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

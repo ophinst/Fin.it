@@ -163,8 +163,6 @@ class RemoteService {
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      print('=================');
-      print(apiKey);
       final decodedResponse = json.decode(response.body);
       final results = decodedResponse['results'];
       if (results != null && results.isNotEmpty) {
@@ -252,7 +250,7 @@ class RemoteService {
       return RegisterResponseModel(
           message: 'Unauthorized: Please check your credentials');
     } else if (response.statusCode == 400) {
-      return RegisterResponseModel(message: 'Please Input your credential');
+      return RegisterResponseModel(message: "User Already Register");
     } else {
       print('Failed to fetch data: ${response.statusCode}');
       throw Exception('Failed to fetch data: ${response.statusCode}');

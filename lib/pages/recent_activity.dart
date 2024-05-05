@@ -16,12 +16,12 @@ class _ActivityListState extends State<ActivityList> {
   List<LostAct> allLost = [];
   List<FoundAct> allFound = [];
   ScrollController _scrollController = new ScrollController();
-
+  bool isLoading = false;
   final RemoteService _remoteService = RemoteService();
-  // bool isLoading = true;
 
   void getRecentActivity() async {
     final token = Provider.of<UserProvider>(context, listen: false).token;
+    isLoading = true;
     try {
       final response = await _remoteService.getRecentAct(token);
       if (response['data'] != null) {
@@ -41,6 +41,8 @@ class _ActivityListState extends State<ActivityList> {
       }
     } catch (error) {
       print('Error fetching near items: $error');
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -108,30 +110,40 @@ class _ActivityListState extends State<ActivityList> {
             height: 10,
           ),
           Expanded(
-            child: allFound.isNotEmpty || allLost.isNotEmpty
-                ? ListView.builder(
-                    controller: _scrollController,
-                    itemCount: allFound.length + allLost.length,
-                    itemBuilder: (context, index) {
-                      List<dynamic> combinedItems = [
-                        ...allFound,
-                        ...allLost,
-                      ];
-                      combinedItems.shuffle();
-                      print(combinedItems);
-                      return ActivityCard(
-                        lostAct: combinedItems[index] is LostAct
-                            ? combinedItems[index] as LostAct
-                            : null,
-                        foundAct: combinedItems[index] is FoundAct
-                            ? combinedItems[index] as FoundAct
-                            : null,
-                      );
-                    },
-                  )
-                : const Center(
+            child: isLoading
+                ? Center(
                     child: CircularProgressIndicator(),
-                  ),
+                  )
+                : allFound.isNotEmpty || allLost.isNotEmpty
+                    ? ListView.builder(
+                        controller: _scrollController,
+                        itemCount: allFound.length + allLost.length,
+                        itemBuilder: (context, index) {
+                          List<dynamic> combinedItems = [
+                            ...allFound,
+                            ...allLost,
+                          ];
+                          combinedItems.shuffle();
+                          return ActivityCard(
+                            lostAct: combinedItems[index] is LostAct
+                                ? combinedItems[index] as LostAct
+                                : null,
+                            foundAct: combinedItems[index] is FoundAct
+                                ? combinedItems[index] as FoundAct
+                                : null,
+                          );
+                        },
+                      )
+                    : const Center(
+                        child: Text(
+                          'No Recent Activity',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(43, 52, 153, 1),
+                          ),
+                        ),
+                      ),
           ),
         ],
       ),

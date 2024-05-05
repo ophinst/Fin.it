@@ -1,8 +1,6 @@
 import 'package:capstone_project/components/loading_HUD.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/my_formfield.dart';
-import 'package:capstone_project/components/my_textfield.dart';
-import 'package:capstone_project/components/square_tile.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'dart:convert';
