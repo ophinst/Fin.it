@@ -36,6 +36,10 @@ class _LostItemPageState extends State<LostItemPage> {
       // Handle the case when the context or lostItem is null
       return;
     }
+    if (context == null || lostItem == null) {
+      // Handle the case when the context or lostItem is null
+      return;
+    }
 
     try {
       // Get user data
@@ -83,8 +87,6 @@ class _LostItemPageState extends State<LostItemPage> {
       print('Error: $e');
     }
   }
-
-  // int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
