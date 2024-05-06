@@ -1,7 +1,5 @@
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/models/recentact_model.dart';
-import 'package:capstone_project/pages/found_item.dart';
-import 'package:capstone_project/pages/lost_item.dart';
 import 'package:flutter/material.dart';
 
 class ActivityCard extends StatelessWidget {
@@ -84,6 +82,7 @@ class ActivityCard extends StatelessWidget {
                   foundAct != null
                       ? foundAct!.locationDetail
                       : (lostAct != null ? lostAct!.locationDetail : ''),
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.normal,
                     color: Colors.black,
@@ -93,15 +92,48 @@ class ActivityCard extends StatelessWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                Text(
-                  foundAct != null
-                      ? foundAct!.foundDate
-                      : (lostAct != null ? lostAct!.lostDate : ''),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                    fontSize: 16,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_month,
+                          color: Color.fromRGBO(43, 52, 153, 1),
+                          size: 25,
+                        ),
+                        Text(
+                          foundAct != null
+                              ? foundAct!.foundDate
+                              : (lostAct != null ? lostAct!.lostDate : ''),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.timer_sharp,
+                          color: Color.fromRGBO(43, 52, 153, 1),
+                          size: 25,
+                        ),
+                        Text(
+                          foundAct != null
+                              ? foundAct!.foundTime
+                              : (lostAct != null ? lostAct!.lostTime : ''),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

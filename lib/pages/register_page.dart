@@ -6,6 +6,8 @@ import 'package:capstone_project/services/remote_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:capstone_project/models/user_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -25,7 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final vpasswordController = TextEditingController();
 
   // sign user up method
-  void signUserIn(BuildContext context, String name) {
+  void signUserIn(BuildContext context, String name, String token, String uid) {
     // Navigate to the HomePage
     Navigator.pushNamed(context, '/home', arguments: name);
   }
@@ -157,9 +159,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       //check token available or not
                       if (value.token != null && value.token!.isNotEmpty) {
                         final snackBar =
-                            SnackBar(content: Text("Login Successful"));
+                            SnackBar(content: Text("Register Successful"));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        signUserIn(context, value.name!);
+                        // Get the UserProvider instance
+                        final userProvider =
+                            Provider.of<UserProvider>(context, listen: false);
+                        // Update the user's data in the provider
+                        userProvider.updateUserData(
+                            value.uid!, value.name!, value.token!);
+                        userProvider.saveUserData();
+                        signUserIn(
+                            context, value.name!, value.token!, value.uid!);
                         //if not, return value below
                       } else if (value.message != null) {
                         final snackBar =

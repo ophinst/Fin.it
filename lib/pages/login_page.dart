@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                           });
                           //check token available or not
                           if (value.token != null && value.token!.isNotEmpty) {
-                            const snackBar =
+                            final snackBar =
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
@@ -158,9 +158,9 @@ class _LoginPageState extends State<LoginPage> {
                             // Update the user's data in the provider
                             userProvider.updateUserData(
                                 value.uid!, value.name!, value.token!);
+                            userProvider.saveUserData();
                             signUserIn(
-                                context, value.name!, value.uid!, value.token!);
-
+                                context, value.name!, value.token!, value.uid!);
                             //if not, return value below
                           } else if (value.error != null) {
                             final snackBar =
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                           } else {
-                            const snackBar =
+                            final snackBar =
                                 SnackBar(content: Text("Login Failed"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
