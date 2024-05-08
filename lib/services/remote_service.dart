@@ -243,17 +243,33 @@ class RemoteService {
     );
 
     if (response.statusCode == 201) {
-      return RegisterResponseModel.fromJson(
-        jsonDecode(response.body),
-      );
+      // Assuming the API returns a JSON object with a 'data' field containing the user details
+      return RegisterResponseModel.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
+      // Unauthorized access
       return RegisterResponseModel(
           message: 'Unauthorized: Please check your credentials');
     } else if (response.statusCode == 400) {
-      return RegisterResponseModel(message: "User Already Register");
+      // Bad request
+      // Attempt to parse the error message from the response body
+      try {
+        var responseBody = jsonDecode(response.body);
+        return RegisterResponseModel(message: responseBody['message']);
+      } catch (e) {
+        // If parsing fails, use a generic error message
+        return RegisterResponseModel(message: 'Bad request: Invalid input');
+      }
     } else {
-      print('Failed to fetch data: ${response.statusCode}');
-      throw Exception('Failed to fetch data: ${response.statusCode}');
+      // Other status codes indicate server errors or other issues
+      // Attempt to parse the error message from the response body
+      try {
+        var responseBody = jsonDecode(response.body);
+        return RegisterResponseModel(message: responseBody['message']);
+      } catch (e) {
+        // If parsing fails, use a generic error message
+        return RegisterResponseModel(
+            message: 'Server error: ${response.statusCode}');
+      }
     }
   }
 
@@ -443,50 +459,50 @@ class RemoteService {
   }
 
   Future<void> finishLostTransaction(String token, String lostId) async {
-  final uri = Uri.parse('$url/lost/$lostId');
+    final uri = Uri.parse('$url/lost/$lostId');
 
-  try {
-    final response = await http.patch(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.patch(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      print('Lost transaction finished successfully');
-    } else {
-      print('Failed to finish lost transaction: ${response.statusCode}');
-      throw Exception('Failed to finish lost transaction');
+      if (response.statusCode == 200) {
+        print('Lost transaction finished successfully');
+      } else {
+        print('Failed to finish lost transaction: ${response.statusCode}');
+        throw Exception('Failed to finish lost transaction');
+      }
+    } catch (e) {
+      print('Error finishing lost transaction: $e');
+      throw Exception('Error finishing lost transaction: $e');
     }
-  } catch (e) {
-    print('Error finishing lost transaction: $e');
-    throw Exception('Error finishing lost transaction: $e');
   }
-}
+
   Future<void> finishFoundTransaction(String token, String foundId) async {
-  final uri = Uri.parse('$url/found/$foundId');
+    final uri = Uri.parse('$url/found/$foundId');
 
-  try {
-    final response = await http.patch(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.patch(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      print('Lost transaction finished successfully');
-    } else {
-      print('Failed to finish lost transaction: ${response.statusCode}');
-      throw Exception('Failed to finish lost transaction');
+      if (response.statusCode == 200) {
+        print('Lost transaction finished successfully');
+      } else {
+        print('Failed to finish lost transaction: ${response.statusCode}');
+        throw Exception('Failed to finish lost transaction');
+      }
+    } catch (e) {
+      print('Error finishing lost transaction: $e');
+      throw Exception('Error finishing lost transaction: $e');
     }
-  } catch (e) {
-    print('Error finishing lost transaction: $e');
-    throw Exception('Error finishing lost transaction: $e');
   }
-}
-
 }
