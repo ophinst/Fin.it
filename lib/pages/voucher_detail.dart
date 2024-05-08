@@ -1,3 +1,4 @@
+import 'package:capstone_project/components/my_button.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/models/voucher_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
@@ -8,13 +9,14 @@ class VoucherDetail extends StatelessWidget {
   const VoucherDetail(
       {required this.rewardId, required this.vouchers, super.key});
 
+  void _redeemVoucher() {}
   @override
   Widget build(BuildContext context) {
     Color primaryColor = Colors.white;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
           ),
@@ -82,7 +84,7 @@ class VoucherDetail extends StatelessWidget {
                     Text(
                       vouchers.rewardName,
                       textAlign: TextAlign.start,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 30,
                         fontFamily: 'JosefinSans',
                         fontWeight: FontWeight.bold,
@@ -95,7 +97,7 @@ class VoucherDetail extends StatelessWidget {
                     Text(
                       ('Expireted in ${vouchers.rewardExpiration}'),
                       textAlign: TextAlign.start,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontFamily: 'JosefinSans',
                         color: Color.fromRGBO(43, 52, 153, 1),
@@ -142,8 +144,39 @@ class VoucherDetail extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20.0,
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          '${vouchers.rewardPrice} Points',
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        ElevatedButton(
+                          onPressed: _redeemVoucher,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromRGBO(43, 52, 153, 1),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.only(
+                              top: 10.0,
+                              bottom: 10.0,
+                              left: 20.0,
+                              right: 20.0,
+                            ),
+                            child: Text(
+                              'Redeem Voucher',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

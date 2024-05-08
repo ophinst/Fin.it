@@ -1,4 +1,3 @@
-import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/models/recentact_model.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +10,6 @@ class ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GetFoundModel foundItem;
-
     return GestureDetector(
       // onTap: () {
       //   if (foundAct?.foundId != null) {
@@ -47,7 +44,7 @@ class ActivityCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.search,
                       size: 30,
                       color: Color.fromRGBO(43, 52, 153, 1),

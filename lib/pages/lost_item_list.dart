@@ -274,11 +274,14 @@ class _LostItemListState extends State<LostItemList> {
       ),
       floatingActionButton: isExtend
           ? MyCompose(
+              buttonIcon: Icons.edit,
               onTap: () {
                 lostForm(context);
               },
             )
           : MyExtendedCompose(
+              buttonIcon: Icons.edit,
+              buttonText: 'New Data',
               onTap: () {
                 lostForm(context);
               },

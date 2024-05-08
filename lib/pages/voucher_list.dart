@@ -1,7 +1,10 @@
+import 'package:capstone_project/pages/myvoucher.dart';
 import 'package:capstone_project/pages/voucher_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:capstone_project/models/voucher_model.dart';
+import 'package:capstone_project/components/widgets/compose.dart';
+import 'package:capstone_project/components/widgets/extd_compose.dart';
 
 class VoucherList extends StatefulWidget {
   const VoucherList({super.key});
@@ -18,6 +21,10 @@ class _VoucherListState extends State<VoucherList> {
   final ScrollController _scrollController = ScrollController();
   bool isExtend = false;
 
+  void myVoucher(BuildContext context) {
+    Navigator.pushNamed(context, '/my-voucher');
+  }
+
   void getData() async {
     var data = await RemoteService().getVoucherList();
     if (mounted) {
@@ -32,6 +39,17 @@ class _VoucherListState extends State<VoucherList> {
   void initState() {
     super.initState();
     getData();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 15) {
+        setState(() {
+          isExtend = true;
+        });
+      } else {
+        setState(() {
+          isExtend = false;
+        });
+      }
+    });
   }
 
   @override
@@ -66,9 +84,9 @@ class _VoucherListState extends State<VoucherList> {
       body: ListView(
         controller: _scrollController,
         children: <Widget>[
-          Row(
+          const Row(
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(
                   left: 25,
                   top: 25,
@@ -83,7 +101,7 @@ class _VoucherListState extends State<VoucherList> {
                   ),
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 width: 12,
               ),
               //show search bar component
@@ -95,25 +113,28 @@ class _VoucherListState extends State<VoucherList> {
             height: 2,
             color: Colors.black,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Visibility(
               visible: isLoaded,
+              replacement: const Center(
+                child: CircularProgressIndicator(),
+              ),
               child: GridView.builder(
                 itemCount: allVoucher.length,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1.0,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10),
                 itemBuilder: (context, index) {
                   if (allVoucher.isEmpty) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else {
                     final rewardId = allVoucher[index].rewardId;
                     final vouchers = allVoucher[index];
@@ -131,10 +152,10 @@ class _VoucherListState extends State<VoucherList> {
                         );
                       },
                       child: Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 10),
                         decoration: BoxDecoration(
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 blurRadius: 10,
                                 color: Color(0x33000000),
@@ -145,58 +166,56 @@ class _VoucherListState extends State<VoucherList> {
                             color: Colors.white),
                         child: Column(
                           children: [
-                            Container(
-                              child: Image.network(
-                                allVoucher![index].rewardImage,
-                                width: 100,
-                                height: 100,
-                                loadingBuilder: (BuildContext context,
-                                    Widget child,
-                                    ImageChunkEvent? loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  } else {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                      ),
-                                    );
-                                  }
-                                },
-                                errorBuilder: (BuildContext context,
-                                    Object exception, StackTrace? stackTrace) {
-                                  return Text('Failed to load image');
-                                },
-                              ),
+                            Image.network(
+                              allVoucher[index].rewardImage,
+                              width: 100,
+                              height: 100,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
+                                return const Text('Failed to load image');
+                              },
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             Text(
-                              allVoucher![index].rewardName,
-                              style: TextStyle(
+                              allVoucher[index].rewardName,
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 1),
+                            const SizedBox(height: 1),
                             Container(
                               width: 113,
                               height: 30,
                               decoration: BoxDecoration(
-                                color: Color(0xFF2B3499),
+                                color: const Color(0xFF2B3499),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Align(
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '${allVoucher![index].rewardPrice} Points',
-                                  style: TextStyle(
+                                  '${allVoucher[index].rewardPrice} Points',
+                                  style: const TextStyle(
                                       fontSize: 12, color: Colors.white),
                                 ),
                               ),
@@ -208,13 +227,24 @@ class _VoucherListState extends State<VoucherList> {
                   }
                 },
               ),
-              replacement: const Center(
-                child: CircularProgressIndicator(),
-              ),
             ),
           )
         ],
       ),
+      floatingActionButton: isExtend
+          ? MyCompose(
+              buttonIcon: Icons.redeem,
+              onTap: () {
+                myVoucher(context);
+              },
+            )
+          : MyExtendedCompose(
+              buttonIcon: Icons.redeem,
+              buttonText: 'My Voucher',
+              onTap: () {
+                myVoucher(context);
+              },
+            ),
     );
   }
 }

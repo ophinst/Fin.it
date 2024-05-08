@@ -157,11 +157,14 @@ class _FoundItemListState extends State<FoundItemList> {
       ),
       floatingActionButton: isExtend
           ? MyCompose(
+              buttonIcon: Icons.edit,
               onTap: () {
                 foundForm(context);
               },
             )
           : MyExtendedCompose(
+              buttonIcon: Icons.edit,
+              buttonText: 'New Data',
               onTap: () {
                 foundForm(context);
               },
