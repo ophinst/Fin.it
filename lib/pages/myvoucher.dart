@@ -1,41 +1,42 @@
-import 'package:capstone_project/components/activity_card.dart';
-import 'package:capstone_project/models/recentact_model.dart';
-import 'package:provider/provider.dart';
-import 'package:capstone_project/models/user_provider.dart';
-import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/models/userVoucher_model.dart';
 import 'package:flutter/material.dart';
+import 'package:capstone_project/models/voucher_model.dart';
+import 'package:capstone_project/services/remote_service.dart';
+import 'package:capstone_project/models/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:capstone_project/components/myvoucher_card.dart';
+import 'package:flutter/foundation.dart';
 
-class ActivityList extends StatefulWidget {
-  const ActivityList({super.key});
+class MyVoucher extends StatefulWidget {
+  const MyVoucher({super.key});
 
   @override
-  State<ActivityList> createState() => _ActivityListState();
+  State<MyVoucher> createState() => _MyVoucherState();
 }
 
-class _ActivityListState extends State<ActivityList> {
-  List<LostAct> allLost = [];
-  List<FoundAct> allFound = [];
+class _MyVoucherState extends State<MyVoucher> {
+  List<Voucher> myVoucher = [];
+
   ScrollController _scrollController = new ScrollController();
   bool isLoading = false;
   final RemoteService _remoteService = RemoteService();
 
-  void getRecentActivity() async {
+  void getUserVoucher() async {
     final token = Provider.of<UserProvider>(context, listen: false).token;
     isLoading = true;
     try {
-      final response = await _remoteService.getRecentAct(token);
+      final response = await _remoteService.getMyVoucher(token);
       if (response['data'] != null) {
-        List<dynamic> data = response['data'];
-        setState(() {
-          allFound = data
-              .where((item) => item.containsKey('foundId'))
-              .map((item) => FoundAct.fromJson(item))
-              .toList();
-          allLost = data
-              .where((item) => item.containsKey('lostId'))
-              .map((item) => LostAct.fromJson(item))
-              .toList();
-        });
+        // Access the 'voucher' key within the 'data' map
+        if (response['data']['voucher'] is List) {
+          List<dynamic> data = response['data']['voucher'];
+          setState(() {
+            myVoucher = data.map((item) => Voucher.fromJson(item)).toList();
+          });
+        } else {
+          print(
+              'Error: Expected a list for response[\'data\'][\'voucher\'], but got a different type instead.');
+        }
       } else {
         print('API returned null or empty data');
       }
@@ -49,7 +50,7 @@ class _ActivityListState extends State<ActivityList> {
   @override
   void initState() {
     super.initState();
-    getRecentActivity();
+    getUserVoucher();
   }
 
   @override
@@ -58,19 +59,20 @@ class _ActivityListState extends State<ActivityList> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 12),
-          child: Icon(
+        leading: IconButton(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
-            size: 35,
           ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
             child: Text(
-              'Activity List',
+              'Voucher',
               style: TextStyle(
                   color: Colors.black,
                   fontFamily: 'JosefinSans',
@@ -90,7 +92,7 @@ class _ActivityListState extends State<ActivityList> {
                   top: 25,
                 ),
                 child: Text(
-                  'Recent Activity',
+                  'My Voucher',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 24,
@@ -114,29 +116,19 @@ class _ActivityListState extends State<ActivityList> {
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : allFound.isNotEmpty || allLost.isNotEmpty
+                : myVoucher.isNotEmpty
                     ? ListView.builder(
                         controller: _scrollController,
-                        itemCount: allFound.length + allLost.length,
+                        itemCount: myVoucher.length,
                         itemBuilder: (context, index) {
-                          List<dynamic> combinedItems = [
-                            ...allFound,
-                            ...allLost,
-                          ];
-                          combinedItems.shuffle();
-                          return ActivityCard(
-                            lostAct: combinedItems[index] is LostAct
-                                ? combinedItems[index] as LostAct
-                                : null,
-                            foundAct: combinedItems[index] is FoundAct
-                                ? combinedItems[index] as FoundAct
-                                : null,
+                          return MyVoucherCard(
+                            userVoucher: myVoucher[index],
                           );
                         },
                       )
                     : const Center(
                         child: Text(
-                          'No Recent Activity',
+                          'No Voucher Available',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

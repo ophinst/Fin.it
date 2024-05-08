@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 
 class MyExtendedCompose extends StatelessWidget {
   final Function()? onTap;
+  final IconData buttonIcon;
+  final String buttonText;
+
   const MyExtendedCompose({
     Key? key,
     required this.onTap,
+    required this.buttonIcon,
+    required this.buttonText,
   }) : super(key: key);
 
   @override
@@ -17,13 +22,13 @@ class MyExtendedCompose extends StatelessWidget {
       child: FloatingActionButton.extended(
         backgroundColor: const Color.fromRGBO(43, 52, 153, 1),
         onPressed: onTap,
-        icon: const Icon(
-          Icons.edit,
+        icon: Icon(
+          buttonIcon,
           color: Colors.white,
         ),
-        label: const Center(
+        label: Center(
           child: Text(
-            "New Data",
+            buttonText,
             style: TextStyle(fontSize: 15, color: Colors.white),
           ),
         ),

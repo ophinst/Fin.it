@@ -124,6 +124,29 @@ class RemoteService {
     }
   }
 
+  //reward user voucher api
+  Future<Map<String, dynamic>> getMyVoucher(String? token) async {
+    final usrToken = token;
+
+    var uri = Uri.parse('$url/reward/user');
+    try {
+      final response = await http.get(uri, headers: {
+        'Authorization':
+            'Bearer $usrToken', // Use the token in the Authorization header
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception(
+            'Failed to load recent activities. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load recent activities: $e');
+    }
+  }
+
   //recent activity API
   Future<Map<String, dynamic>> getRecentAct(String? token) async {
     final usrToken = token;

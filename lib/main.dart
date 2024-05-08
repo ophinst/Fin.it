@@ -3,6 +3,7 @@ import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
 import 'package:capstone_project/pages/home_screen.dart';
 import 'package:capstone_project/pages/login_page.dart';
+import 'package:capstone_project/pages/myvoucher.dart';
 import 'package:capstone_project/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/pages/lost_item_list.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         '/add-lost': (context) => FormLost(),
         '/add-found': (context) => FormFound(),
         '/chat': (context) => ChatPage(),
+        '/my-voucher': (context) => MyVoucher(),
       },
     );
   }
