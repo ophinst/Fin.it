@@ -1,17 +1,48 @@
 import 'package:capstone_project/components/my_button.dart';
+import 'package:capstone_project/models/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/models/voucher_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
+import 'package:provider/provider.dart';
 
 class VoucherDetail extends StatelessWidget {
   final String rewardId;
   final GetVoucherModel vouchers;
-  const VoucherDetail(
+  final RemoteService _remoteService = RemoteService();
+  VoucherDetail(
       {required this.rewardId, required this.vouchers, super.key});
 
-  void _redeemVoucher() {}
+  void _redeemVoucher(BuildContext context, String rewardId, String token) async {
+  try {
+    final response = await _remoteService.purchaseReward(rewardId, token);
+    if (response.containsKey('message')) {
+      final String message = response['message'];
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      // Pop to previous page
+      Navigator.pop(context);
+    } else {
+      final String errorMessage = response['error'];
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
+  } catch (e) {
+    // Handle exceptions
+    print('Error redeeming voucher: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error redeeming voucher')),
+    );
+  }
+}
+
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String _token = userProvider.token ?? "Unknown";
     Color primaryColor = Colors.white;
     return Scaffold(
       appBar: AppBar(
@@ -158,7 +189,7 @@ class VoucherDetail extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                         ),
                         ElevatedButton(
-                          onPressed: _redeemVoucher,
+                          onPressed: () => _redeemVoucher(context, rewardId, _token),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromRGBO(43, 52, 153, 1),

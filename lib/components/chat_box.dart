@@ -3,17 +3,15 @@ import 'package:timeago/timeago.dart' as timeAgo;
 import 'package:capstone_project/pages/chat/conversation_page.dart';
 
 class ChatBox extends StatefulWidget {
-  final String chatId;
-  final String memberId;
-  final String memberName;
-  final String memberImage;
+  String chatId;
+  String memberId;
+  String memberName;
+  String memberImage;
   String recentMessage; // Change to non-final to allow modification
-  final String recentMessageCreatedAt;
-  final String itemId; // New parameter for itemId
-  final String itemName; // New parameter for itemId
-  final String itemDate; // New parameter for itemId
-  final VoidCallback? fetchChats;
-  final Function(String) updateRecentMessage; // Callback function
+  String recentMessageCreatedAt;
+  String itemId; // New parameter for itemId
+  String itemName; // New parameter for itemId
+  String itemDate; // New parameter for itemId
 
   ChatBox({
     super.key,
@@ -26,8 +24,6 @@ class ChatBox extends StatefulWidget {
     required this.itemName,
     required this.itemDate,
     required this.recentMessageCreatedAt,
-    this.fetchChats,
-    required this.updateRecentMessage, // Pass the callback function
   });
 
   @override
@@ -37,10 +33,11 @@ class ChatBox extends StatefulWidget {
 class _ChatBoxState extends State<ChatBox> {
 
   void updateRecentMessage(String newMessage) {
-  setState(() {
-    widget.recentMessage = newMessage;
-  });
-}
+    setState(() {
+      widget.recentMessage = newMessage;
+      widget.recentMessageCreatedAt = DateTime.now().toIso8601String(); // Update the creation date to now
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

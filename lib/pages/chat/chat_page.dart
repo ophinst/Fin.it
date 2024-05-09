@@ -1,10 +1,13 @@
+import 'package:capstone_project/components/app_notification.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/services/socket_service.dart';
+import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/chat_box.dart';
 import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/services/remote_service.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -21,10 +24,12 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatBox> chatBoxes = []; // List to store ChatBox widgets
   List<ChatBox> filteredChatBoxes =
       []; // List to store filtered ChatBox widgets
+  bool _isSocketInitialized = false; // Flag to track socket initialization
 
   final SocketService _socketService =
       SocketService(); // Use SocketService instance
   IO.Socket? socket;
+  RemoteService remoteService = RemoteService();
 
   var isLoaded = false;
   bool isLoading = false; // Flag to track loading state
@@ -46,23 +51,8 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Define a callback function that calls fetchChats
-  void onChatPageRefresh() {
-    fetchChats();
-  }
-
   Future<void> fetchChats() async {
     try {
-      // Check if data has already been loaded
-      if (isLoaded) {
-        // If data has been loaded, use cached data
-        setState(() {
-          filteredChatBoxes = List.from(chatBoxes);
-          isLoading = false;
-        });
-        return;
-      }
-
       // Set isLoading to true to show circular progress indicator
       setState(() {
         isLoading = true;
@@ -74,9 +64,6 @@ class _ChatPageState extends State<ChatPage> {
 
       // Ensure token is not null before proceeding
       if (token != null) {
-        // Create an instance of RemoteService
-        RemoteService remoteService = RemoteService();
-
         // Call the getChats function with error handling
         final dynamic response =
             await remoteService.getChats(token).catchError((e) {
@@ -88,12 +75,10 @@ class _ChatPageState extends State<ChatPage> {
 
         if (chatData != null) {
           // Clear previous chat boxes
-          setState(() {
-            chatBoxes.clear();
-            filteredChatBoxes.clear(); // Clear filtered chat boxes
-          });
+          chatBoxes.clear();
+          filteredChatBoxes.clear(); // Clear filtered chat boxes
 
-          // Iterate over chat objects and create ChatBox widgets
+          // Iterate over chat objects and create or update ChatBox widgets
           for (var chat in chatData) {
             final List<dynamic>? members = chat['members'];
 
@@ -118,7 +103,6 @@ class _ChatPageState extends State<ChatPage> {
                   throw e; // Rethrow the error to be caught by the outer try-catch block
                 });
                 if (user != null) {
-                  // print(user.reward);
                   memberName = user.name;
                   memberImage = user.image ??
                       'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
@@ -155,42 +139,48 @@ class _ChatPageState extends State<ChatPage> {
                 // If itemId starts with 'fou', call getFoundByIdJson
                 dynamic foundItem =
                     await remoteService.getFoundByIdJson(itemId);
-                setState(() {
-                  itemName = foundItem['itemName'] ?? '';
-                  itemDate = foundItem['foundDate'] ?? '';
-                });
+                itemName = foundItem['itemName'] ?? '';
+                itemDate = foundItem['foundDate'] ?? '';
               } else if (itemId.startsWith('los')) {
                 // If itemId starts with 'los', call getLostItemById
                 Datum? lostItem = await remoteService.getLostItemById(itemId);
                 if (lostItem != null) {
-                  setState(() {
-                    itemName = lostItem.itemName;
-                    itemDate = lostItem.lostDate;
-                  });
-                } else {}
-              } else {}
+                  itemName = lostItem.itemName;
+                  itemDate = lostItem.lostDate;
+                }
+              }
 
-              // Create ChatBox widget with chat ID, member name, member image, recent message, and creation date
-              final chatBox = ChatBox(
-                chatId: chat['chatId'],
-                memberId: memberId,
-                memberName: memberName,
-                memberImage: memberImage,
-                recentMessage: recentMessage,
-                recentMessageCreatedAt: recentMessageCreatedAt,
-                itemId: itemId,
-                itemName: itemName, // Pass the fetched item name here
-                itemDate: itemDate,
-                updateRecentMessage: (message) {
-                  // Define the updateRecentMessage function here
-                  setState(() {
-                    recentMessage = message;
-                  });
-                },
-              );
-
-              // Add chatBox to chatBoxes list
-              chatBoxes.add(chatBox);
+              // Check if the chat box already exists
+              int existingChatIndex =
+                  chatBoxes.indexWhere((box) => box.chatId == chat['chatId']);
+              if (existingChatIndex != -1) {
+                // Update existing chat box
+                setState(() {
+                  chatBoxes[existingChatIndex].memberName = memberName;
+                  chatBoxes[existingChatIndex].memberImage = memberImage;
+                  chatBoxes[existingChatIndex].recentMessage = recentMessage;
+                  chatBoxes[existingChatIndex].recentMessageCreatedAt =
+                      recentMessageCreatedAt;
+                  chatBoxes[existingChatIndex].itemName = itemName;
+                  chatBoxes[existingChatIndex].itemDate = itemDate;
+                });
+              } else {
+                // Create new chat box and add it to the list
+                var chatBox = ChatBox(
+                  chatId: chat['chatId'],
+                  memberId: memberId,
+                  memberName: memberName,
+                  memberImage: memberImage,
+                  recentMessage: recentMessage,
+                  recentMessageCreatedAt: recentMessageCreatedAt,
+                  itemId: itemId,
+                  itemName: itemName,
+                  itemDate: itemDate,
+                );
+                setState(() {
+                  chatBoxes.add(chatBox);
+                });
+              }
             }
           }
 
@@ -206,8 +196,26 @@ class _ChatPageState extends State<ChatPage> {
         }
       } else {}
     } catch (e) {
+      // Handle errors
     } finally {
       // Set isLoading to false to hide circular progress indicator
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchData() async {
+    try {
+      // Set isLoading to true to show loading indicator
+      setState(() {
+        isLoading = true;
+      });
+      // Fetch chat data
+      await fetchChats();
+    } catch (e) {
+    } finally {
+      // Set isLoading to false after fetching data
       setState(() {
         isLoading = false;
       });
@@ -230,41 +238,49 @@ class _ChatPageState extends State<ChatPage> {
       _socketService.initializeSocket().then((_) {
         final uid = Provider.of<UserProvider>(context, listen: false).uid;
         _socketService.socket?.emit("new-user-add", uid);
-        _socketService.socket?.on("receive-message", (data) {
+        _socketService.socket?.on("receive-message", (data) async {
           final Map<String, dynamic> messageData = data as Map<String, dynamic>;
           final String? receiverId = messageData['receiverId'];
-          final String? senderId = messageData['senderId'];
+          final String senderId = messageData['senderId'];
           final String? message = messageData['message'];
 
           if (receiverId == uid && senderId != uid && message != null) {
-            setState(() {
-              // Find the ChatBox with memberId equal to senderId
-              final chatBoxToUpdate = chatBoxes.firstWhere(
-                (chatBox) => chatBox.memberId == senderId,
-                orElse: () => ChatBox(
-                  chatId: '', // Provide default values here
-                  memberId: '',
-                  memberName: '',
-                  memberImage: '',
-                  recentMessage: '',
-                  recentMessageCreatedAt: '',
-                  itemId: '',
-                  itemName: '',
-                  itemDate: '',
-                  updateRecentMessage: (_) {}, // No-op function
-                ),
-              );
-
-              // Update the recent message in the found ChatBox
-              chatBoxToUpdate.updateRecentMessage(message);
-            });
+            // final chatBoxIndex =
+            //     chatBoxes.indexWhere((chatBox) => chatBox.memberId == senderId);
+            // if (chatBoxIndex != -1) {
+            //   // Update the ChatBox with the new message
+            //   setState(() {
+            //     chatBoxes[chatBoxIndex].recentMessage = message;
+            //     chatBoxes[chatBoxIndex].recentMessageCreatedAt = DateTime.now()
+            //         .toIso8601String(); // Update the creation date to now
+            //   });
+            // }
           }
         });
       });
+
+      // _isSocketInitialized = true;
     } catch (e) {}
   }
 
-  Future<void> fetchData() async {
+  void _showInAppNotification(String message, String senderName) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: InAppNotification(message: message, senderName: senderName),
+        duration: Duration(seconds: 3), // Adjust duration as needed
+      ),
+    );
+  }
+
+  Future<void> refreshChatBox() async {
+    // Refresh the chat box UI based on existing data
+    setState(() {
+      // Update the filtered chat boxes based on existing chat boxes
+      filteredChatBoxes = List.from(chatBoxes);
+    });
+  }
+
+  Future<void> fetchAndUpdateChats() async {
     try {
       // Set isLoading to true to show loading indicator
       setState(() {
@@ -272,9 +288,12 @@ class _ChatPageState extends State<ChatPage> {
       });
       // Fetch chat data
       await fetchChats();
+      // Update chat box UI with newly fetched data
+      refreshChatBox();
     } catch (e) {
+      // Handle errors
     } finally {
-      // Set isLoading to false after fetching data
+      // Set isLoading to false after fetching and updating data
       setState(() {
         isLoading = false;
       });
@@ -284,7 +303,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchChats();
     // initializeSocket();
   }
 
@@ -292,7 +311,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () => fetchData(),
+        onRefresh: () => fetchAndUpdateChats(),
         child: SingleChildScrollView(
           child: SafeArea(
             child: Padding(
@@ -312,20 +331,36 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ],
                   ),
-                  const Row(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
                         padding: EdgeInsets.only(
                           left: 25,
                           top: 25,
                         ),
-                        child: Text(
-                          'Chat',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'JosefinSans',
+                        child: GestureDetector(
+                          onTap: () => fetchAndUpdateChats(),
+                          child: Text(
+                            'Chat',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'JosefinSans',
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          right: 25,
+                          top: 25,
+                        ),
+                        child: GestureDetector(
+                          onTap: () => fetchAndUpdateChats(),
+                          child: Icon(
+                            Icons.refresh, color: primaryColor,
                           ),
                         ),
                       ),
@@ -353,21 +388,26 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   const SizedBox(height: 20),
                   // Show circular progress indicator if loading, else show chat boxes
-                  isLoading
-                      ? const CircularProgressIndicator()
-                      : Column(
-                          children: [
-                            for (var chatBox in filteredChatBoxes)
-                              Column(
-                                children: [
-                                  chatBox,
-                                  const SizedBox(
-                                      height:
-                                          10), // Add SizedBox between ChatBoxes
-                                ],
-                              ),
-                          ],
-                        ),
+                  Column(
+                    children: [
+                      isLoading
+                          ? const CircularProgressIndicator()
+                          : Column(
+                              children: [
+                                for (var chatBox in filteredChatBoxes)
+                                  Column(
+                                    children: [
+                                      chatBox,
+                                      const SizedBox(
+                                        height: 10,
+                                      ), // Add SizedBox between ChatBoxes
+                                    ],
+                                  ),
+                              ],
+                            ),
+                    ],
+                  ),
+        
                   const SizedBox(height: 10),
                 ],
               ),

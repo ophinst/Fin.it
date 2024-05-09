@@ -37,7 +37,7 @@ class _FinishTransactionState extends State<FinishTransaction> {
     );
     // Navigate back to the homepage after a delay
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.popUntil(context, ModalRoute.withName('/home'));
+      Navigator.pop(context);
     });
   }
 

@@ -16,7 +16,7 @@ class SocketService {
       _socket = IO.io('https://finit-api-ahawuso3sq-et.a.run.app',
           IO.OptionBuilder()
               .setTransports(['websocket'])
-              .enableAutoConnect() // Enable auto-connect
+              // .enableAutoConnect() // Enable auto-connect
               .build());
       _connectSocket();
       print('Socket connected');
@@ -28,8 +28,14 @@ class SocketService {
 
   void _connectSocket() {
     _socket?.onConnect((data) => print('Connected'));
-    _socket?.onConnectError((data) => print('Connect Error: $data'));
-    _socket?.onDisconnect((data) => print('Disconnected'));
+    _socket?.onConnectError((data) {
+      print('Connect Error: $data');
+      _reconnectSocket(); // Attempt to reconnect on connect error
+    });
+    _socket?.onDisconnect((data) {
+      print('Disconnected');
+      _reconnectSocket(); // Attempt to reconnect on disconnect
+    });
 
     // Implement reconnection logic
     _socket?.onReconnecting((data) {
@@ -43,5 +49,16 @@ class SocketService {
     });
   }
 
+  void _reconnectSocket() {
+    print('Attempting to reconnect...');
+    _socket?.disconnect(); // Disconnect the existing socket
+    _socket?.connect(); // Attempt to reconnect
+  }
+
   IO.Socket? get socket => _socket;
+
+  void dispose() {
+    _socket?.disconnect(); // Disconnect the socket
+    _socket = null; // Set the socket instance to null
+  }
 }
