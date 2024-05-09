@@ -45,6 +45,7 @@ class _ConversationPageState extends State<ConversationPage> {
   late String itemStatus = '';
   bool foundUserStatus = false; // Variable to store foundUserStatus
   bool lostUserStatus = false; // Variable to store lostUserStatus
+  bool _isSocketInitialized = false; // Flag to track socket initialization
 
   final SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -61,16 +62,18 @@ class _ConversationPageState extends State<ConversationPage> {
   // Method to initialize the socket
   Future<void> initializeSocket() async {
     try {
-      await _socketService
-          .initializeSocket(); // Initialize socket using SocketService
-      // print('Socket connected');
-      // Register reconnect logic
-      _socketService.socket?.onDisconnect((_) {
-        // print('Socket disconnected, reconnecting...');
-        initializeSocket(); // Reconnect
-      });
+      await _socketService.initializeSocket(); // Initialize socket using SocketService
+    _socketService.socket?.onDisconnect((_) {
+      // Reset the flag when the socket disconnects
+      _isSocketInitialized = false;
+      initializeSocket(); // Reconnect
+    });
+
+    // Check if the socket is already initialized before emitting "new-user-add"
+    if (!_isSocketInitialized) {
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
       _socketService.socket?.emit("new-user-add", uid);
+    }
       _socketService.socket?.on("receive-message", (data) {
         if (data is Map<String, dynamic>) {
           String receiverId = data['receiverId'];
@@ -113,6 +116,8 @@ class _ConversationPageState extends State<ConversationPage> {
           }
         }
       });
+
+      _isSocketInitialized = true;
     } catch (e) {
     }
   }

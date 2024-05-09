@@ -30,7 +30,7 @@ class FoundItemPage extends StatelessWidget {
       User? user = await _remoteService.getUserById(foundItem.uid);
       String userName = user?.name ?? 'Unknown User';
       String userImage = user?.image ??
-          'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+          'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
 
       // Get token from userProvider
       final token = Provider.of<UserProvider?>(context, listen: false)?.token ??

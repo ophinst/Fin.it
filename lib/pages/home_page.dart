@@ -1,3 +1,4 @@
+import 'package:capstone_project/components/app_notification.dart';
 import 'package:capstone_project/components/drawer.dart';
 import 'package:capstone_project/components/near_items_card.dart';
 import 'package:capstone_project/models/near_items_model.dart';
@@ -24,8 +25,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   LatLng? _userLocation;
-  final RemoteService _remoteService = RemoteService();
   int? _userPoints;
+  final RemoteService _remoteService = RemoteService();
+// Use SocketService instance
 
   // Method to fetch user's points
   void _fetchUserPoints() async {
@@ -101,6 +103,15 @@ class _HomePageState extends State<HomePage> {
       print('Error fetching near items: $error');
     }
   }
+  
+  void _showInAppNotification(String message, String senderName) async {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: InAppNotification(message: message, senderName: senderName),
+      duration: Duration(seconds: 3), // Adjust duration as needed
+    ),
+  );
+}
 
   @override
   void initState() {

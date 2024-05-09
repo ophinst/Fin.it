@@ -147,6 +147,36 @@ class RemoteService {
     }
   }
 
+  Future<Map<String, dynamic>> purchaseReward(String rewardId, String token) async {
+  var uri = Uri.parse('$url/reward/$rewardId');
+  
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201) {
+      // Reward purchased successfully
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData;
+    } else if (response.statusCode == 400) {
+      // Insufficient points
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      return errorData;
+    } else {
+      // Handle other status codes as needed
+      throw Exception('Failed to purchase reward: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Failed to purchase reward: $e');
+  }
+}
+
+
   //recent activity API
   Future<Map<String, dynamic>> getRecentAct(String? token) async {
     final usrToken = token;

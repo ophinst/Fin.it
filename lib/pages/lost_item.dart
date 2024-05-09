@@ -36,17 +36,13 @@ class _LostItemPageState extends State<LostItemPage> {
       // Handle the case when the context or lostItem is null
       return;
     }
-    if (context == null || lostItem == null) {
-      // Handle the case when the context or lostItem is null
-      return;
-    }
 
     try {
       // Get user data
       User? user = await _remoteService.getUserById(lostItem.uid);
       String userName = user?.name ?? 'Unknown User';
       String userImage = user?.image ??
-          'https://storage.googleapis.com/ember-finit/lostImage/fin-3lMxkshfQx/camunda%20logo.png';
+          'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
 
       // Get token from userProvider
       final token = Provider.of<UserProvider?>(context, listen: false)?.token ??
@@ -87,6 +83,8 @@ class _LostItemPageState extends State<LostItemPage> {
       print('Error: $e');
     }
   }
+
+  // int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
