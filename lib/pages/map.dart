@@ -54,7 +54,10 @@ class _MapScreenState extends State<MapScreen> {
     List<Marker> markers = [];
 
     // Markers for user's current location
-    if (_pickedLocation != null && widget.isSelecting) {
+    if (_pickedLocation != null &&
+        !widget.isSelecting &&
+        widget.foundItems == null &&
+        widget.lostItems == null) {
       markers.add(
         Marker(
           markerId: const MarkerId('user_location'),
@@ -67,7 +70,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     // Markers for found items
-    if (widget.foundItems != null) {
+    if (widget.foundItems != null && !widget.isSelecting) {
       for (var foundItem in widget.foundItems!) {
         markers.add(
           Marker(
@@ -93,7 +96,7 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     // Markers for lost items
-    if (widget.lostItems != null) {
+    if (widget.lostItems != null && !widget.isSelecting) {
       for (var lostItem in widget.lostItems!) {
         markers.add(
           Marker(
@@ -118,10 +121,6 @@ class _MapScreenState extends State<MapScreen> {
           ),
         );
       }
-    }
-
-    if (markers.isNotEmpty) {
-      _markers.add(markers.first);
     }
 
     _markers.addAll(markers);
@@ -153,6 +152,15 @@ class _MapScreenState extends State<MapScreen> {
                   _pickedLocation = position;
                   _updateMarkers();
                 });
+                _markers.add(
+                  Marker(
+                    markerId: const MarkerId('selected_location'),
+                    position: position,
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueRed,
+                    ),
+                  ),
+                );
               },
         initialCameraPosition: CameraPosition(
           target: LatLng(
@@ -161,7 +169,32 @@ class _MapScreenState extends State<MapScreen> {
           ),
           zoom: 16,
         ),
-        markers: _markers,
+        markers: (_pickedLocation != null && !widget.isSelecting)
+            ? {
+                Marker(
+                  markerId: const MarkerId('user_location'),
+                  position: _pickedLocation!,
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRed,
+                  ),
+                ),
+                ..._markers,
+              }
+            : (_pickedLocation == null && !widget.isSelecting)
+                ? {
+                    Marker(
+                      markerId: const MarkerId('user_location'),
+                      position: LatLng(
+                        widget.location.latitude,
+                        widget.location.longitude,
+                      ),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueRed,
+                      ),
+                    ),
+                    ..._markers, // Add all the existing markers
+                  }
+                : Set<Marker>.from(_markers),
       ),
     );
   }

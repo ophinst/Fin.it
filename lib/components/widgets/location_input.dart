@@ -33,33 +33,32 @@ class _LocationInputState extends State<LocationInput> {
   }
 
   Future<void> _savePlace(double latitude, double longitude) async {
-  final url = Uri.parse(
-    'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey',
-  );
-  final response = await http.get(url);
-  final resData = json.decode(response.body);
+    final url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey',
+    );
+    final response = await http.get(url);
+    final resData = json.decode(response.body);
 
-  if (resData['results'] != null && resData['results'].isNotEmpty) {
-    final locationDetail = resData['results'][0]['formatted_address'];
+    if (resData['results'] != null && resData['results'].isNotEmpty) {
+      final locationDetail = resData['results'][0]['formatted_address'];
 
-    setState(() {
-      _pickedLocation = PlaceLocation(
-        latitude: latitude,
-        longitude: longitude,
-        locationDetail: locationDetail,
-      );
-      _isGettingLocation = false;
-    });
+      setState(() {
+        _pickedLocation = PlaceLocation(
+          latitude: latitude,
+          longitude: longitude,
+          locationDetail: locationDetail,
+        );
+        _isGettingLocation = false;
+      });
 
-    widget.onSelectLocation(_pickedLocation!);
-  } else {
-    setState(() {
-      _isGettingLocation = false;
-    });
-    print('No location details found');
+      widget.onSelectLocation(_pickedLocation!);
+    } else {
+      setState(() {
+        _isGettingLocation = false;
+      });
+      print('No location details found');
+    }
   }
-}
-
 
   void _getCurrentLocation() async {
     Location location = Location();
