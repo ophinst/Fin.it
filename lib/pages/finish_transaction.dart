@@ -37,7 +37,8 @@ class _FinishTransactionState extends State<FinishTransaction> {
     );
     // Navigate back to the homepage after a delay
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context);
+      // Navigator.pop(context);
+      Navigator.popAndPushNamed(context, '/home');
     });
   }
 
@@ -151,30 +152,37 @@ Future<void> finishTransaction(String token) async {
             const SizedBox(
               height: 20,
             ),
-            Text(
-              widget.itemName,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'JosefinSans',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Column(
+                children: [
+                  Text(
+                    widget.itemName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'JosefinSans',
+                    ),
+                  ),
+              const SizedBox(
+                height: 10,
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Text(
-              widget.itemDate,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                fontFamily: 'JosefinSans',
+              Text(
+                widget.itemDate,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  fontFamily: 'JosefinSans',
+                ),
+              ),
+                ],
               ),
             ),
             const SizedBox(
               height: 20,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -211,64 +219,6 @@ Future<void> finishTransaction(String token) async {
             ),
             const SizedBox(
               height: 40,
-            ),
-            Row(
-              children: [
-                const Text(
-                  'Rating User',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'JosefinSans',
-                  ),
-                ),
-                const SizedBox(
-                  width: 15,
-                ),
-                RatingBar.builder(
-                  initialRating: 0,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                  ),
-                  onRatingUpdate: (rating) {
-                    print(rating);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-            TextFormField(
-              minLines: 3,
-              maxLines: 10,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
-                labelText: "Input Feedback....",
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.black, width: 3),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(
-                      color: Color.fromRGBO(43, 52, 153, 1), width: 3),
-                ),
-              ),
-              validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    value.trim().length <= 1 ||
-                    value.trim().length > 150) {
-                  return 'Must be between 1 and 150 characters';
-                }
-                return null;
-              },
             ),
           ],
         ),
