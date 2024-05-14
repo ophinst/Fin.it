@@ -13,6 +13,7 @@ import 'package:capstone_project/components/chat_bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:async';
 
 class ConversationPage extends StatefulWidget {
   final String chatId;
@@ -46,6 +47,7 @@ class _ConversationPageState extends State<ConversationPage> {
   bool foundUserStatus = false; // Variable to store foundUserStatus
   bool lostUserStatus = false; // Variable to store lostUserStatus
   bool _isSocketInitialized = false; // Flag to track socket initialization
+  Timer? _timer; // Declare a Timer variable
 
   final SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -153,6 +155,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
   @override
   void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     _textEditingController.dispose();
@@ -186,9 +189,9 @@ class _ConversationPageState extends State<ConversationPage> {
         if (!foundUserStatus && !lostUserStatus) {
           itemStatus = 'Available';
         } else if (!lostUserStatus && foundUserStatus) {
-          itemStatus = 'Awaiting founder approval';
-        } else if (!foundUserStatus && lostUserStatus) {
           itemStatus = 'Awaiting lost user approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting founder approval';
         } else {
           itemStatus = 'Item Claimed';
         }
@@ -202,9 +205,9 @@ class _ConversationPageState extends State<ConversationPage> {
         if (!foundUserStatus && !lostUserStatus) {
           itemStatus = 'Available';
         } else if (!lostUserStatus && foundUserStatus) {
-          itemStatus = 'Awaiting founder approval';
-        } else if (!foundUserStatus && lostUserStatus) {
           itemStatus = 'Awaiting lost user approval';
+        } else if (!foundUserStatus && lostUserStatus) {
+          itemStatus = 'Awaiting founder approval';
         } else {
           itemStatus = 'Item Claimed';
         }
@@ -259,6 +262,10 @@ class _ConversationPageState extends State<ConversationPage> {
     _fetchMessages();
     getItemDetails(widget.itemId);
     itemStatus = 'Loading...';
+    // Start the timer to call getItemDetails every 10 seconds
+  _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    getItemDetails(widget.itemId);
+  });
   }
 
   // Widget to build chat bubbles from messages
