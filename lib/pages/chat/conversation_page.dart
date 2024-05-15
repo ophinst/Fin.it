@@ -23,7 +23,7 @@ class ConversationPage extends StatefulWidget {
   final String itemId;
   final String itemName;
   final String itemDate;
-  ConversationPage({
+  const ConversationPage({
     super.key,
     required this.chatId,
     required this.memberId,
@@ -54,12 +54,6 @@ class _ConversationPageState extends State<ConversationPage> {
   final RemoteService _remoteService =
       RemoteService(); // Create an instance of RemoteService
 
-  _connectSocket() {
-    _socketService.socket?.onConnect((data) => print('Connected'));
-    _socketService.socket
-        ?.onConnectError((data) => print('Connect Error: $data'));
-    _socketService.socket?.onDisconnect((data) => print('Disconnected'));
-  }
 
   // Method to initialize the socket
   Future<void> initializeSocket() async {
@@ -263,7 +257,7 @@ class _ConversationPageState extends State<ConversationPage> {
     getItemDetails(widget.itemId);
     itemStatus = 'Loading...';
     // Start the timer to call getItemDetails every 10 seconds
-  _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+  _timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
     getItemDetails(widget.itemId);
   });
   }

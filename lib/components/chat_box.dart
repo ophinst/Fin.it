@@ -81,7 +81,7 @@ class _ChatBoxState extends State<ChatBox> {
                     )
                   ],
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -89,17 +89,17 @@ class _ChatBoxState extends State<ChatBox> {
                     children: [
                       Text(
                         '${widget.memberName} (${widget.itemName})',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Text(
                             widget.recentMessage,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 12,
                             ),
@@ -114,7 +114,7 @@ class _ChatBoxState extends State<ChatBox> {
                   children: [
                     Text(
                       formattedTimeAgo,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
                       ),
