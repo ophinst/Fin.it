@@ -558,4 +558,55 @@ class RemoteService {
       throw Exception('Error finishing lost transaction: $e');
     }
   }
+
+  Future<void> updateProfilePicture(String token, File imageFile) async {
+    final uri = Uri.parse('$url/user/profile');
+
+    var request = http.MultipartRequest('PATCH', uri)
+      ..headers.addAll({
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      })
+      ..files.add(await http.MultipartFile.fromPath(
+        'image',
+        imageFile.path,
+        contentType: MediaType('image', 'jpeg'), // Adjust content type as necessary
+      ));
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      print('Profile picture updated successfully');
+    } else {
+      print('Failed to update profile picture: ${response.statusCode}');
+      throw Exception('Failed to update profile picture');
+    }
+  }
+
+  Future<void> updateUserData(String token, String name, String phoneNumber) async {
+    final uri = Uri.parse('$url/user');
+    
+    try {
+      final response = await http.patch(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'name': name,
+          'phoneNumber': phoneNumber,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('User data updated successfully');
+      } else {
+        print('Failed to update user data: ${response.statusCode}');
+        throw Exception('Failed to update user data');
+      }
+    } catch (e) {
+      print('Error updating user data: $e');
+      throw Exception('Error updating user data: $e');
+    }
+  }
 }
