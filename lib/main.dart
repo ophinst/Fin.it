@@ -12,22 +12,25 @@ import 'package:capstone_project/pages/form_found.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'models/user_provider.dart';
+import 'services/socket_service.dart';
 
 // import 'package:capstone_project/components/list_item_lost.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
-  // SocketService().initializeSocket();
   final userProvider = UserProvider();
   await userProvider.loadUserData();
+  final socketService = SocketService(); // Initialize SocketService
   runApp(ChangeNotifierProvider(
     create: (_) => userProvider,
-    child: const MyApp(),
+    child: MyApp(socketService: socketService),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final SocketService socketService;
+
+  const MyApp({super.key, required this.socketService});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,7 @@ class MyApp extends StatelessWidget {
         '/found': (context) => FoundItemList(),
         '/add-lost': (context) => FormLost(),
         '/add-found': (context) => FormFound(),
-        '/chat': (context) => ChatPage(),
+        '/chat': (context) => ChatPage(socketService: socketService), // Pass socketService here as well
         '/my-voucher': (context) => MyVoucher(),
       },
     );

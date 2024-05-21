@@ -23,6 +23,8 @@ class ConversationPage extends StatefulWidget {
   final String itemId;
   final String itemName;
   final String itemDate;
+  final VoidCallback? onBack; // Make the onBack parameter optional
+
   const ConversationPage({
     super.key,
     required this.chatId,
@@ -32,6 +34,7 @@ class ConversationPage extends StatefulWidget {
     required this.itemId,
     required this.itemName,
     required this.itemDate,
+    this.onBack, // Accept the optional callback as a parameter
   });
 
   @override
@@ -76,12 +79,14 @@ class _ConversationPageState extends State<ConversationPage> {
           if (receiverId != widget.memberId) {
             String? messageText = data['message'];
             String? imageUrl = data['imageUrl'];
+            String chatId = widget.chatId;
             if (imageUrl != null) {
               // If imageUrl is present
               String senderId = data['senderId'];
               DateTime createdAt = DateTime.now();
               Message receivedMessage = Message(
                 senderId: senderId,
+                chatId: chatId,
                 message: null,
                 imageUrl: imageUrl,
                 createdAt: createdAt,
@@ -98,6 +103,7 @@ class _ConversationPageState extends State<ConversationPage> {
               DateTime createdAt = DateTime.now();
               Message receivedMessage = Message(
                 senderId: senderId,
+                chatId: chatId,
                 message: messageText,
                 imageUrl: null,
                 createdAt: createdAt,
@@ -128,6 +134,7 @@ class _ConversationPageState extends State<ConversationPage> {
       _socketService.socket?.emit("send-message", {
         'senderId': senderId,
         'receiverId': widget.memberId,
+        'chatId': widget.chatId,
         'message': message
       });
       // Confirmation message
@@ -361,6 +368,15 @@ class _ConversationPageState extends State<ConversationPage> {
           ],
         ),
         iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+            if (widget.onBack != null) {
+              widget.onBack!(); // Trigger the callback to refresh ChatPage if provided
+            }
+          },
+        ),
         actions: const [],
       ),
       body: Column(

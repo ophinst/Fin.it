@@ -21,75 +21,68 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final navigationKey = GlobalKey<CurvedNavigationBarState>();
   int index = 2;
-    String? lostId;
+  String? lostId;
   final RemoteService _remoteService = RemoteService();
   final SocketService _socketService = SocketService(); // Use SocketService instance
 
   void initializeSocket() {
-  try {
-    _socketService.initializeSocket().then((_) {
-      final uid = Provider.of<UserProvider>(context, listen: false).uid;
-      _socketService.socket?.emit("new-user-add", uid);
-      _socketService.socket?.on("receive-message", (data) async {
-        final Map<String, dynamic> messageData = data as Map<String, dynamic>;
-        final String? receiverId = messageData['receiverId'];
-        final String senderId = messageData['senderId'];
-        final String? message = messageData['message'];
-        final String? imageUrl = messageData ['imageUrl'];
+    try {
+      _socketService.initializeSocket().then((_) {
+        final uid = Provider.of<UserProvider>(context, listen: false).uid;
+        _socketService.socket?.emit("new-user-add", uid);
+        _socketService.socket?.on("receive-message", (data) async {
+          final Map<String, dynamic> messageData = data as Map<String, dynamic>;
+          final String? receiverId = messageData['receiverId'];
+          final String senderId = messageData['senderId'];
+          final String? message = messageData['message'];
+          final String? imageUrl = messageData['imageUrl'];
 
-        if (receiverId == uid && senderId != uid && message != null) {
-          final user = await _remoteService.getUserById(senderId);
-          final senderName = user?.name ?? 'Unknown';
-          setState(() {
-            _showInAppNotification(message, senderName);
-          });
-        } else if (receiverId == uid && senderId != uid && imageUrl != null){
-          final user = await _remoteService.getUserById(senderId);
-          final senderName = user?.name ?? 'Unknown';
-          final messageText = "Image";
-          setState(() {
-            _showInAppNotification(messageText, senderName);
-          });
-        }
+          if (receiverId == uid && senderId != uid && message != null) {
+            final user = await _remoteService.getUserById(senderId);
+            final senderName = user?.name ?? 'Unknown';
+            setState(() {
+              _showInAppNotification(message, senderName);
+            });
+          } else if (receiverId == uid && senderId != uid && imageUrl != null) {
+            final user = await _remoteService.getUserById(senderId);
+            final senderName = user?.name ?? 'Unknown';
+            final messageText = "Image";
+            setState(() {
+              _showInAppNotification(messageText, senderName);
+            });
+          }
+        });
       });
-    });
-  } catch (e) {}
-}
-
-void _showInAppNotification(String message, String senderName) async {
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: InAppNotification(message: message, senderName: senderName),
-        duration: Duration(seconds: 3), // Adjust duration as needed
-      ),
-    );
+    } catch (e) {}
   }
-}
 
-// @override
-// void dispose() {
-//   _socketService.dispose();
-//   super.dispose();
-// }
+  void _showInAppNotification(String message, String senderName) async {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: InAppNotification(message: message, senderName: senderName),
+          duration: Duration(seconds: 3), // Adjust duration as needed
+        ),
+      );
+    }
+  }
 
-@override
+  @override
   void initState() {
     super.initState();
     initializeSocket();
   }
 
-
-  final screens = [
-    FoundItemList(),
-    ActivityList(),
-    HomePage(),
-    ChatPage(),
-    LostItemList(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      FoundItemList(),
+      ActivityList(),
+      HomePage(),
+      ChatPage(socketService: _socketService), // Pass the socketService to ChatPage
+      LostItemList(),
+    ];
+
     final items = <Widget>[
       Icon(
         Icons.visibility,
@@ -114,7 +107,6 @@ void _showInAppNotification(String message, String senderName) async {
     ];
 
     return Scaffold(
-      // extendBody: true,
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
       body: screens[index],
       bottomNavigationBar: CurvedNavigationBar(
@@ -127,7 +119,6 @@ void _showInAppNotification(String message, String senderName) async {
         onTap: (index) {
           setState(() {
             this.index = index;
-            // lostId = null;
           });
         },
       ),

@@ -3,15 +3,16 @@ import 'package:timeago/timeago.dart' as timeAgo;
 import 'package:capstone_project/pages/chat/conversation_page.dart';
 
 class ChatBox extends StatefulWidget {
-  String chatId;
-  String memberId;
+  final String chatId;
+  final String memberId;
   String memberName;
   String memberImage;
-  String recentMessage; // Change to non-final to allow modification
+  String recentMessage;
   String recentMessageCreatedAt;
-  String itemId; // New parameter for itemId
-  String itemName; // New parameter for itemId
-  String itemDate; // New parameter for itemId
+  final String itemId;
+  final String itemName;
+  final String itemDate;
+  final VoidCallback onBack; // Callback for when the back button is pressed
 
   ChatBox({
     super.key,
@@ -24,29 +25,26 @@ class ChatBox extends StatefulWidget {
     required this.itemName,
     required this.itemDate,
     required this.recentMessageCreatedAt,
+    required this.onBack, // Accept the callback as a parameter
   });
 
   @override
-  State<ChatBox> createState() => _ChatBoxState();
+  State<ChatBox> createState() => ChatBoxState();
 }
 
-class _ChatBoxState extends State<ChatBox> {
-
+class ChatBoxState extends State<ChatBox> {
   void updateRecentMessage(String newMessage) {
     setState(() {
       widget.recentMessage = newMessage;
-      widget.recentMessageCreatedAt = DateTime.now().toIso8601String(); // Update the creation date to now
+      widget.recentMessageCreatedAt = DateTime.now().toIso8601String();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Parse recentMessageCreatedAt to DateTime
     DateTime createdAtDateTime = DateTime.parse(widget.recentMessageCreatedAt);
+    String formattedTimeAgo = timeAgo.format(createdAtDateTime, locale: 'en_short');
 
-    // Format the difference between createdAtDateTime and current time using timeago
-    String formattedTimeAgo =
-        timeAgo.format(createdAtDateTime, locale: 'en_short');
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
@@ -58,6 +56,7 @@ class _ChatBoxState extends State<ChatBox> {
             itemId: widget.itemId,
             itemName: widget.itemName,
             itemDate: widget.itemDate,
+            onBack: widget.onBack, // Pass the callback
           ),
         ));
       },
