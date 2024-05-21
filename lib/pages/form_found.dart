@@ -4,6 +4,7 @@ import 'package:capstone_project/models/category.dart';
 import 'package:capstone_project/models/place.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/search_loc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
@@ -23,6 +24,51 @@ class _FormFoundState extends State<FormFound> {
     return Categories.values.map((e) => e.toString().split('.').last).toList();
   }
 
+  final success = 'assets/images/success.png';
+  final failed = 'assets/images/fail.png';
+
+  void _showDialog(bool status, String image, String text) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(image),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  text,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   final _formKey = GlobalKey<FormState>();
   var _itemName = '';
   var _itemDescription = '';
@@ -31,7 +77,7 @@ class _FormFoundState extends State<FormFound> {
   var _category = Categories.Phone.toString().split('.').last;
   PlaceLocation? _placeLocation;
 
-  void _saveItem() {
+  void _saveItem() async {
     final token = Provider.of<UserProvider>(context, listen: false).token;
     if (_formKey.currentState!.validate() && token != null) {
       _formKey.currentState!.save();
@@ -45,7 +91,13 @@ class _FormFoundState extends State<FormFound> {
         category: _category,
         placeLocation: _placeLocation!,
       );
-      RemoteService().saveFoundItem(token, foundItem);
+      bool status = await RemoteService().saveFoundItem(token, foundItem);
+
+      if (status) {
+        _showDialog(status, success, 'Success!');
+      } else {
+        _showDialog(status, failed, 'Failed to upload!');
+      }
     } else {
       print('token is null');
     }
@@ -80,29 +132,6 @@ class _FormFoundState extends State<FormFound> {
                 // mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Name",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  TextFormField(
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: "Input Name Here",
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 3),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                            color: Color.fromRGBO(43, 52, 153, 1), width: 3),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
                   const Text(
                     "Item Name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

@@ -73,14 +73,14 @@ class NearItemsCard extends StatelessWidget {
                             ),
                             Text(
                               foundNearItems != null
-                                  ? foundNearItems!.locationDetail.length <= 30
+                                  ? foundNearItems!.locationDetail.length <= 20
                                       ? foundNearItems!.locationDetail
-                                      : '${foundNearItems!.locationDetail.substring(0, 30)}...'
+                                      : '${foundNearItems!.locationDetail.substring(0, 20)}...'
                                   : (lostNearItems != null
                                       ? lostNearItems!.locationDetail.length <=
-                                              30
+                                              20
                                           ? lostNearItems!.locationDetail
-                                          : '${lostNearItems!.locationDetail.substring(0, 30)}...'
+                                          : '${lostNearItems!.locationDetail.substring(0, 20)}...'
                                       : ''),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w500,

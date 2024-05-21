@@ -85,29 +85,6 @@ class _FormLostState extends State<FormLost> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Name",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  TextFormField(
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: "Input Name Here",
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            const BorderSide(color: Colors.black, width: 3),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                            color: Color.fromRGBO(43, 52, 153, 1), width: 3),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  const Text(
                     "Item Name",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
