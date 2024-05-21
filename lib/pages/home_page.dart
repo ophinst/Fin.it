@@ -232,49 +232,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ],
                           ),
-                          // Row(
-                          //   children: [
-                          //     Column(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.arrow_circle_up,
-                          //           color: Colors.white,
-                          //           size: 30,
-                          //         ),
-                          //         SizedBox(
-                          //           width: 5,
-                          //         ),
-                          //         Text(
-                          //           'Pay',
-                          //           style: TextStyle(
-                          //               color: Colors.white,
-                          //               fontWeight: FontWeight.w700),
-                          //         )
-                          //       ],
-                          //     ),
-                          //     SizedBox(
-                          //       width: 20,
-                          //     ),
-                          //     Column(
-                          //       children: [
-                          //         Icon(
-                          //           Icons.add_box,
-                          //           color: Colors.white,
-                          //           size: 30,
-                          //         ),
-                          //         SizedBox(
-                          //           width: 5,
-                          //         ),
-                          //         Text(
-                          //           'Top Up',
-                          //           style: TextStyle(
-                          //               color: Colors.white,
-                          //               fontWeight: FontWeight.w700),
-                          //         )
-                          //       ],
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
                     ),

@@ -448,7 +448,7 @@ class RemoteService {
     }
   }
 
-  Future<void> saveFoundItem(String token, FoundModel foundItem) async {
+  Future<bool> saveFoundItem(String token, FoundModel foundItem) async {
     final foundToken = token;
     final url = Uri.https(
       'finit-api-ahawuso3sq-et.a.run.app',
@@ -462,8 +462,11 @@ class RemoteService {
       },
       body: json.encode(foundItem.toJson()),
     );
-    print(response.body);
-    print(response.statusCode);
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<void> saveLostItem(String token, LostModel lostItem) async {
