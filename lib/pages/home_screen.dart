@@ -26,35 +26,38 @@ class _HomeScreenState extends State<HomeScreen> {
   final SocketService _socketService = SocketService(); // Use SocketService instance
 
   void initializeSocket() {
-    try {
-      _socketService.initializeSocket().then((_) {
-        final uid = Provider.of<UserProvider>(context, listen: false).uid;
-        _socketService.socket?.emit("new-user-add", uid);
-        _socketService.socket?.on("receive-message", (data) async {
-          final Map<String, dynamic> messageData = data as Map<String, dynamic>;
-          final String? receiverId = messageData['receiverId'];
-          final String senderId = messageData['senderId'];
-          final String? message = messageData['message'];
-          final String? imageUrl = messageData['imageUrl'];
+  try {
+    _socketService.initializeSocket().then((_) {
+      final uid = Provider.of<UserProvider>(context, listen: false).uid;
+      _socketService.socket?.emit("new-user-add", uid);
+      _socketService.socket?.on("receive-message", (data) async {
+        final Map<String, dynamic> messageData = data as Map<String, dynamic>;
+        final String? receiverId = messageData['receiverId'];
+        final String senderId = messageData['senderId'];
+        final String? message = messageData['message'];
+        final String? imageUrl = messageData['imageUrl'];
+        final user = await _remoteService.getUserById(senderId);
+        final senderName = user?.name ?? 'Unknown';
 
-          if (receiverId == uid && senderId != uid && message != null) {
-            final user = await _remoteService.getUserById(senderId);
-            final senderName = user?.name ?? 'Unknown';
+        if (receiverId == uid && senderId != uid) {
+          if (message != null) {
             setState(() {
               _showInAppNotification(message, senderName);
             });
-          } else if (receiverId == uid && senderId != uid && imageUrl != null) {
-            final user = await _remoteService.getUserById(senderId);
-            final senderName = user?.name ?? 'Unknown';
+          } else if (imageUrl != null) {
             final messageText = "Image";
             setState(() {
               _showInAppNotification(messageText, senderName);
             });
           }
-        });
+        }
       });
-    } catch (e) {}
+    });
+  } catch (e) {
+    print('Error initializing socket: $e');
   }
+}
+
 
   void _showInAppNotification(String message, String senderName) async {
     if (mounted) {

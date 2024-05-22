@@ -34,10 +34,12 @@ class ChatBox extends StatefulWidget {
 
 class ChatBoxState extends State<ChatBox> {
   void updateRecentMessage(String newMessage) {
-    setState(() {
-      widget.recentMessage = newMessage;
-      widget.recentMessageCreatedAt = DateTime.now().toIso8601String();
-    });
+    if (mounted) {
+      setState(() {
+        widget.recentMessage = newMessage;
+        widget.recentMessageCreatedAt = DateTime.now().toIso8601String();
+      });
+    }
   }
 
   @override

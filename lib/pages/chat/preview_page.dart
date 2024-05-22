@@ -55,6 +55,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
     _socket.emit("send-message", {
       'senderId': senderId,
       'receiverId': widget.memberId,
+      'chatId': chatId,
       'imageUrl': imageUrl,
       'message': message,
     });

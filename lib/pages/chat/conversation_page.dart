@@ -74,6 +74,7 @@ class _ConversationPageState extends State<ConversationPage> {
       _socketService.socket?.emit("new-user-add", uid);
     }
       _socketService.socket?.on("receive-message", (data) {
+        print(data);
         if (data is Map<String, dynamic>) {
           String receiverId = data['receiverId'];
           if (receiverId != widget.memberId) {
@@ -97,7 +98,8 @@ class _ConversationPageState extends State<ConversationPage> {
                   _messages.add(receivedMessage);
                 });
               }
-            } else if (messageText != null) {
+            } else 
+            if (messageText != null) {
               // If messageText is present
               String senderId = data['senderId'];
               DateTime createdAt = DateTime.now();
