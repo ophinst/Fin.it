@@ -74,7 +74,6 @@ class _ConversationPageState extends State<ConversationPage> {
       _socketService.socket?.emit("new-user-add", uid);
     }
       _socketService.socket?.on("receive-message", (data) {
-        print(data);
         if (data is Map<String, dynamic>) {
           String receiverId = data['receiverId'];
           if (receiverId != widget.memberId) {
@@ -123,6 +122,7 @@ class _ConversationPageState extends State<ConversationPage> {
 
       _isSocketInitialized = true;
     } catch (e) {
+      rethrow;
     }
   }
 
@@ -179,6 +179,7 @@ class _ConversationPageState extends State<ConversationPage> {
         _messages = messages;
       });
     } catch (e) {
+      rethrow;
     }
   }
 
@@ -221,6 +222,7 @@ class _ConversationPageState extends State<ConversationPage> {
     // Update the UI after fetching item details
     setState(() {});
   } catch (e) {
+    rethrow;
   }
 }
 

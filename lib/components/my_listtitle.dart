@@ -23,7 +23,7 @@ class MyListTitle extends StatelessWidget {
         onTap: onTap,
         title: Text(
           text,
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ),
       ),
     );

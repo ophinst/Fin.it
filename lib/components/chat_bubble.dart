@@ -19,7 +19,7 @@ class ChatBubble extends StatelessWidget {
           Container(
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.5),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromRGBO(66, 125, 157, 1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -39,7 +39,7 @@ class ChatBubble extends StatelessWidget {
                       if (loadingProgress == null) {
                         return child;
                       } else {
-                        return Center(
+                        return const Center(
                           child: CircularProgressIndicator(),
                         );
                       }
@@ -53,7 +53,7 @@ class ChatBubble extends StatelessWidget {
           Container(
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.5),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromRGBO(66, 125, 157, 1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -68,7 +68,7 @@ class ChatBubble extends StatelessWidget {
               ),
             ),
           ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -93,7 +93,7 @@ class ChatBubbleUser extends StatelessWidget {
           Container(
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.5),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromRGBO(131, 162, 255, 1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -113,9 +113,9 @@ class ChatBubbleUser extends StatelessWidget {
                       if (loadingProgress == null) {
                         return child;
                       } else {
-                        return Center(
+                        return const Center(
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: CircularProgressIndicator(),
                           ),
                         );
@@ -130,7 +130,7 @@ class ChatBubbleUser extends StatelessWidget {
           Container(
             constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.5),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromRGBO(131, 162, 255, 1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -145,7 +145,7 @@ class ChatBubbleUser extends StatelessWidget {
               ),
             ),
           ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
       ],
     );
   }

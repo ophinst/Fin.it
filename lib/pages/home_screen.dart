@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _showInAppNotification(message, senderName);
             });
           } else if (imageUrl != null) {
-            final messageText = "Image";
+            const messageText = "Image";
             setState(() {
               _showInAppNotification(messageText, senderName);
             });
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: InAppNotification(message: message, senderName: senderName),
-          duration: Duration(seconds: 3), // Adjust duration as needed
+          duration: const Duration(seconds: 3), // Adjust duration as needed
         ),
       );
     }
@@ -79,31 +79,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      FoundItemList(),
-      ActivityList(),
-      HomePage(),
+      const FoundItemList(),
+      const ActivityList(),
+      const HomePage(),
       ChatPage(socketService: _socketService), // Pass the socketService to ChatPage
-      LostItemList(),
+      const LostItemList(),
     ];
 
     final items = <Widget>[
-      Icon(
+      const Icon(
         Icons.visibility,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.event_note,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.home,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.chat,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.visibility_off,
         color: Colors.white,
       ),

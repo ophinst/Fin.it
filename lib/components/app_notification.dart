@@ -9,15 +9,15 @@ class InAppNotification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       // color: Colors.blue, // Customize color as needed
       child: Row(
         children: [
-          Icon(Icons.notifications, color: Colors.white),
-          SizedBox(width: 10),
+          const Icon(Icons.notifications, color: Colors.white),
+          const SizedBox(width: 10),
           Text(
             '$senderName: $message',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ],
       ),

@@ -5,8 +5,8 @@ class SearchLoc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(9.0),
+    return const Padding(
+      padding: EdgeInsets.all(9.0),
       child: SrcLoc(),
     );
   }
@@ -22,12 +22,12 @@ class SrcLoc extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Color.fromRGBO(214, 214, 214, 1),
+        color: const Color.fromRGBO(214, 214, 214, 1),
         borderRadius: BorderRadius.circular(7),
         border: Border.all(color: Colors.transparent, width: 1),
       ),
       child: TextFormField(
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
             border: InputBorder.none,
             hintText: "Search Location",
             hintStyle: TextStyle(

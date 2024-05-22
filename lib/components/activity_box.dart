@@ -41,9 +41,9 @@ class ActivityBox extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.search,
-                  color: const Color.fromRGBO(43, 52, 153, 1),
+                  color: Color.fromRGBO(43, 52, 153, 1),
                 ),
                 Text(
                   title,
@@ -101,7 +101,7 @@ class ActivityBox extends StatelessWidget {
                   children: [
                     Column(
                       children:[
-                        Text(
+                        const Text(
                           'Status',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,

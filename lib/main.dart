@@ -51,14 +51,14 @@ class MyApp extends StatelessWidget {
                 userProvider.name!.isNotEmpty &&
                 userProvider.token!.isNotEmpty) {
               // User is logged in, navigate to the home screen or appropriate page
-              return HomeScreen();
+              return const HomeScreen();
             } else {
               // User is not logged in, show the login page
-              return LoginPage();
+              return const LoginPage();
             }
           } else {
             // Show a loading screen while waiting for the future to complete
-            return Scaffold(
+            return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
@@ -66,16 +66,16 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/home': (context) => HomeScreen(),
-        '/homepage': (context) => HomePage(),
-        '/register': (context) => RegisterPage(),
-        '/login': (context) => LoginPage(),
-        '/lost': (context) => LostItemList(),
-        '/found': (context) => FoundItemList(),
-        '/add-lost': (context) => FormLost(),
-        '/add-found': (context) => FormFound(),
+        '/home': (context) => const HomeScreen(),
+        '/homepage': (context) => const HomePage(),
+        '/register': (context) => const RegisterPage(),
+        '/login': (context) => const LoginPage(),
+        '/lost': (context) => const LostItemList(),
+        '/found': (context) => const FoundItemList(),
+        '/add-lost': (context) => const FormLost(),
+        '/add-found': (context) => const FormFound(),
         '/chat': (context) => ChatPage(socketService: socketService), // Pass socketService here as well
-        '/my-voucher': (context) => MyVoucher(),
+        '/my-voucher': (context) => const MyVoucher(),
       },
     );
   }

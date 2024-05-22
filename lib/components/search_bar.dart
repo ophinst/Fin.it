@@ -10,7 +10,7 @@ class AnotherSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(
+      margin: const EdgeInsets.only(
         top: 10,
       ),
       width: 127,
@@ -36,7 +36,7 @@ class AnotherSearchBar extends StatelessWidget {
             hintStyle: TextStyle(
               color: Colors.black.withOpacity(0.5),
             ),
-            prefixIcon: Icon(
+            prefixIcon: const Icon(
               Icons.search,
               size: 25,
             )),
@@ -56,7 +56,7 @@ class SrcBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(
+      margin: const EdgeInsets.only(
         top: 10,
       ),
       width: 127,
@@ -83,7 +83,7 @@ class SrcBar extends StatelessWidget {
             hintStyle: TextStyle(
               color: Colors.black.withOpacity(0.5),
             ),
-            prefixIcon: Icon(
+            prefixIcon: const Icon(
               Icons.search,
               size: 25,
             )),

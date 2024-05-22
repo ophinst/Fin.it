@@ -193,7 +193,7 @@ class _ChatPageState extends State<ChatPage> {
             var chatBox = chatBoxes.removeAt(chatBoxIndex);
             chatBoxes.insert(0, chatBox);
             chatBoxKeys.insert(0, chatBoxKeys.removeAt(chatBoxIndex));
-            final messageText = 'Image';
+            const messageText = 'Image';
             if (message != null) {
               chatBoxKeys[0].currentState?.updateRecentMessage(message);
             } else if (imageUrl != null) {

@@ -1,4 +1,3 @@
-import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/models/voucher_model.dart';
@@ -34,7 +33,7 @@ class VoucherDetail extends StatelessWidget {
     // Handle exceptions
     print('Error redeeming voucher: $e');
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error redeeming voucher')),
+      const SnackBar(content: Text('Error redeeming voucher')),
     );
   }
 }
@@ -175,7 +174,7 @@ class VoucherDetail extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
                     Row(

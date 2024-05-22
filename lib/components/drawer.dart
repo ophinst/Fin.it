@@ -46,7 +46,7 @@ class MyDrawer extends StatelessWidget {
                     .token!
                     .isNotEmpty) {
               // Show a snackbar message
-              final snackBar = SnackBar(content: Text("Logout Successful"));
+              const snackBar = SnackBar(content: Text("Logout Successful"));
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
               // Get the UserProvider instance
@@ -60,12 +60,12 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LoginPage(),
+                  builder: (context) => const LoginPage(),
                 ),
               );
             } else {
               // show a message if the token is not available
-              final snackBar =
+              const snackBar =
                   SnackBar(content: Text("No active session found."));
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }

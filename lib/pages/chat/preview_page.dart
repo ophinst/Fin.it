@@ -60,7 +60,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
       'message': message,
     });
     if (message == null) {
-    print('Message sent to socket: Image');
+    // print('Message sent to socket: Image');
     }
     // Return the sent message along with the image to the previous screen
     Message sentMessage = Message(
@@ -80,7 +80,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image Preview'),
+        title: const Text('Image Preview'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -101,11 +101,11 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                     Provider.of<UserProvider>(context, listen: false).token ??
                         '';
                 final chatId = widget.chatId;
-                final message = null;
+                const message = null;
                 _sendMessageToRemote(message, widget.imageFile, token,
                     chatId); // Pass imageFile instead of imagePath
               },
-              child: Text('Send Image'),
+              child: const Text('Send Image'),
             ),
           ),
         ],
