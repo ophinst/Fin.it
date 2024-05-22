@@ -1,4 +1,3 @@
-import 'package:capstone_project/components/app_notification.dart';
 import 'package:capstone_project/components/drawer.dart';
 import 'package:capstone_project/components/near_items_card.dart';
 import 'package:capstone_project/models/near_items_model.dart';
@@ -78,7 +77,7 @@ class _HomePageState extends State<HomePage> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ProfilePage()),
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
     );
   }
 

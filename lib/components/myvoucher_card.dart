@@ -95,7 +95,7 @@ class MyVoucherCard extends StatelessWidget {
                         width: constraints
                             .maxWidth, // This makes the Container's width match the parent's width
                         decoration: BoxDecoration(
-                          color: Color.fromRGBO(217, 217, 217, 1),
+                          color: const Color.fromRGBO(217, 217, 217, 1),
                           borderRadius: BorderRadius.circular(
                               7), // Adjust the radius as needed
                         ),

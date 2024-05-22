@@ -66,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await remoteService.updateUserData(token, name, phoneNumber);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Profile saved'),
           duration: Duration(seconds: 2),
         ),
@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save profile: $e'),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _scaffoldMessengerKey.currentState?.showSnackBar(
                   SnackBar(
                     content: Text('Failed to update profile picture: $e'),
-                    duration: Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                   ),
                 );
               }
@@ -137,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
             size: 35,
@@ -209,16 +209,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
-                Column(
-                  children: const [Text('Put your best pic here!')],
+                const Column(
+                  children: [Text('Put your best pic here!')],
                 )
               ],
             ),
             const SizedBox(
               height: 20,
             ),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Text('Name'),
               ],
             ),
@@ -243,8 +243,8 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 20,
             ),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Text('Email'),
               ],
             ),
@@ -270,8 +270,8 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(
               height: 20,
             ),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Text('Phone Number'),
               ],
             ),

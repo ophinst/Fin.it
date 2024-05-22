@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:capstone_project/services/remote_service.dart';
 
 class ProfilePreview extends StatelessWidget {
   final String imageUrl;
@@ -17,7 +16,7 @@ class ProfilePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image Preview'),
+        title: const Text('Image Preview'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,7 +44,7 @@ class ProfilePreview extends StatelessWidget {
                   // Navigate back
                   Navigator.pop(context);
                 },
-                child: Text('Save Image'),
+                child: const Text('Save Image'),
               ),
             ),
         ],

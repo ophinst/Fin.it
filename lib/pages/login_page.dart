@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                           });
                           //check token available or not
                           if (value.token != null && value.token!.isNotEmpty) {
-                            final snackBar =
+                            const snackBar =
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);
                           } else {
-                            final snackBar =
+                            const snackBar =
                                 SnackBar(content: Text("Login Failed"));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(snackBar);

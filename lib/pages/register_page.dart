@@ -158,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       });
                       //check token available or not
                       if (value.token != null && value.token!.isNotEmpty) {
-                        final snackBar =
+                        const snackBar =
                             SnackBar(content: Text("Register Successful"));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         // Get the UserProvider instance
@@ -176,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             SnackBar(content: Text(value.message!));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       } else {
-                        final snackBar =
+                        const snackBar =
                             SnackBar(content: Text("Register Failed"));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       }
@@ -197,21 +197,21 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Already have an account?',
                     style: TextStyle(
                       fontFamily: 'josefinSans',
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 4,
                   ),
                   TextButton(
                     onPressed: () {
                       goLoginPage(context);
                     },
-                    child: Text(
+                    child: const Text(
                       'Sign Up',
                       style: TextStyle(
                         color: Colors.blue,

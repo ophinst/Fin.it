@@ -1,4 +1,3 @@
-import 'package:capstone_project/components/app_notification.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/services/socket_service.dart';
@@ -6,14 +5,14 @@ import 'package:capstone_project/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/chat_box.dart';
 import 'package:capstone_project/components/search_bar.dart';
-import 'package:capstone_project/services/remote_service.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:capstone_project/models/user_provider.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:capstone_project/services/remote_service.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final SocketService socketService;
+
+  const ChatPage({super.key, required this.socketService});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -21,11 +20,10 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   TextEditingController searchController = TextEditingController();
+  List<GlobalKey<ChatBoxState>> chatBoxKeys = []; // Store keys for each ChatBox
   List<ChatBox> chatBoxes = []; // List to store ChatBox widgets
   List<ChatBox> filteredChatBoxes = []; // List to store filtered ChatBox widgets
 
-  final SocketService _socketService = SocketService(); // Use SocketService instance
-  IO.Socket? socket;
   final RemoteService remoteService = RemoteService();
 
   var isLoaded = false;
@@ -61,90 +59,15 @@ class _ChatPageState extends State<ChatPage> {
         if (chatData != null) {
           chatBoxes.clear();
           filteredChatBoxes.clear();
+          chatBoxKeys.clear(); // Clear keys list
+
+          final List<Future<void>> futures = []; // List to hold futures
 
           for (var chat in chatData) {
-            final List<dynamic>? members = chat['members'];
-
-            if (members != null && uid != null) {
-              final filteredMembers = members.where((memberId) => memberId != uid).toList();
-              String memberId = filteredMembers.first;
-              String memberName = '';
-              String memberImage = '';
-              String recentMessage = 'Start Chatting Now!';
-              String recentMessageCreatedAt = '2000-01-01T00:00:00.000Z';
-
-              if (filteredMembers.isNotEmpty) {
-                final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
-                  throw e;
-                });
-                if (user != null) {
-                  memberName = user.name;
-                  memberImage = user.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
-                }
-              }
-
-              final List<Message> messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
-                throw e;
-              });
-              if (messagesResponse.isNotEmpty) {
-                messagesResponse.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-                final Message recentMessageObject = messagesResponse.first;
-                if (recentMessageObject.message != null) {
-                  recentMessage = recentMessageObject.message!;
-                } else if (recentMessageObject.imageUrl != null) {
-                  recentMessage = 'Image';
-                }
-                recentMessageCreatedAt = recentMessageObject.createdAt.toString();
-              }
-
-              final String itemId = chat['itemId'];
-              late String itemName = 'Loading';
-              late String itemDate = 'Loading';
-              if (itemId.startsWith('fou')) {
-                dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
-                itemName = foundItem['itemName'] ?? '';
-                itemDate = foundItem['foundDate'] ?? '';
-              } else if (itemId.startsWith('los')) {
-                Datum? lostItem = await remoteService.getLostItemById(itemId);
-                if (lostItem != null) {
-                  itemName = lostItem.itemName;
-                  itemDate = lostItem.lostDate;
-                }
-              }
-
-              int existingChatIndex = chatBoxes.indexWhere((box) => box.chatId == chat['chatId']);
-              if (existingChatIndex != -1) {
-                if (!isDisposed) {
-                  setState(() {
-                    chatBoxes[existingChatIndex].memberName = memberName;
-                    chatBoxes[existingChatIndex].memberImage = memberImage;
-                    chatBoxes[existingChatIndex].recentMessage = recentMessage;
-                    chatBoxes[existingChatIndex].recentMessageCreatedAt = recentMessageCreatedAt;
-                    chatBoxes[existingChatIndex].itemName = itemName;
-                    chatBoxes[existingChatIndex].itemDate = itemDate;
-                  });
-                }
-              } else {
-                var chatBox = ChatBox(
-                  chatId: chat['chatId'],
-                  memberId: memberId,
-                  memberName: memberName,
-                  memberImage: memberImage,
-                  recentMessage: recentMessage,
-                  recentMessageCreatedAt: recentMessageCreatedAt,
-                  itemId: itemId,
-                  itemName: itemName,
-                  itemDate: itemDate,
-                );
-                if (!isDisposed) {
-                  setState(() {
-                    chatBoxes.add(chatBox);
-                  });
-                }
-              }
-            }
+            futures.add(_processChat(chat, uid)); // Add futures to the list
           }
+
+          await Future.wait(futures); // Wait for all futures to complete
 
           chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
           if (!isDisposed) {
@@ -166,16 +89,76 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<void> fetchData() async {
-    try {
-      setState(() {
-        isLoading = true;
+  Future<void> _processChat(Map<String, dynamic> chat, String? uid) async {
+    final List<dynamic>? members = chat['members'];
+
+    if (members != null && uid != null) {
+      final filteredMembers = members.where((memberId) => memberId != uid).toList();
+      String memberId = filteredMembers.first;
+      String memberName = '';
+      String memberImage = '';
+      String recentMessage = 'Start Chatting Now!';
+      String recentMessageCreatedAt = '2000-01-01T00:00:00.000Z';
+
+      if (filteredMembers.isNotEmpty) {
+        final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
+          throw e;
+        });
+        if (user != null) {
+          memberName = user.name;
+          memberImage = user.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
+        }
+      }
+
+      final List<Message> messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
+        throw e;
       });
-      await fetchChats();
-    } finally {
+      if (messagesResponse.isNotEmpty) {
+        messagesResponse.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        final Message recentMessageObject = messagesResponse.first;
+        if (recentMessageObject.message != null) {
+          recentMessage = recentMessageObject.message!;
+        } else if (recentMessageObject.imageUrl != null) {
+          recentMessage = 'Image';
+        }
+        recentMessageCreatedAt = recentMessageObject.createdAt.toString();
+      }
+
+      final String itemId = chat['itemId'];
+      late String itemName = 'Loading';
+      late String itemDate = 'Loading';
+      if (itemId.startsWith('fou')) {
+        dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
+        itemName = foundItem['itemName'] ?? '';
+        itemDate = foundItem['foundDate'] ?? '';
+      } else if (itemId.startsWith('los')) {
+        Datum? lostItem = await remoteService.getLostItemById(itemId);
+        if (lostItem != null) {
+          itemName = lostItem.itemName;
+          itemDate = lostItem.lostDate;
+        }
+      }
+
+      var chatBoxKey = GlobalKey<ChatBoxState>();
+      var chatBox = ChatBox(
+        key: chatBoxKey,
+        chatId: chat['chatId'],
+        memberId: memberId,
+        memberName: memberName,
+        memberImage: memberImage,
+        recentMessage: recentMessage,
+        recentMessageCreatedAt: recentMessageCreatedAt,
+        itemId: itemId,
+        itemName: itemName,
+        itemDate: itemDate,
+        onBack: fetchChats,
+      );
+
       if (!isDisposed) {
         setState(() {
-          isLoading = false;
+          chatBoxes.add(chatBox);
+          chatBoxKeys.add(chatBoxKey); // Add key to list
         });
       }
     }
@@ -192,82 +175,62 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void initializeSocket() {
-    try {
-      _socketService.initializeSocket().then((_) {
-        final uid = Provider.of<UserProvider>(context, listen: false).uid;
-        _socketService.socket?.emit("new-user-add", uid);
-        _socketService.socket?.on("receive-message", (data) async {
-          final Map<String, dynamic> messageData = data as Map<String, dynamic>;
-          final String? receiverId = messageData['receiverId'];
-          final String senderId = messageData['senderId'];
-          final String? message = messageData['message'];
+  void _handleReceiveMessage(dynamic data) async {
+    if (!mounted) return;
+    final Map<String, dynamic> messageData = data as Map<String, dynamic>;
+    final String? receiverId = messageData['receiverId'];
+    final String senderId = messageData['senderId'];
+    final String chatId = messageData['chatId'];
+    final String? message = messageData['message'];
+    final String? imageUrl = messageData['imageUrl'];
 
-          if (receiverId == uid && senderId != uid && message != null) {
-            // final chatBoxIndex =
-            //     chatBoxes.indexWhere((chatBox) => chatBox.memberId == senderId);
-            // if (chatBoxIndex != -1) {
-            //   // Update the ChatBox with the new message
-            //   setState(() {
-            //     chatBoxes[chatBoxIndex].recentMessage = message;
-            //     chatBoxes[chatBoxIndex].recentMessageCreatedAt = DateTime.now()
-            //         .toIso8601String(); // Update the creation date to now
-            //   });
-            // }
-          }
-        });
-      });
-
-      // _isSocketInitialized = true;
-    } catch (e) {}
-  }
-
-  Future<void> refreshChatBox() async {
-    if (!isDisposed) {
-      setState(() {
-        filteredChatBoxes = List.from(chatBoxes);
-      });
-    }
-  }
-
-  Future<void> fetchAndUpdateChats() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      await fetchChats();
-      refreshChatBox();
-    } catch (e) {
-      // Handle errors
-    } finally {
+    final uid = Provider.of<UserProvider>(context, listen: false).uid;
+    if (receiverId == uid && senderId != uid) {
       if (!isDisposed) {
         setState(() {
-          isLoading = false;
+          int chatBoxIndex = chatBoxKeys.indexWhere((key) => key.currentState?.widget.chatId == chatId);
+          if (chatBoxIndex != -1) {
+            var chatBox = chatBoxes.removeAt(chatBoxIndex);
+            chatBoxes.insert(0, chatBox);
+            chatBoxKeys.insert(0, chatBoxKeys.removeAt(chatBoxIndex));
+            const messageText = 'Image';
+            if (message != null) {
+              chatBoxKeys[0].currentState?.updateRecentMessage(message);
+            } else if (imageUrl != null) {
+              chatBoxKeys[0].currentState?.updateRecentMessage(messageText);
+            }
+            chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+            filteredChatBoxes = List.from(chatBoxes);
+          }
         });
       }
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchChats();
+    widget.socketService.socket?.on("receive-message", _handleReceiveMessage);
+  }
+
+  @override
   void dispose() {
     isDisposed = true;
-    _socketService.socket?.disconnect();
+    widget.socketService.socket?.off("receive-message", _handleReceiveMessage);
     searchController.dispose();
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
+  void refreshChats() {
     fetchChats();
-    // initializeSocket();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () => fetchAndUpdateChats(),
+        onRefresh: fetchChats,
         child: SingleChildScrollView(
           child: SafeArea(
             child: Padding(
@@ -296,7 +259,7 @@ class _ChatPageState extends State<ChatPage> {
                           top: 25,
                         ),
                         child: GestureDetector(
-                          onTap: () => fetchAndUpdateChats(),
+                          onTap: fetchChats,
                           child: const Text(
                             'Chat',
                             style: TextStyle(
@@ -314,7 +277,7 @@ class _ChatPageState extends State<ChatPage> {
                           top: 25,
                         ),
                         child: GestureDetector(
-                          onTap: () => fetchAndUpdateChats(),
+                          onTap: fetchChats,
                           child: Icon(
                             Icons.refresh, color: primaryColor,
                           ),
@@ -363,7 +326,6 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                     ],
                   ),
-        
                   const SizedBox(height: 10),
                 ],
               ),

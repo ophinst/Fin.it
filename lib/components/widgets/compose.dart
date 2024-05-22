@@ -13,12 +13,13 @@ class MyCompose extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
+      // ignore: prefer_const_constructors
       duration: Duration(milliseconds: 200),
       curve: Curves.linear,
       width: 50,
       height: 50,
       child: FloatingActionButton.extended(
-        backgroundColor: Color.fromRGBO(43, 52, 153, 1),
+        backgroundColor: const Color.fromRGBO(43, 52, 153, 1),
         onPressed: onTap,
         icon: Padding(
           padding: const EdgeInsets.only(left: 8.0),
@@ -27,7 +28,7 @@ class MyCompose extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        label: SizedBox(),
+        label: const SizedBox(),
       ),
     );
   }

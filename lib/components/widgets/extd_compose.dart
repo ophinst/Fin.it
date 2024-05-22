@@ -29,7 +29,7 @@ class MyExtendedCompose extends StatelessWidget {
         label: Center(
           child: Text(
             buttonText,
-            style: TextStyle(fontSize: 15, color: Colors.white),
+            style: const TextStyle(fontSize: 15, color: Colors.white),
           ),
         ),
       ),

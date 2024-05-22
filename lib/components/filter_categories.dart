@@ -28,24 +28,24 @@ class _FilterCategoriesState extends State<FilterCategories> {
         height: 40,
         // color: Colors.amber,
         decoration: BoxDecoration(
-          color: Color.fromRGBO(217, 217, 217, 1),
+          color: const Color.fromRGBO(217, 217, 217, 1),
           borderRadius: BorderRadius.circular(5),
         ),
         child: DropdownButton<String>(
-          style: TextStyle(
+          style: const TextStyle(
               color: Color.fromRGBO(43, 52, 153, 1),
               fontWeight: FontWeight.w500),
-          padding: EdgeInsets.only(left: 10),
+          padding: const EdgeInsets.only(left: 10),
           borderRadius: BorderRadius.circular(15),
           iconSize: 30,
-          hint: Text("Choose Categories"),
+          hint: const Text("Choose Categories"),
           value: selectedItem,
           items: items
               .map((item) => DropdownMenuItem<String>(
                     value: item,
                     child: Text(
                       item,
-                      style: TextStyle(fontSize: 24),
+                      style: const TextStyle(fontSize: 24),
                     ),
                   ))
               .toList(),

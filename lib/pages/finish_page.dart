@@ -12,7 +12,7 @@ class FinishPage extends StatelessWidget {
             padding: const EdgeInsets.all(13.0),
             child: Column(
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
@@ -49,7 +49,7 @@ class FinishPage extends StatelessWidget {
                   height: 2,
                   color: Colors.black,
                 ),
-                Row(
+                const Row(
                   
                   children: [
                     Expanded(
@@ -70,7 +70,7 @@ class FinishPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),

@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final navigationKey = GlobalKey<CurvedNavigationBarState>();
   int index = 2;
-    String? lostId;
+  String? lostId;
   final RemoteService _remoteService = RemoteService();
   final SocketService _socketService = SocketService(); // Use SocketService instance
 
@@ -35,86 +35,81 @@ class _HomeScreenState extends State<HomeScreen> {
         final String? receiverId = messageData['receiverId'];
         final String senderId = messageData['senderId'];
         final String? message = messageData['message'];
-        final String? imageUrl = messageData ['imageUrl'];
+        final String? imageUrl = messageData['imageUrl'];
+        final user = await _remoteService.getUserById(senderId);
+        final senderName = user?.name ?? 'Unknown';
 
-        if (receiverId == uid && senderId != uid && message != null) {
-          final user = await _remoteService.getUserById(senderId);
-          final senderName = user?.name ?? 'Unknown';
-          setState(() {
-            _showInAppNotification(message, senderName);
-          });
-        } else if (receiverId == uid && senderId != uid && imageUrl != null){
-          final user = await _remoteService.getUserById(senderId);
-          final senderName = user?.name ?? 'Unknown';
-          final messageText = "Image";
-          setState(() {
-            _showInAppNotification(messageText, senderName);
-          });
+        if (receiverId == uid && senderId != uid) {
+          if (message != null) {
+            setState(() {
+              _showInAppNotification(message, senderName);
+            });
+          } else if (imageUrl != null) {
+            const messageText = "Image";
+            setState(() {
+              _showInAppNotification(messageText, senderName);
+            });
+          }
         }
       });
     });
-  } catch (e) {}
-}
-
-void _showInAppNotification(String message, String senderName) async {
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: InAppNotification(message: message, senderName: senderName),
-        duration: Duration(seconds: 3), // Adjust duration as needed
-      ),
-    );
+  } catch (e) {
+    print('Error initializing socket: $e');
   }
 }
 
-// @override
-// void dispose() {
-//   _socketService.dispose();
-//   super.dispose();
-// }
 
-@override
+  void _showInAppNotification(String message, String senderName) async {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: InAppNotification(message: message, senderName: senderName),
+          duration: const Duration(seconds: 3), // Adjust duration as needed
+        ),
+      );
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     initializeSocket();
   }
 
-
-  final screens = [
-    FoundItemList(),
-    ActivityList(),
-    HomePage(),
-    ChatPage(),
-    LostItemList(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const FoundItemList(),
+      const ActivityList(),
+      const HomePage(),
+      ChatPage(socketService: _socketService), // Pass the socketService to ChatPage
+      const LostItemList(),
+    ];
+
     final items = <Widget>[
-      Icon(
+      const Icon(
         Icons.visibility,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.event_note,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.home,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.chat,
         color: Colors.white,
       ),
-      Icon(
+      const Icon(
         Icons.visibility_off,
         color: Colors.white,
       ),
     ];
 
     return Scaffold(
-      // extendBody: true,
       backgroundColor: const Color.fromRGBO(244, 244, 244, 1),
       body: screens[index],
       bottomNavigationBar: CurvedNavigationBar(
@@ -127,7 +122,6 @@ void _showInAppNotification(String message, String senderName) async {
         onTap: (index) {
           setState(() {
             this.index = index;
-            // lostId = null;
           });
         },
       ),
