@@ -77,14 +77,6 @@ class _LostItemListState extends State<LostItemList> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 12),
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            size: 35,
-          ),
-        ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
