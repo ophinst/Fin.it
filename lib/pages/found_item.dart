@@ -139,7 +139,7 @@ class FoundItemPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Nama barang:',
+                      'Item Name:',
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         fontSize: 15,
@@ -162,7 +162,7 @@ class FoundItemPage extends StatelessWidget {
                       height: 10,
                     ),
                     const Text(
-                      'Nama penemu:',
+                      'Founder:',
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         fontSize: 15,
@@ -185,7 +185,7 @@ class FoundItemPage extends StatelessWidget {
                       height: 10.0,
                     ),
                     const Text(
-                      'Deskripsi :',
+                      'Description :',
                       style: TextStyle(
                         fontFamily: 'JosefinSans',
                         color: Color.fromRGBO(
@@ -349,25 +349,6 @@ class FoundItemPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        ElevatedButton(
-                          onPressed: tagButton,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromRGBO(43, 52, 153, 1),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.only(
-                              top: 10.0,
-                              bottom: 10.0,
-                              left: 20.0,
-                              right: 20.0,
-                            ),
-                            child: Text(
-                              'TAG',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
                         if (!isCurrentUser)
                           ElevatedButton(
                             onPressed: () => chatButton(context),
