@@ -2,7 +2,6 @@ import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 
 class FinishTransaction extends StatefulWidget {

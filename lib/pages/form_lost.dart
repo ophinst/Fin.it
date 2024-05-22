@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:capstone_project/components/widgets/location_input.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/search_loc.dart';
-import 'package:capstone_project/components/radio.dart';
 import 'package:capstone_project/models/place.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/category.dart';

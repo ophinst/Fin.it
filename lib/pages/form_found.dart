@@ -4,7 +4,6 @@ import 'package:capstone_project/models/category.dart';
 import 'package:capstone_project/models/place.dart';
 import 'package:capstone_project/components/my_button.dart';
 import 'package:capstone_project/components/search_loc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
