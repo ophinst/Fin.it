@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   String? _userName;
   final RemoteService _remoteService = RemoteService();
   bool _isDisposed = false; // Track disposal state
+  bool isLoading = true;
 // Use SocketService instance
 
   // Method to fetch user's points
@@ -63,6 +64,7 @@ class _HomePageState extends State<HomePage> {
           // Fetch near items after getting user location
           if (_userLocation != null) {
             _getNearItems(_userLocation!.latitude, _userLocation!.longitude);
+            isLoading = false;
           }
         });
       }
@@ -71,6 +73,7 @@ class _HomePageState extends State<HomePage> {
       print('Location permissions not granted');
     }
   }
+
   //navigate to profile page
   void goToProfile() {
     Navigator.pop(context);
@@ -113,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     _getUserLocation();
     _fetchUserPoints();
   }
-  
+
   @override
   void dispose() {
     _isDisposed = true; // Set the disposed flag to true
@@ -262,7 +265,8 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             'Find near you!',
                             style: TextStyle(
-                                color: primaryColor, fontWeight: FontWeight.w700),
+                                color: primaryColor,
+                                fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(
                             height: 5,
@@ -364,37 +368,52 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.4,
-                              child: foundItems.isNotEmpty || lostItems.isNotEmpty
-                                  ? ListView.builder(
-                                      itemCount:
-                                          foundItems.length + lostItems.length,
-                                      itemBuilder: (context, index) {
-                                        List<dynamic> combinedItems = [
-                                          ...foundItems,
-                                          ...lostItems
-                                        ];
-                                        combinedItems.shuffle();
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 10),
-                                          child: NearItemsCard(
-                                            foundNearItems: combinedItems[index]
-                                                    is FoundNearItem
-                                                ? combinedItems[index]
-                                                    as FoundNearItem
-                                                : null,
-                                            lostNearItems: combinedItems[index]
-                                                    is LostNearItem
-                                                ? combinedItems[index]
-                                                    as LostNearItem
-                                                : null,
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  : const Center(
+                              child: isLoading
+                                  ? const Center(
                                       child: CircularProgressIndicator(),
-                                    ),
+                                    )
+                                  : foundItems.isNotEmpty ||
+                                          lostItems.isNotEmpty
+                                      ? ListView.builder(
+                                          itemCount: foundItems.length +
+                                              lostItems.length,
+                                          itemBuilder: (context, index) {
+                                            List<dynamic> combinedItems = [
+                                              ...foundItems,
+                                              ...lostItems
+                                            ];
+                                            combinedItems.shuffle();
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 10),
+                                              child: NearItemsCard(
+                                                foundNearItems:
+                                                    combinedItems[index]
+                                                            is FoundNearItem
+                                                        ? combinedItems[index]
+                                                            as FoundNearItem
+                                                        : null,
+                                                lostNearItems:
+                                                    combinedItems[index]
+                                                            is LostNearItem
+                                                        ? combinedItems[index]
+                                                            as LostNearItem
+                                                        : null,
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : const Center(
+                                          child: Text(
+                                            'No Recent Activity',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color.fromRGBO(
+                                                  43, 52, 153, 1),
+                                            ),
+                                          ),
+                                        ),
                             ),
                           ],
                         ),

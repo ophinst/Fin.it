@@ -202,32 +202,6 @@ class RemoteService {
     }
   }
 
-  Future<String> getLocationName(double latitude, double longitude) async {
-    final cacheKey = '$latitude,$longitude';
-    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
-
-    // Check if location is already in cache
-    if (_locationCache.containsKey(cacheKey)) {
-      return _locationCache[cacheKey]!;
-    }
-
-    final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
-
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final decodedResponse = json.decode(response.body);
-      final results = decodedResponse['results'];
-      if (results != null && results.isNotEmpty) {
-        final locationName = results[0]['formatted_address'];
-        // Store location in cache
-        _locationCache[cacheKey] = locationName;
-        return locationName;
-      }
-    }
-    return 'Location address not found';
-  }
-
   Future<Datum?> getLostItemById(String lostId) async {
     var client = http.Client();
 
@@ -445,6 +419,20 @@ class RemoteService {
     } else {
       print('Failed to send message: ${response.statusCode}');
       throw Exception('Failed to send message: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> deleteItem(String token, String id) async {
+    final uri = Uri.parse('$url/recent/$id');
+    final response = await http.delete(uri, headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json'
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 
