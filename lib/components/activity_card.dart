@@ -1,39 +1,114 @@
 import 'package:capstone_project/models/recentact_model.dart';
+import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:capstone_project/models/user_provider.dart';
 
 class ActivityCard extends StatelessWidget {
   final LostAct? lostAct;
   final FoundAct? foundAct;
+  final VoidCallback onDelete;
+  final Function(bool) setDeleting;
 
   const ActivityCard(
-      {required this.lostAct, required this.foundAct, super.key});
+      {this.lostAct, this.foundAct, required this.onDelete, required this.setDeleting, super.key});
 
   @override
   Widget build(BuildContext context) {
+    const success = 'assets/images/success.png';
+    const failed = 'assets/images/fail.png';
+
+    void _showDialog(bool status, String image, String text) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(image),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    text,
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    void deleteItem(String itemId) async {
+      setDeleting(true);
+
+      final token = Provider.of<UserProvider>(context, listen: false).token;
+
+      try {
+        bool response = await RemoteService().deleteItem(token!, itemId);
+        if (response) {
+          _showDialog(response, success, 'Item has been deleted!');
+          onDelete();
+        } else {
+          _showDialog(response, failed, 'Failed to delete!');
+        }
+      } catch (error) {
+        print(error);
+      } finally {
+        setDeleting(false); // Add this line
+      }
+    }
+
+    void _showConfirmationDialog(String itemId) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Delete'),
+            content: const Text('Are you sure you want to delete this item?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('No'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  deleteItem(itemId);
+                },
+                child: const Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return GestureDetector(
-      // onTap: () {
-      //   if (foundAct?.foundId != null) {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => FoundItemPage(
-      //           foundId: foundAct!.foundId,
-      //         ),
-      //       ),
-      //     );
-      //   } else if (lostAct?.lostId != null) {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => LostItemPage(
-      //           lostId: lostAct!.lostId,
-      //         ),
-      //       ),
-      //     );
-      //   } else {
-      //     Text('no data');
-      //   }
-      // },
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Card(
@@ -43,20 +118,42 @@ class ActivityCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Icons.search,
-                      size: 30,
-                      color: Color.fromRGBO(43, 52, 153, 1),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.search,
+                          size: 30,
+                          color: Color.fromRGBO(43, 52, 153, 1),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          foundAct != null
+                              ? "Item Found"
+                              : (lostAct != null ? 'Item Lost' : 'No Item Yet'),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 20),
+                        ),
+                      ],
                     ),
-                    Text(
-                      foundAct != null
-                          ? "Item Found"
-                          : (lostAct != null ? 'Item Lost' : 'No Item Yet'),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 20),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                      onPressed: () {
+                        final foundId = foundAct?.foundId;
+                        final lostId = lostAct?.lostId;
+
+                        if (foundId != null) {
+                          _showConfirmationDialog(foundId);
+                        } else if (lostId != null) {
+                          _showConfirmationDialog(lostId);
+                        }
+                      },
                     ),
                   ],
                 ),

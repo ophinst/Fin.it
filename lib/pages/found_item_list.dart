@@ -56,6 +56,10 @@ class _FoundItemListState extends State<FoundItemList> {
     return '${locationName.substring(0, maxLength)}...';
   }
 
+  Future<void> _refreshPage() async {
+    fetchData();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -93,59 +97,62 @@ class _FoundItemListState extends State<FoundItemList> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          const Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 25,
-                  top: 25,
-                ),
-                child: Text(
-                  'Found Something?',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'JosefinSans',
+      body: RefreshIndicator(
+        onRefresh: _refreshPage,
+        child: Column(
+          children: [
+            const Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 25,
+                    top: 25,
+                  ),
+                  child: Text(
+                    'Found Something?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'JosefinSans',
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 12,
-              ),
-              // SrcBar(),
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
-            height: 2,
-            color: Colors.black,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      String formattedLocationName = formatLocationName(
-                          data[index].placeLocation.locationDetail ??
-                              'Unknown location');
-                      return FoundItemListCard(
-                        foundItem: data[index],
-                        formattedLocationName: formattedLocationName,
-                      );
-                    },
-                  ),
-          ),
-        ],
+                SizedBox(
+                  width: 12,
+                ),
+                // SrcBar(),
+              ],
+            ),
+            Container(
+              margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
+              height: 2,
+              color: Colors.black,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Expanded(
+              child: isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        String formattedLocationName = formatLocationName(
+                            data[index].placeLocation.locationDetail ??
+                                'Unknown location');
+                        return FoundItemListCard(
+                          foundItem: data[index],
+                          formattedLocationName: formattedLocationName,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: isExtend
           ? MyCompose(

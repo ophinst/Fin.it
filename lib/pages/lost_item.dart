@@ -308,29 +308,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                                   .size
                                                   .width *
                                               0.8,
-                                          child: FutureBuilder<String>(
-                                            future: RemoteService()
-                                                .getLocationName(
-                                                    lostItem.latitude,
-                                                    lostItem.longitude),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Text('Loading...');
-                                              } else if (snapshot.hasError) {
-                                                return Text(
-                                                    'Error: ${snapshot.error}');
-                                              } else {
-                                                String locationName =
-                                                    snapshot.data!;
-                                                return Text(
-                                                  locationName,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                );
-                                              }
-                                            },
-                                          ),
+                                          child: Text(lostItem.locationDetail),
                                         ),
                                       ],
                                     ),
