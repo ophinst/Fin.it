@@ -45,7 +45,7 @@ class AnotherSearchBar extends StatelessWidget {
   }
 }
 
-class SrcBar extends StatelessWidget {
+class SrcBar extends StatefulWidget {
   final TextEditingController searchController;
   final Function(String) onSearch;
 
@@ -54,6 +54,11 @@ class SrcBar extends StatelessWidget {
     required this.onSearch,
   });
 
+  @override
+  State<SrcBar> createState() => _SrcBarState();
+}
+
+class _SrcBarState extends State<SrcBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,10 +81,10 @@ class SrcBar extends StatelessWidget {
             ),
           ]),
       child: TextFormField(
-        controller: searchController,
+        controller: widget.searchController,
         onChanged: (value) {
-          if (value.length >= 3) {
-            onSearch(value);
+          if (value.length >= 3 || value.isEmpty) {
+            widget.onSearch(value);
           }
         },
         decoration: InputDecoration(
