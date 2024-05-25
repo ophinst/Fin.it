@@ -56,7 +56,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  @override
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
       key: scaffoldMessengerKey,

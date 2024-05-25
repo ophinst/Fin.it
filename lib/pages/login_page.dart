@@ -54,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushNamed(context, '/register');
   }
 
-  @override
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
       key: scaffoldMessengerKey,

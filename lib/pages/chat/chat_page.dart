@@ -1,4 +1,3 @@
-import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/services/socket_service.dart';
 import 'package:capstone_project/themes/theme.dart';

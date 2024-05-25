@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/message_model.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:capstone_project/pages/chat/preview_page.dart';
