@@ -147,6 +147,7 @@ class _FoundItemListState extends State<FoundItemList> {
                         return FoundItemListCard(
                           foundItem: data[index],
                           formattedLocationName: formattedLocationName,
+                          userId: data[index].uid,
                         );
                       },
                     ),
