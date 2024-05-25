@@ -1,4 +1,6 @@
+import 'package:capstone_project/components/filter_categories.dart';
 import 'package:capstone_project/components/lost_item_list_card.dart';
+import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
@@ -29,28 +31,46 @@ class _LostItemListState extends State<LostItemList> {
   }
 
   fetchData() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      List<List<Datum>> fetchedData =
-          await _remoteService.getLostItems(counter);
-      setState(() {
-        data = fetchedData[0];
-        if (fetchedData[1].isEmpty) {
-          isExtend = false;
-        } else {
-          isExtend = true;
-        }
-      });
-    } catch (e) {
-      print('Error fetching data: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+  try {
+    setState(() {
+      isLoading = true;
+    });
+    List<List<Datum>> fetchedData = await _remoteService.getLostItems(
+      counter: counter,
+      search: searchController.text,
+      category: selectedCategory,
+    );
+    setState(() {
+      data = fetchedData[0];
+      if (fetchedData[1].isEmpty) {
+        isExtend = false;
+      } else {
+        isExtend = true;
+      }
+    });
+  } catch (e) {
+    print('Error fetching data: $e');
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
+void searchLostItems(String query) {
+  setState(() {
+    counter = 1; // Reset to first page on search
+  });
+  fetchData();
+}
+
+void handleCategoryChanged(String? category) {
+  setState(() {
+    selectedCategory = category;
+    counter = 1; // Reset to first page on category change
+  });
+  fetchData();
+}
 
   String formatLocationName(String locationName, {int maxLength = 35}) {
     if (locationName.length <= maxLength) {
@@ -106,7 +126,7 @@ class _LostItemListState extends State<LostItemList> {
           controller: _scrollController,
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Row(
+            Row(
               children: [
                 Padding(
                   padding: EdgeInsets.only(
@@ -127,10 +147,10 @@ class _LostItemListState extends State<LostItemList> {
                   width: 12,
                 ),
                 //show search bar component
-                // SrcBar(
-                //   searchController: searchController,
-                //   onSearch: searchLostItems,
-                // ),
+                SrcBar(
+                  searchController: searchController,
+                  onSearch: searchLostItems,
+                ),
               ],
             ),
             //underline
@@ -142,14 +162,14 @@ class _LostItemListState extends State<LostItemList> {
             const SizedBox(
               height: 10,
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Column(
                   children: [
-                    // FilterCategories(
-                    //   onCategoryChanged: handleCategoryChanged,
-                    // ),
+                    FilterCategories(
+                      onCategoryChanged: handleCategoryChanged,
+                    ),
                   ],
                 ),
               ],

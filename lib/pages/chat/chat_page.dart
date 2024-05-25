@@ -126,19 +126,33 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       final String itemId = chat['itemId'];
-      late String itemName = 'Loading';
-      late String itemDate = 'Loading';
-      if (itemId.startsWith('fou')) {
-        dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
-        itemName = foundItem['itemName'] ?? '';
-        itemDate = foundItem['foundDate'] ?? '';
-      } else if (itemId.startsWith('los')) {
-        Datum? lostItem = await remoteService.getLostItemById(itemId);
-        if (lostItem != null) {
-          itemName = lostItem.itemName;
-          itemDate = lostItem.lostDate;
-        }
-      }
+late String itemName = 'Loading';
+late String itemDate = 'Loading';
+
+if (itemId.startsWith('fou')) {
+  dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
+  print(foundItem);
+  if (foundItem['status'] == 200) {
+    var data = foundItem['data'];
+    itemName = data['itemName'] ?? 'Unknown Item';
+    itemDate = data['foundDate'] ?? 'Unknown Date';
+  } else if (foundItem['status'] == 404) {
+    itemName = 'Item Not Found';
+    itemDate = '00-00-00';
+  }
+} else if (itemId.startsWith('los')) {
+  dynamic lostItem = await remoteService.getLostByIdJson(itemId);
+  print(lostItem);
+  if (lostItem['status'] == 200) {
+    var data = lostItem['data'];
+    itemName = data['itemName'] ?? 'Unknown Item';
+    itemDate = data['lostDate'] ?? 'Unknown Date';
+  } else if (lostItem['status'] == 404) {
+    itemName = 'Item Not Found';
+    itemDate = '00-00-00';
+  }
+}
+
 
       var chatBoxKey = GlobalKey<ChatBoxState>();
       var chatBox = ChatBox(

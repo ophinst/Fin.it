@@ -187,9 +187,11 @@ class _ConversationPageState extends State<ConversationPage> {
   try {
     if (itemId.startsWith('fou')) {
       dynamic foundItem = await _remoteService.getFoundByIdJson(itemId);
+      if (foundItem['status'] == 200) {
+      var data = foundItem['data'];
       if (foundItem != null) {
-        foundUserStatus = foundItem['foundUserStatus']; // Update class-level variable
-        lostUserStatus = foundItem['lostUserStatus']; // Update class-level variable
+        foundUserStatus = data['foundUserStatus']; // Update class-level variable
+        lostUserStatus = data['lostUserStatus']; // Update class-level variable
         if (!foundUserStatus && !lostUserStatus) {
           itemStatus = 'Available';
         } else if (!lostUserStatus && foundUserStatus) {
@@ -199,25 +201,31 @@ class _ConversationPageState extends State<ConversationPage> {
         } else {
           itemStatus = 'Item Claimed';
         }
-      } else {
+      } 
+    } else if (foundItem['status'] == 404) {
+        itemStatus = '---';
       }
     } else if (itemId.startsWith('los')) {
-      Datum? lostItem = await _remoteService.getLostItemById(itemId);
-      if (lostItem != null) {
-        foundUserStatus = lostItem.foundUserStatus; // Update class-level variable
-        lostUserStatus = lostItem.lostUserStatus; // Update class-level variable
-        if (!foundUserStatus && !lostUserStatus) {
-          itemStatus = 'Available';
-        } else if (!lostUserStatus && foundUserStatus) {
-          itemStatus = 'Awaiting lost user approval';
-        } else if (!foundUserStatus && lostUserStatus) {
-          itemStatus = 'Awaiting founder approval';
-        } else {
-          itemStatus = 'Item Claimed';
-        }
-      } else {
+      // Datum? lostItem = await _remoteService.getLostItemById(itemId);
+      dynamic lostItem = await _remoteService.getLostByIdJson(itemId);
+      if (lostItem['status'] == 200) {
+        var data = lostItem['data'];
+        if (lostItem != null) {
+          foundUserStatus = data['foundUserStatus']; // Update class-level variable
+          lostUserStatus = data['lostUserStatus']; // Update class-level variable
+          if (!foundUserStatus && !lostUserStatus) {
+            itemStatus = 'Available';
+          } else if (!lostUserStatus && foundUserStatus) {
+            itemStatus = 'Awaiting lost user approval';
+          } else if (!foundUserStatus && lostUserStatus) {
+            itemStatus = 'Awaiting founder approval';
+          } else {
+            itemStatus = 'Item Claimed';
+          }
+        } 
+      } else if (lostItem['status'] == 404) {
+        itemStatus = '---';
       }
-    } else {
     }
     // Update the UI after fetching item details
     setState(() {});
@@ -334,7 +342,7 @@ class _ConversationPageState extends State<ConversationPage> {
               ],
             ),
             const Spacer(),
-            if (!(foundUserStatus && lostUserStatus)) // Check if neither found nor lost
+            if (!(foundUserStatus && lostUserStatus) && itemStatus != '---') // Check if neither found nor lost
             GestureDetector(
               onTap: () {
                 Navigator.push(

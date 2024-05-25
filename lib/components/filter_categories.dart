@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 List<String> items = [
-  'All',
-  'Wallet',
-  'electronics',
-  'misc',
+  '',
+  'Phone',
+  'Jewelry',
+  'Tumbler',
+  'Glasses',
+  'Other',
 ];
 
 class FilterCategories extends StatefulWidget {
