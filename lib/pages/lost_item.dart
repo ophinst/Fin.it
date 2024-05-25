@@ -29,8 +29,6 @@ class _LostItemPageState extends State<LostItemPage> {
     _lostItemFuture = RemoteService().getLostItemById(widget.lostId!);
   }
 
-  void tagButton() {}
-
   void chatButton(BuildContext? context, Datum? lostItem) async {
     if (context == null || lostItem == null) {
       // Handle the case when the context or lostItem is null
@@ -308,29 +306,7 @@ class _LostItemPageState extends State<LostItemPage> {
                                                   .size
                                                   .width *
                                               0.8,
-                                          child: FutureBuilder<String>(
-                                            future: RemoteService()
-                                                .getLocationName(
-                                                    lostItem.latitude,
-                                                    lostItem.longitude),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Text('Loading...');
-                                              } else if (snapshot.hasError) {
-                                                return Text(
-                                                    'Error: ${snapshot.error}');
-                                              } else {
-                                                String locationName =
-                                                    snapshot.data!;
-                                                return Text(
-                                                  locationName,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                );
-                                              }
-                                            },
-                                          ),
+                                          child: Text(lostItem.locationDetail),
                                         ),
                                       ],
                                     ),
@@ -360,6 +336,7 @@ class _LostItemPageState extends State<LostItemPage> {
                             ),
                             TextFormField(
                               initialValue: lostItem.itemDescription,
+                              readOnly: true,
                               minLines: 3,
                               maxLines: 10,
                               keyboardType: TextInputType.multiline,

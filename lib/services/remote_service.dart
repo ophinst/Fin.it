@@ -82,7 +82,7 @@ class RemoteService {
     var response = await http.get(Uri.parse('$url/found/$itemId'));
     if (response.statusCode == 200) {
       var responseData = json.decode(response.body);
-      var data = responseData['data']; // Extracting the 'data' field
+      var data = responseData['data'];
       return data;
     } else {
       throw Exception('Failed to load data');
@@ -200,32 +200,6 @@ class RemoteService {
     } catch (e) {
       throw Exception('Failed to load recent activities: $e');
     }
-  }
-
-  Future<String> getLocationName(double latitude, double longitude) async {
-    final cacheKey = '$latitude,$longitude';
-    String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
-
-    // Check if location is already in cache
-    if (_locationCache.containsKey(cacheKey)) {
-      return _locationCache[cacheKey]!;
-    }
-
-    final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
-
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final decodedResponse = json.decode(response.body);
-      final results = decodedResponse['results'];
-      if (results != null && results.isNotEmpty) {
-        final locationName = results[0]['formatted_address'];
-        // Store location in cache
-        _locationCache[cacheKey] = locationName;
-        return locationName;
-      }
-    }
-    return 'Location address not found';
   }
 
   Future<Datum?> getLostItemById(String lostId) async {
@@ -448,6 +422,20 @@ class RemoteService {
     }
   }
 
+  Future<bool> deleteItem(String token, String id) async {
+    final uri = Uri.parse('$url/recent/$id');
+    final response = await http.delete(uri, headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json'
+    });
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<bool> saveFoundItem(String token, FoundModel foundItem) async {
     final foundToken = token;
     final url = Uri.https(
@@ -469,7 +457,7 @@ class RemoteService {
     }
   }
 
-  Future<void> saveLostItem(String token, LostModel lostItem) async {
+  Future<bool> saveLostItem(String token, LostModel lostItem) async {
     final lostToken = token;
     final url = Uri.https(
       'finit-api-ahawuso3sq-et.a.run.app',
@@ -499,19 +487,11 @@ class RemoteService {
 
     var response = await request.send();
 
-    if (response.statusCode == 200) {
-      print("Upload successful");
+    if (response.statusCode == 201) {
+      return true;
     } else {
-      print("Upload failed");
+      return false;
     }
-
-    response.stream.listen((value) {
-      String responseBody = String.fromCharCodes(value);
-      print("Response body: $responseBody");
-
-      Map<String, dynamic> responseJson = json.decode(responseBody);
-      print("Message from server: ${responseJson['message']}");
-    });
   }
 
   Future<void> finishLostTransaction(String token, String lostId) async {
