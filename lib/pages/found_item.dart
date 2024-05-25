@@ -18,7 +18,6 @@ class FoundItemPage extends StatelessWidget {
 
   final RemoteService _remoteService = RemoteService();
 
-  void tagButton() {}
   void chatButton(BuildContext? context) async {
     if (context == null) {
       // Handle the case when the context is null
@@ -67,6 +66,7 @@ class FoundItemPage extends StatelessWidget {
       } else {
       }
     } catch (e) {
+      print(e);
     }
   }
 
@@ -249,7 +249,7 @@ class FoundItemPage extends StatelessWidget {
                     Center(
                       child: Container(
                         width: double.infinity,
-                        height: 135,
+                        height: 300,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           boxShadow: const [
@@ -302,15 +302,15 @@ class FoundItemPage extends StatelessWidget {
                             Align(
                               alignment: const AlignmentDirectional(0, 0),
                               child: Container(
-                                width: 333,
-                                height: 73,
+                                width: double.infinity,
+                                height: 200,
                                 decoration: BoxDecoration(
                                   color: Colors.redAccent,
                                   borderRadius: BorderRadius.circular(11),
                                 ),
                                 child: SizedBox(
                                   width: double.infinity,
-                                  height: 300, // Adjust height as needed
+                                  height: 300,
                                   child: GestureDetector(
                                     onTap: () {
                                       Navigator.push(

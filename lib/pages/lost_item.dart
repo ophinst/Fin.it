@@ -29,8 +29,6 @@ class _LostItemPageState extends State<LostItemPage> {
     _lostItemFuture = RemoteService().getLostItemById(widget.lostId!);
   }
 
-  void tagButton() {}
-
   void chatButton(BuildContext? context, Datum? lostItem) async {
     if (context == null || lostItem == null) {
       // Handle the case when the context or lostItem is null
@@ -338,6 +336,7 @@ class _LostItemPageState extends State<LostItemPage> {
                             ),
                             TextFormField(
                               initialValue: lostItem.itemDescription,
+                              readOnly: true,
                               minLines: 3,
                               maxLines: 10,
                               keyboardType: TextInputType.multiline,

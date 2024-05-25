@@ -82,7 +82,7 @@ class RemoteService {
     var response = await http.get(Uri.parse('$url/found/$itemId'));
     if (response.statusCode == 200) {
       var responseData = json.decode(response.body);
-      var data = responseData['data']; // Extracting the 'data' field
+      var data = responseData['data'];
       return data;
     } else {
       throw Exception('Failed to load data');
@@ -457,7 +457,7 @@ class RemoteService {
     }
   }
 
-  Future<void> saveLostItem(String token, LostModel lostItem) async {
+  Future<bool> saveLostItem(String token, LostModel lostItem) async {
     final lostToken = token;
     final url = Uri.https(
       'finit-api-ahawuso3sq-et.a.run.app',
@@ -487,19 +487,11 @@ class RemoteService {
 
     var response = await request.send();
 
-    if (response.statusCode == 200) {
-      print("Upload successful");
+    if (response.statusCode == 201) {
+      return true;
     } else {
-      print("Upload failed");
+      return false;
     }
-
-    response.stream.listen((value) {
-      String responseBody = String.fromCharCodes(value);
-      print("Response body: $responseBody");
-
-      Map<String, dynamic> responseJson = json.decode(responseBody);
-      print("Message from server: ${responseJson['message']}");
-    });
   }
 
   Future<void> finishLostTransaction(String token, String lostId) async {

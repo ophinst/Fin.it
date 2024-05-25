@@ -2,9 +2,10 @@ import 'package:capstone_project/models/near_items_model.dart';
 import 'package:capstone_project/pages/found_item.dart';
 import 'package:capstone_project/pages/lost_item.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 import 'package:capstone_project/models/place.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({
@@ -32,14 +33,8 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng? _pickedLocation;
-
-  List<String> foundItemIds = [];
-  List<double> foundItemLatitudes = [];
-  List<double> foundItemLongitudes = [];
-
-  List<String> lostItemIds = [];
-  List<double> lostItemLatitudes = [];
-  List<double> lostItemLongitudes = [];
+  GoogleMapController? _mapController;
+  final Location _location = Location();
 
   final Set<Marker> _markers = {};
 
@@ -47,6 +42,23 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _updateMarkers();
+    if (widget.isSelecting) {
+      _setInitialLocation();
+    }
+  }
+
+  Future<void> _setInitialLocation() async {
+    try {
+      final locationData = await _location.getLocation();
+      if (locationData.latitude != null && locationData.longitude != null) {
+        setState(() {
+          _pickedLocation = LatLng(locationData.latitude!, locationData.longitude!);
+          _updateMarkers();
+        });
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
   }
 
   void _updateMarkers() {
@@ -54,10 +66,7 @@ class _MapScreenState extends State<MapScreen> {
     List<Marker> markers = [];
 
     // Markers for user's current location
-    if (_pickedLocation != null &&
-        !widget.isSelecting &&
-        widget.foundItems == null &&
-        widget.lostItems == null) {
+    if (_pickedLocation != null && !widget.isSelecting) {
       markers.add(
         Marker(
           markerId: const MarkerId('user_location'),
@@ -128,12 +137,26 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {});
   }
 
+  Future<void> _getCurrentLocation() async {
+    try {
+      final locationData = await _location.getLocation();
+      if (locationData.latitude != null && locationData.longitude != null) {
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(
+            LatLng(locationData.latitude!, locationData.longitude!),
+          ),
+        );
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.isSelecting ? 'Pick your location' : 'Your location'),
+        title: Text(widget.isSelecting ? 'Pick your location' : 'Your location'),
         actions: [
           if (widget.isSelecting)
             IconButton(
@@ -145,6 +168,14 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       body: GoogleMap(
+        onMapCreated: (controller) {
+          _mapController = controller;
+          if (widget.isSelecting) {
+            _getCurrentLocation();
+          }
+        },
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
         onTap: !widget.isSelecting
             ? null
             : (position) {
@@ -163,38 +194,34 @@ class _MapScreenState extends State<MapScreen> {
                 );
               },
         initialCameraPosition: CameraPosition(
-          target: LatLng(
+          target: _pickedLocation ?? LatLng(
             widget.location.latitude,
             widget.location.longitude,
           ),
           zoom: 16,
         ),
-        markers: (_pickedLocation != null && !widget.isSelecting)
-            ? {
-                Marker(
-                  markerId: const MarkerId('user_location'),
-                  position: _pickedLocation!,
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueRed,
-                  ),
-                ),
-                ..._markers,
-              }
-            : (_pickedLocation == null && !widget.isSelecting)
-                ? {
-                    Marker(
-                      markerId: const MarkerId('user_location'),
-                      position: LatLng(
-                        widget.location.latitude,
-                        widget.location.longitude,
-                      ),
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueRed,
-                      ),
-                    ),
-                    ..._markers, // Add all the existing markers
-                  }
-                : Set<Marker>.from(_markers),
+        markers: {
+          if (_pickedLocation != null && widget.isSelecting)
+            Marker(
+              markerId: const MarkerId('selected_location'),
+              position: _pickedLocation!,
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueRed,
+              ),
+            ),
+          if (!widget.isSelecting)
+            Marker(
+              markerId: const MarkerId('user_location'),
+              position: LatLng(
+                widget.location.latitude,
+                widget.location.longitude,
+              ),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueRed,
+              ),
+            ),
+          ..._markers,
+        },
       ),
     );
   }
