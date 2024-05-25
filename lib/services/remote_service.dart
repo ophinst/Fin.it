@@ -7,64 +7,110 @@ import 'package:capstone_project/models/lost_model.dart';
 import 'package:capstone_project/models/registerModel.dart';
 import 'package:capstone_project/models/user_model.dart';
 import 'package:capstone_project/models/voucher_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
 class RemoteService {
-  final Map<String, String> _locationCache = {};
   // final String url = "http://localhost:8080/api";
   final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
 
-  Future<List<List<Datum>>> getLostItems(int counter) async {
-    final response = await http.get(Uri.parse('$url/lost?page=$counter'));
-
-    if (response.statusCode == 200) {
-      Iterable currentList = json.decode(response.body)['data'];
-      List<Datum> currentData =
-          currentList.map((model) => Datum.fromJson(model)).toList();
-
-      final nextResponse =
-          await http.get(Uri.parse('$url/lost?page=${counter + 1}'));
-      if (nextResponse.statusCode == 200) {
-        Iterable nextList = json.decode(nextResponse.body)['data'];
-        List<Datum> nextData =
-            nextList.map((model) => Datum.fromJson(model)).toList();
-
-        return [currentData, nextData];
-      } else {
-        throw Exception('Failed to load next data');
-      }
-    } else {
-      throw Exception('Failed to load data');
-    }
+  Future<List<List<Datum>>> getLostItems({
+  required int counter,
+  String? search,
+  String? category,
+}) async {
+  String baseUrl = '$url/lost?page=$counter';
+  
+  if (search != null && search.isNotEmpty) {
+    baseUrl += '&search=$search';
+  }
+  
+  if (category != null && category.isNotEmpty) {
+    baseUrl += '&category=$category';
   }
 
-  Future<List<List<GetFoundModel>>> fetchFoundItems(int counter) async {
-    final response = await http.get(Uri.parse('$url/found?page=$counter'));
+  final response = await http.get(Uri.parse(baseUrl));
 
-    if (response.statusCode == 200) {
-      Iterable currentList = json.decode(response.body)['data'];
-      List<GetFoundModel> currentData =
-          currentList.map((model) => GetFoundModel.fromJson(model)).toList();
+  if (response.statusCode == 200) {
+    Iterable currentList = json.decode(response.body)['data'];
+    List<Datum> currentData =
+        currentList.map((model) => Datum.fromJson(model)).toList();
 
-      final nextResponse =
-          await http.get(Uri.parse('$url/found?page=${counter + 1}'));
-      if (nextResponse.statusCode == 200) {
-        Iterable nextList = json.decode(nextResponse.body)['data'];
-        List<GetFoundModel> nextData =
-            nextList.map((model) => GetFoundModel.fromJson(model)).toList();
-
-        return [currentData, nextData];
-      } else {
-        throw Exception('Failed to load next data');
-      }
-    } else {
-      throw Exception('Failed to load data');
+    String nextUrl = '$url/lost?page=${counter + 1}';
+    
+    if (search != null && search.isNotEmpty) {
+      nextUrl += '&search=$search';
     }
+    
+    if (category != null && category.isNotEmpty) {
+      nextUrl += '&category=$category';
+    }
+    
+    final nextResponse = await http.get(Uri.parse(nextUrl));
+    if (nextResponse.statusCode == 200) {
+      Iterable nextList = json.decode(nextResponse.body)['data'];
+      List<Datum> nextData =
+          nextList.map((model) => Datum.fromJson(model)).toList();
+
+      return [currentData, nextData];
+    } else {
+      throw Exception('Failed to load next data');
+    }
+  } else {
+    throw Exception('Failed to load data');
   }
+}
+
+
+  Future<List<List<GetFoundModel>>> fetchFoundItems({
+  required int counter,
+  String? search,
+  String? category,
+}) async {
+  String baseUrl = '$url/found?page=$counter';
+  
+  if (search != null && search.isNotEmpty) {
+    baseUrl += '&search=$search';
+  }
+  
+  if (category != null && category.isNotEmpty) {
+    baseUrl += '&category=$category';
+  }
+
+  final response = await http.get(Uri.parse(baseUrl));
+
+  if (response.statusCode == 200) {
+    Iterable currentList = json.decode(response.body)['data'];
+    List<GetFoundModel> currentData =
+        currentList.map((model) => GetFoundModel.fromJson(model)).toList();
+
+    String nextUrl = '$url/found?page=${counter + 1}';
+    
+    if (search != null && search.isNotEmpty) {
+      nextUrl += '&search=$search';
+    }
+    
+    if (category != null && category.isNotEmpty) {
+      nextUrl += '&category=$category';
+    }
+    
+    final nextResponse = await http.get(Uri.parse(nextUrl));
+    if (nextResponse.statusCode == 200) {
+      Iterable nextList = json.decode(nextResponse.body)['data'];
+      List<GetFoundModel> nextData =
+          nextList.map((model) => GetFoundModel.fromJson(model)).toList();
+
+      return [currentData, nextData];
+    } else {
+      throw Exception('Failed to load next data');
+    }
+  } else {
+    throw Exception('Failed to load data');
+  }
+}
+
 
   Future<List<GetFoundModel>> getFoundById(String foundId) async {
     var response = await http.get(Uri.parse('$url/found/$foundId'));
@@ -81,13 +127,21 @@ class RemoteService {
   Future<dynamic> getFoundByIdJson(String itemId) async {
     var response = await http.get(Uri.parse('$url/found/$itemId'));
     if (response.statusCode == 200) {
-      var responseData = json.decode(response.body);
-      var data = responseData['data'];
-      return data;
-    } else {
-      throw Exception('Failed to load data');
-    }
+    var responseData = json.decode(response.body);
+    return {
+      'status': 200,
+      'data': responseData['data']
+    };
+  } else if (response.statusCode == 404) {
+    var responseData = json.decode(response.body);
+    return {
+      'status': 404,
+      'message': responseData['message']
+    };
+  } else {
+    throw Exception('Failed to load data: ${response.statusCode}');
   }
+}
 
   Future<Map<String, dynamic>> getNearItems(
       double latitude, double longitude) async {
@@ -147,35 +201,35 @@ class RemoteService {
     }
   }
 
-  Future<Map<String, dynamic>> purchaseReward(String rewardId, String token) async {
-  var uri = Uri.parse('$url/reward/$rewardId');
-  
-  try {
-    final response = await http.patch(
-      uri,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+  Future<Map<String, dynamic>> purchaseReward(
+      String rewardId, String token) async {
+    var uri = Uri.parse('$url/reward/$rewardId');
 
-    if (response.statusCode == 201) {
-      // Reward purchased successfully
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      return responseData;
-    } else if (response.statusCode == 400) {
-      // Insufficient points
-      final Map<String, dynamic> errorData = json.decode(response.body);
-      return errorData;
-    } else {
-      // Handle other status codes as needed
-      throw Exception('Failed to purchase reward: ${response.statusCode}');
+    try {
+      final response = await http.patch(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 201) {
+        // Reward purchased successfully
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return responseData;
+      } else if (response.statusCode == 400) {
+        // Insufficient points
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        return errorData;
+      } else {
+        // Handle other status codes as needed
+        throw Exception('Failed to purchase reward: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to purchase reward: $e');
     }
-  } catch (e) {
-    throw Exception('Failed to purchase reward: $e');
   }
-}
-
 
   //recent activity API
   Future<Map<String, dynamic>> getRecentAct(String? token) async {
@@ -228,6 +282,57 @@ class RemoteService {
     }
     return null;
   }
+
+  Future<Map<String, dynamic>> getLostByIdJson(String itemId) async {
+  var response = await http.get(Uri.parse('$url/lost/$itemId'));
+  if (response.statusCode == 200) {
+    var responseData = json.decode(response.body);
+    return {
+      'status': 200,
+      'data': responseData['data']
+    };
+  } else if (response.statusCode == 404) {
+    var responseData = json.decode(response.body);
+    return {
+      'status': 404,
+      'message': responseData['message']
+    };
+  } else {
+    throw Exception('Failed to load data: ${response.statusCode}');
+  }
+}
+
+
+//   Future<dynamic> getLostItemById(String lostId) async {
+//   var client = http.Client();
+
+//   var uri = Uri.parse('$url/lost/$lostId');
+//   var response = await client.get(uri);
+//   if (response.statusCode == 200) {
+//     var json = response.body;
+//     print('Response: $json');
+//     var lostResponse = LostResponse.fromJson(jsonDecode(json));
+//     // If data is a list, return the first item (assuming lostId is unique)
+//     if (lostResponse.data is List<Datum>) {
+//       List<Datum> dataList = lostResponse.data;
+//       if (dataList.isNotEmpty) {
+//         return dataList.first;
+//       }
+//     }
+//     // If data is a single Datum object, return it directly
+//     if (lostResponse.data is Datum) {
+//       return lostResponse.data;
+//     }
+//   } else if (response.statusCode == 404) {
+//     var json = response.body;
+//     var lostResponse = LostResponse.fromJson(jsonDecode(json));
+//     return lostResponse.message; // Return the message from the response
+//   } else {
+//     // Handle other errors appropriately
+//     print('Failed to fetch data: ${response.statusCode}');
+//   }
+//   return null;
+// }
 
   //login
   Future<LoginResponseModel> login(LoginRequestModel loginRequestModel) async {
@@ -552,7 +657,8 @@ class RemoteService {
       ..files.add(await http.MultipartFile.fromPath(
         'image',
         imageFile.path,
-        contentType: MediaType('image', 'jpeg'), // Adjust content type as necessary
+        contentType:
+            MediaType('image', 'jpeg'), // Adjust content type as necessary
       ));
 
     var response = await request.send();
@@ -565,9 +671,10 @@ class RemoteService {
     }
   }
 
-  Future<void> updateUserData(String token, String name, String phoneNumber) async {
+  Future<void> updateUserData(
+      String token, String name, String phoneNumber) async {
     final uri = Uri.parse('$url/user');
-    
+
     try {
       final response = await http.patch(
         uri,

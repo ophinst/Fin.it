@@ -50,7 +50,8 @@ class SrcBar extends StatelessWidget {
   final Function(String) onSearch;
 
   const SrcBar({
-    required this.searchController, required this.onSearch
+    required this.searchController,
+    required this.onSearch,
   });
 
   @override
@@ -76,7 +77,11 @@ class SrcBar extends StatelessWidget {
           ]),
       child: TextFormField(
         controller: searchController,
-        onChanged: onSearch, // Call the onSearch function when text changes
+        onChanged: (value) {
+          if (value.length >= 3) {
+            onSearch(value);
+          }
+        },
         decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Search...",
@@ -91,3 +96,4 @@ class SrcBar extends StatelessWidget {
     );
   }
 }
+

@@ -1,4 +1,6 @@
+import 'package:capstone_project/components/filter_categories.dart';
 import 'package:capstone_project/components/found_item_list_card.dart';
+import 'package:capstone_project/components/search_bar.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +26,20 @@ class _FoundItemListState extends State<FoundItemList> {
   bool isExtend = false;
   ScrollController _scrollController = new ScrollController();
 
+  String? selectedCategory;
+  TextEditingController searchController = TextEditingController();
+
   fetchData() async {
     setState(() {
       isLoading = true;
     });
     try {
       List<List<GetFoundModel>> fetchedData =
-          await _remoteService.fetchFoundItems(counter);
+          await _remoteService.fetchFoundItems(
+        counter: counter,
+        search: searchController.text,
+        category: selectedCategory,
+      );
       setState(() {
         data = fetchedData[0];
 
@@ -48,6 +57,21 @@ class _FoundItemListState extends State<FoundItemList> {
       });
     }
   }
+
+  void searchFoundItems(String query) {
+  setState(() {
+    counter = 1; // Reset to first page on search
+  });
+  fetchData();
+}
+
+void handleCategoryChanged(String? category) {
+  setState(() {
+    selectedCategory = category;
+    counter = 1; // Reset to first page on category change
+  });
+  fetchData();
+}
 
   String formatLocationName(String locationName, {int maxLength = 35}) {
     if (locationName.length <= maxLength) {
@@ -101,7 +125,7 @@ class _FoundItemListState extends State<FoundItemList> {
         onRefresh: _refreshPage,
         child: Column(
           children: [
-            const Row(
+            Row(
               children: [
                 Padding(
                   padding: EdgeInsets.only(
@@ -121,7 +145,10 @@ class _FoundItemListState extends State<FoundItemList> {
                 SizedBox(
                   width: 12,
                 ),
-                // SrcBar(),
+                SrcBar(
+                  searchController: searchController,
+                  onSearch: searchFoundItems,
+                ),
               ],
             ),
             Container(
@@ -131,6 +158,18 @@ class _FoundItemListState extends State<FoundItemList> {
             ),
             const SizedBox(
               height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  children: [
+                    FilterCategories(
+                      onCategoryChanged: handleCategoryChanged,
+                    ),
+                  ],
+                ),
+              ],
             ),
             Expanded(
               child: isLoading

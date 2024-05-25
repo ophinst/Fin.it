@@ -1,11 +1,9 @@
 import 'package:capstone_project/models/userVoucher_model.dart';
 import 'package:flutter/material.dart';
-import 'package:capstone_project/models/voucher_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:capstone_project/models/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:capstone_project/components/myvoucher_card.dart';
-import 'package:flutter/foundation.dart';
 
 class MyVoucher extends StatefulWidget {
   const MyVoucher({super.key});

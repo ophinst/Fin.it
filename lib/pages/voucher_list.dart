@@ -1,4 +1,3 @@
-import 'package:capstone_project/pages/myvoucher.dart';
 import 'package:capstone_project/pages/voucher_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/services/remote_service.dart';
@@ -15,7 +14,6 @@ class VoucherList extends StatefulWidget {
 
 class _VoucherListState extends State<VoucherList> {
   List<GetVoucherModel> allVoucher = []; // Store all the fetched data
-  final RemoteService _remoteService = RemoteService();
 
   var isLoaded = false;
   final ScrollController _scrollController = ScrollController();

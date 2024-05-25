@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
 import 'package:capstone_project/pages/chat/conversation_page.dart';
 
+// ignore: must_be_immutable
 class ChatBox extends StatefulWidget {
   final String chatId;
   final String memberId;
