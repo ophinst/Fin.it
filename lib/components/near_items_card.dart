@@ -18,8 +18,9 @@ class NearItemsCard extends StatelessWidget {
             builder: (context) {
               if (foundNearItems != null) {
                 return FoundItemPage(
-                    foundItem: foundNearItems!.toGetFoundModel(),
-                    foundId: foundNearItems!.foundId);
+                  foundItem: foundNearItems!.toGetFoundModel(),
+                  foundId: foundNearItems!.foundId,
+                );
               } else {
                 return LostItemPage(lostId: lostNearItems!.lostId);
               }

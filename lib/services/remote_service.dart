@@ -302,38 +302,6 @@ class RemoteService {
   }
 }
 
-
-//   Future<dynamic> getLostItemById(String lostId) async {
-//   var client = http.Client();
-
-//   var uri = Uri.parse('$url/lost/$lostId');
-//   var response = await client.get(uri);
-//   if (response.statusCode == 200) {
-//     var json = response.body;
-//     print('Response: $json');
-//     var lostResponse = LostResponse.fromJson(jsonDecode(json));
-//     // If data is a list, return the first item (assuming lostId is unique)
-//     if (lostResponse.data is List<Datum>) {
-//       List<Datum> dataList = lostResponse.data;
-//       if (dataList.isNotEmpty) {
-//         return dataList.first;
-//       }
-//     }
-//     // If data is a single Datum object, return it directly
-//     if (lostResponse.data is Datum) {
-//       return lostResponse.data;
-//     }
-//   } else if (response.statusCode == 404) {
-//     var json = response.body;
-//     var lostResponse = LostResponse.fromJson(jsonDecode(json));
-//     return lostResponse.message; // Return the message from the response
-//   } else {
-//     // Handle other errors appropriately
-//     print('Failed to fetch data: ${response.statusCode}');
-//   }
-//   return null;
-// }
-
   //login
   Future<LoginResponseModel> login(LoginRequestModel loginRequestModel) async {
     var uriLog = Uri.parse("$url/auth/login");

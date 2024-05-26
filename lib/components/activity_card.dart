@@ -1,4 +1,7 @@
+import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/models/recentact_model.dart';
+import 'package:capstone_project/pages/found_item.dart';
+import 'package:capstone_project/pages/lost_item.dart';
 import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +14,11 @@ class ActivityCard extends StatelessWidget {
   final Function(bool) setDeleting;
 
   const ActivityCard(
-      {this.lostAct, this.foundAct, required this.onDelete, required this.setDeleting, super.key});
+      {this.lostAct,
+      this.foundAct,
+      required this.onDelete,
+      required this.setDeleting,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +115,33 @@ class ActivityCard extends StatelessWidget {
       );
     }
 
+    void _navigateToFoundItemPage(String foundId) async {
+      try {
+        var result = await RemoteService().getFoundByIdJson(foundId);
+        if(result['status'] == 200) {
+          var foundItem = GetFoundModel.fromJson(result['data']);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => FoundItemPage(foundItem: foundItem, foundId: foundId),),);
+        } else {
+          _showDialog(false, failed, result['message']);
+        }
+      } catch(error) {
+        _showDialog(false, failed, 'Error: $error');
+      } 
+    }
+
     return GestureDetector(
+      onTap: () {
+        if (foundAct != null) {
+          _navigateToFoundItemPage(foundAct!.foundId);
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LostItemPage(lostId: lostAct!.lostId),
+            ),
+          );
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Card(

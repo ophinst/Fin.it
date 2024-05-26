@@ -130,7 +130,6 @@ late String itemDate = 'Loading';
 
 if (itemId.startsWith('fou')) {
   dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
-  print(foundItem);
   if (foundItem['status'] == 200) {
     var data = foundItem['data'];
     itemName = data['itemName'] ?? 'Unknown Item';
@@ -141,7 +140,6 @@ if (itemId.startsWith('fou')) {
   }
 } else if (itemId.startsWith('los')) {
   dynamic lostItem = await remoteService.getLostByIdJson(itemId);
-  print(lostItem);
   if (lostItem['status'] == 200) {
     var data = lostItem['data'];
     itemName = data['itemName'] ?? 'Unknown Item';
@@ -313,6 +311,7 @@ if (itemId.startsWith('fou')) {
                           child: SrcBar(
                             searchController: searchController,
                             onSearch: searchChats,
+                            size: 157,
                           ),
                         ),
                       ),

@@ -128,7 +128,7 @@ void handleCategoryChanged(String? category) {
           children: <Widget>[
             Row(
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.only(
                     left: 25,
                     top: 25,
@@ -143,13 +143,14 @@ void handleCategoryChanged(String? category) {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 12,
                 ),
                 //show search bar component
                 SrcBar(
                   searchController: searchController,
                   onSearch: searchLostItems,
+                  size: 157,
                 ),
               ],
             ),
@@ -162,17 +163,20 @@ void handleCategoryChanged(String? category) {
             const SizedBox(
               height: 10,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  children: [
-                    FilterCategories(
-                      onCategoryChanged: handleCategoryChanged,
-                    ),
-                  ],
-                ),
-              ],
+            Container(
+              margin: const EdgeInsets.only(right: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Column(
+                    children: [
+                      FilterCategories(
+                        onCategoryChanged: handleCategoryChanged,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(20),
