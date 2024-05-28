@@ -6,6 +6,7 @@ import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
+import 'package:capstone_project/pages/form_lost.dart';
 
 class LostItemList extends StatefulWidget {
   const LostItemList({super.key});
@@ -27,50 +28,57 @@ class _LostItemListState extends State<LostItemList> {
   TextEditingController searchController = TextEditingController();
 
   void lostForm(BuildContext context) {
-    Navigator.pushNamed(context, '/add-lost');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FormLost(
+          onItemAdded: fetchData,
+        ),
+      ),
+    );
   }
 
   fetchData() async {
-  try {
-    setState(() {
-      isLoading = true;
-    });
-    List<List<Datum>> fetchedData = await _remoteService.getLostItems(
-      counter: counter,
-      search: searchController.text,
-      category: selectedCategory,
-    );
-    setState(() {
-      data = fetchedData[0];
-      if (fetchedData[1].isEmpty) {
-        isExtend = false;
-      } else {
-        isExtend = true;
-      }
-    });
-  } catch (e) {
-    print('Error fetching data: $e');
-  } finally {
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      List<List<Datum>> fetchedData = await _remoteService.getLostItems(
+        counter: counter,
+        search: searchController.text,
+        category: selectedCategory,
+      );
+      setState(() {
+        data = fetchedData[0];
+        if (fetchedData[1].isEmpty) {
+          isExtend = false;
+        } else {
+          isExtend = true;
+        }
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
 
-void searchLostItems(String query) {
-  setState(() {
-    counter = 1; // Reset to first page on search
-  });
-  fetchData();
-}
+  void searchLostItems(String query) {
+    setState(() {
+      counter = 1; // Reset to first page on search
+    });
+    fetchData();
+  }
 
-void handleCategoryChanged(String? category) {
-  setState(() {
-    selectedCategory = category;
-    counter = 1; // Reset to first page on category change
-  });
-  fetchData();
-}
+  void handleCategoryChanged(String? category) {
+    setState(() {
+      selectedCategory = category;
+      counter = 1; // Reset to first page on category change
+    });
+    fetchData();
+  }
 
   String formatLocationName(String locationName, {int maxLength = 35}) {
     if (locationName.length <= maxLength) {
@@ -124,7 +132,6 @@ void handleCategoryChanged(String? category) {
         onRefresh: _refreshPage,
         child: ListView(
           controller: _scrollController,
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(
               children: [
@@ -196,7 +203,7 @@ void handleCategoryChanged(String? category) {
                               crossAxisSpacing: 10),
                       itemBuilder: (context, index) {
                         String formattedLocationName = formatLocationName(
-                          data[index].locationDetail
+                          data[index].locationDetail,
                         );
                         return LostItemListCard(
                           lostItem: data[index],
@@ -250,7 +257,7 @@ void handleCategoryChanged(String? category) {
                       });
                       fetchData();
                     },
-            ), // Display the icon without an onPressed function
+            ),
           ],
         ),
       ),

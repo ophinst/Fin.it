@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:capstone_project/models/user_provider.dart';
 
 class FormLost extends StatefulWidget {
-  const FormLost({super.key});
+  final VoidCallback? onItemAdded;
+
+  const FormLost({super.key, this.onItemAdded});
 
   @override
   State<FormLost> createState() => _FormLostState();
@@ -32,48 +34,61 @@ class _FormLostState extends State<FormLost> {
   var _category = Categories.Phone.toString().split('.').last;
   PlaceLocation? _placeLocation;
   bool _isLoading = false;
+  bool _locationSelected = true;
+  bool _imageSelected = true;
   final success = 'assets/images/success.png';
   final failed = 'assets/images/fail.png';
 
   void _saveItem() async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  final token = Provider.of<UserProvider>(context, listen: false).token;
+  if (_formKey.currentState!.validate() &&
+      token != null &&
+      _placeLocation != null &&
+      _image.isNotEmpty) {
+    _formKey.currentState!.save();
+
+    String formattedDate = DateFormat('yyyy-MM-dd').format(_lostDate);
+    String formattedTime = DateFormat('HH:mm:ss').format(_lostTime);
+
+    LostModel lostItem = LostModel(
+      image: _image,
+      itemName: _itemName,
+      itemDescription: _itemDescription,
+      lostDate: formattedDate,
+      lostTime: formattedTime.toString(),
+      category: _category,
+      placeLocation: _placeLocation!,
+    );
+    bool status = await RemoteService().saveLostItem(token, lostItem);
+
     setState(() {
-      _isLoading = true;
+      _isLoading = false;
     });
 
-    final token = Provider.of<UserProvider>(context, listen: false).token;
-    if (_formKey.currentState!.validate() && token != null) {
-      _formKey.currentState!.save();
-
-      String formattedDate = DateFormat('yyyy-MM-dd').format(_lostDate);
-      String formattedTime = DateFormat('HH:mm:ss').format(_lostTime);
-
-      LostModel lostItem = LostModel(
-        image: _image,
-        itemName: _itemName,
-        itemDescription: _itemDescription,
-        lostDate: formattedDate,
-        lostTime: formattedTime.toString(),
-        category: _category,
-        placeLocation: _placeLocation!,
-      );
-      bool status = await RemoteService().saveLostItem(token, lostItem);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (status) {
-        _showDialog(status, success, 'Your lost item has been uploaded.');
-      } else {
-        _showDialog(status, failed, 'Failed to upload your lost item.');
+    if (status) {
+      if (widget.onItemAdded != null) {
+        widget.onItemAdded!();
       }
+      _showDialog(status, success, 'Your lost item has been uploaded.');
     } else {
-      setState(() {
-        _isLoading = false;
-      });
+      _showDialog(status, failed, 'Failed to upload your lost item.');
+    }
+  } else {
+    setState(() {
+      _isLoading = false;
+      _locationSelected = _placeLocation != null;
+      _imageSelected = _image.isNotEmpty;
+    });
+    if (token == null) {
       print('token is null');
     }
   }
+}
+
 
   void _showDialog(bool status, String image, String text) {
     showDialog(
@@ -99,7 +114,9 @@ class _FormLostState extends State<FormLost> {
                   text,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold,),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
@@ -152,7 +169,7 @@ class _FormLostState extends State<FormLost> {
                       const Text(
                         "Item Name",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       TextFormField(
                         keyboardType: TextInputType.multiline,
@@ -161,20 +178,20 @@ class _FormLostState extends State<FormLost> {
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide:
-                                const BorderSide(color: Colors.black, width: 3),
+                            const BorderSide(color: Colors.black, width: 3),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: const BorderSide(
-                                color: Color.fromRGBO(43, 52, 153, 1),
-                                width: 3),
+                              color: Color.fromRGBO(43, 52, 153, 1),
+                              width: 3),
                           ),
                         ),
                         validator: (value) {
                           if (value == null ||
-                              value.isEmpty ||
-                              value.trim().length <= 1 ||
-                              value.trim().length > 50) {
+                            value.isEmpty ||
+                            value.trim().length <= 1 ||
+                            value.trim().length > 50) {
                             return 'Must be between 1 and 50 characters';
                           }
                           return null;
@@ -186,19 +203,27 @@ class _FormLostState extends State<FormLost> {
                       const SizedBox(
                         height: 15,
                       ),
-                      //Image Input
+                      // Image Input
                       ImageInput(
                         onPickImage: (image) {
-                          _image = image;
+                          setState(() {
+                            _image = image;
+                            _imageSelected = true;
+                          });
                         },
                       ),
+                      if (!_imageSelected)
+                        const Text(
+                          'Image is required',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       const SizedBox(
                         height: 15,
                       ),
                       const Text(
                         "Item Detail",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       TextFormField(
                         minLines: 3,
@@ -209,20 +234,20 @@ class _FormLostState extends State<FormLost> {
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide:
-                                const BorderSide(color: Colors.black, width: 3),
+                            const BorderSide(color: Colors.black, width: 3),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: const BorderSide(
-                                color: Color.fromRGBO(43, 52, 153, 1),
-                                width: 3),
+                              color: Color.fromRGBO(43, 52, 153, 1),
+                              width: 3),
                           ),
                         ),
                         validator: (value) {
                           if (value == null ||
-                              value.isEmpty ||
-                              value.trim().length <= 1 ||
-                              value.trim().length > 256) {
+                            value.isEmpty ||
+                            value.trim().length <= 1 ||
+                            value.trim().length > 256) {
                             return 'Must be between 1 and 256 characters';
                           }
                           return null;
@@ -237,7 +262,7 @@ class _FormLostState extends State<FormLost> {
                       const Text(
                         "Date",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Center(
                         child: CupertinoButton(
@@ -251,7 +276,7 @@ class _FormLostState extends State<FormLost> {
                               builder: (context) {
                                 return Container(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.4,
+                                  MediaQuery.of(context).size.height * 0.4,
                                   color: Colors.white,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -263,9 +288,9 @@ class _FormLostState extends State<FormLost> {
                                         child: const Text(
                                           "Done",
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                              fontSize: 15),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 15),
                                         ),
                                       ),
                                       Expanded(
@@ -294,7 +319,7 @@ class _FormLostState extends State<FormLost> {
                       const Text(
                         "Time",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Center(
                         child: CupertinoButton(
@@ -308,7 +333,7 @@ class _FormLostState extends State<FormLost> {
                               builder: (context) {
                                 return Container(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.4,
+                                  MediaQuery.of(context).size.height * 0.4,
                                   color: Colors.white,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -320,9 +345,9 @@ class _FormLostState extends State<FormLost> {
                                         child: const Text(
                                           "Done",
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                              fontSize: 15),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 15),
                                         ),
                                       ),
                                       Expanded(
@@ -351,7 +376,7 @@ class _FormLostState extends State<FormLost> {
                       const Text(
                         "Categories",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       DropdownButtonFormField<String>(
                         value: _category,
@@ -365,7 +390,7 @@ class _FormLostState extends State<FormLost> {
                           });
                         },
                         items: getCategories()
-                            .map<DropdownMenuItem<String>>((String value) {
+                          .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -378,7 +403,7 @@ class _FormLostState extends State<FormLost> {
                       const Text(
                         "Last Location",
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Column(
                         children: [
@@ -403,6 +428,8 @@ class _FormLostState extends State<FormLost> {
                                   onSelectLocation: (location) {
                                     setState(() {
                                       _placeLocation = location;
+                                      _locationSelected =
+                                          true;
                                     });
                                   },
                                 ),
@@ -411,8 +438,18 @@ class _FormLostState extends State<FormLost> {
                                 ),
                                 Text(
                                   _placeLocation?.locationDetail ??
-                                      'Location Detail',
+                                    'Location Detail',
+                                  style: TextStyle(
+                                    color: _locationSelected
+                                        ? Colors.black
+                                        : Colors.red,
+                                  ),
                                 ),
+                                if (!_locationSelected)
+                                  const Text(
+                                    'Location is required',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
                               ],
                             ),
                           ),

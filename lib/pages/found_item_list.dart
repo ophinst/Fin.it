@@ -6,6 +6,7 @@ import 'package:capstone_project/services/remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:capstone_project/components/widgets/compose.dart';
 import 'package:capstone_project/components/widgets/extd_compose.dart';
+import 'package:capstone_project/pages/form_found.dart'; // Make sure to import FormFound
 
 class FoundItemList extends StatefulWidget {
   const FoundItemList({super.key});
@@ -16,7 +17,14 @@ class FoundItemList extends StatefulWidget {
 
 class _FoundItemListState extends State<FoundItemList> {
   void foundForm(BuildContext context) {
-    Navigator.pushNamed(context, '/add-found');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FormFound(
+          onItemAdded: fetchData, // Pass the fetchData function as the callback
+        ),
+      ),
+    );
   }
 
   List<GetFoundModel> data = [];
@@ -24,7 +32,7 @@ class _FoundItemListState extends State<FoundItemList> {
   final RemoteService _remoteService = RemoteService();
   bool isLoading = true;
   bool isExtend = false;
-  ScrollController _scrollController = new ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   String? selectedCategory;
   TextEditingController searchController = TextEditingController();
@@ -59,19 +67,19 @@ class _FoundItemListState extends State<FoundItemList> {
   }
 
   void searchFoundItems(String query) {
-  setState(() {
-    counter = 1; // Reset to first page on search
-  });
-  fetchData();
-}
+    setState(() {
+      counter = 1; // Reset to first page on search
+    });
+    fetchData();
+  }
 
-void handleCategoryChanged(String? category) {
-  setState(() {
-    selectedCategory = category;
-    counter = 1; // Reset to first page on category change
-  });
-  fetchData();
-}
+  void handleCategoryChanged(String? category) {
+    setState(() {
+      selectedCategory = category;
+      counter = 1; // Reset to first page on category change
+    });
+    fetchData();
+  }
 
   String formatLocationName(String locationName, {int maxLength = 35}) {
     if (locationName.length <= maxLength) {

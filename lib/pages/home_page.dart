@@ -382,7 +382,6 @@ class _HomePageState extends State<HomePage> {
                                               ...foundItems,
                                               ...lostItems
                                             ];
-                                            combinedItems.shuffle();
                                             return Padding(
                                               padding: const EdgeInsets.only(
                                                   bottom: 10),

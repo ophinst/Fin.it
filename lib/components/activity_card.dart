@@ -13,12 +13,13 @@ class ActivityCard extends StatelessWidget {
   final VoidCallback onDelete;
   final Function(bool) setDeleting;
 
-  const ActivityCard(
-      {this.lostAct,
-      this.foundAct,
-      required this.onDelete,
-      required this.setDeleting,
-      super.key});
+  const ActivityCard({
+    this.lostAct,
+    this.foundAct,
+    required this.onDelete,
+    required this.setDeleting,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +84,7 @@ class ActivityCard extends StatelessWidget {
       } catch (error) {
         print(error);
       } finally {
-        setDeleting(false); // Add this line
+        setDeleting(false);
       }
     }
 
@@ -118,15 +119,23 @@ class ActivityCard extends StatelessWidget {
     void _navigateToFoundItemPage(String foundId) async {
       try {
         var result = await RemoteService().getFoundByIdJson(foundId);
-        if(result['status'] == 200) {
+        if (result['status'] == 200) {
           var foundItem = GetFoundModel.fromJson(result['data']);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => FoundItemPage(foundItem: foundItem, foundId: foundId),),);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FoundItemPage(
+                foundItem: foundItem,
+                foundId: foundId,
+              ),
+            ),
+          );
         } else {
           _showDialog(false, failed, result['message']);
         }
-      } catch(error) {
+      } catch (error) {
         _showDialog(false, failed, 'Error: $error');
-      } 
+      }
     }
 
     return GestureDetector(
