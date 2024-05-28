@@ -211,7 +211,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       goLoginPage(context);
                     },
                     child: const Text(
-                      'Sign Up',
+                      'Sign in',
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 14,

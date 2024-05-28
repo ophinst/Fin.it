@@ -21,7 +21,8 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController searchController = TextEditingController();
   List<GlobalKey<ChatBoxState>> chatBoxKeys = []; // Store keys for each ChatBox
   List<ChatBox> chatBoxes = []; // List to store ChatBox widgets
-  List<ChatBox> filteredChatBoxes = []; // List to store filtered ChatBox widgets
+  List<ChatBox> filteredChatBoxes =
+      []; // List to store filtered ChatBox widgets
 
   final RemoteService remoteService = RemoteService();
 
@@ -49,7 +50,8 @@ class _ChatPageState extends State<ChatPage> {
       final uid = Provider.of<UserProvider>(context, listen: false).uid;
 
       if (token != null) {
-        final dynamic response = await remoteService.getChats(token).catchError((e) {
+        final dynamic response =
+            await remoteService.getChats(token).catchError((e) {
           throw e;
         });
 
@@ -68,7 +70,8 @@ class _ChatPageState extends State<ChatPage> {
 
           await Future.wait(futures); // Wait for all futures to complete
 
-          chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+          chatBoxes.sort((a, b) =>
+              b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
           if (!isDisposed) {
             setState(() {
               filteredChatBoxes = List.from(chatBoxes);
@@ -92,7 +95,8 @@ class _ChatPageState extends State<ChatPage> {
     final List<dynamic>? members = chat['members'];
 
     if (members != null && uid != null) {
-      final filteredMembers = members.where((memberId) => memberId != uid).toList();
+      final filteredMembers =
+          members.where((memberId) => memberId != uid).toList();
       String memberId = filteredMembers.first;
       String memberName = '';
       String memberImage = '';
@@ -100,16 +104,20 @@ class _ChatPageState extends State<ChatPage> {
       String recentMessageCreatedAt = '2000-01-01T00:00:00.000Z';
 
       if (filteredMembers.isNotEmpty) {
-        final user = await remoteService.getUserById(filteredMembers.first).catchError((e) {
+        final user = await remoteService
+            .getUserById(filteredMembers.first)
+            .catchError((e) {
           throw e;
         });
         if (user != null) {
           memberName = user.name;
-          memberImage = user.image ?? 'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
+          memberImage = user.image ??
+              'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
         }
       }
 
-      final List<Message> messagesResponse = await remoteService.getMessages(chat['chatId']).catchError((e) {
+      final List<Message> messagesResponse =
+          await remoteService.getMessages(chat['chatId']).catchError((e) {
         throw e;
       });
       if (messagesResponse.isNotEmpty) {
@@ -125,31 +133,30 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       final String itemId = chat['itemId'];
-late String itemName = 'Loading';
-late String itemDate = 'Loading';
+      late String itemName = 'Loading';
+      late String itemDate = 'Loading';
 
-if (itemId.startsWith('fou')) {
-  dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
-  if (foundItem['status'] == 200) {
-    var data = foundItem['data'];
-    itemName = data['itemName'] ?? 'Unknown Item';
-    itemDate = data['foundDate'] ?? 'Unknown Date';
-  } else if (foundItem['status'] == 404) {
-    itemName = 'Item Not Found';
-    itemDate = '00-00-00';
-  }
-} else if (itemId.startsWith('los')) {
-  dynamic lostItem = await remoteService.getLostByIdJson(itemId);
-  if (lostItem['status'] == 200) {
-    var data = lostItem['data'];
-    itemName = data['itemName'] ?? 'Unknown Item';
-    itemDate = data['lostDate'] ?? 'Unknown Date';
-  } else if (lostItem['status'] == 404) {
-    itemName = 'Item Not Found';
-    itemDate = '00-00-00';
-  }
-}
-
+      if (itemId.startsWith('fou')) {
+        dynamic foundItem = await remoteService.getFoundByIdJson(itemId);
+        if (foundItem['status'] == 200) {
+          var data = foundItem['data'];
+          itemName = data['itemName'] ?? 'Unknown Item';
+          itemDate = data['foundDate'] ?? 'Unknown Date';
+        } else if (foundItem['status'] == 404) {
+          itemName = 'Item Not Found';
+          itemDate = '00-00-00';
+        }
+      } else if (itemId.startsWith('los')) {
+        dynamic lostItem = await remoteService.getLostByIdJson(itemId);
+        if (lostItem['status'] == 200) {
+          var data = lostItem['data'];
+          itemName = data['itemName'] ?? 'Unknown Item';
+          itemDate = data['lostDate'] ?? 'Unknown Date';
+        } else if (lostItem['status'] == 404) {
+          itemName = 'Item Not Found';
+          itemDate = '00-00-00';
+        }
+      }
 
       var chatBoxKey = GlobalKey<ChatBoxState>();
       var chatBox = ChatBox(
@@ -179,7 +186,9 @@ if (itemId.startsWith('fou')) {
     if (!isDisposed) {
       setState(() {
         filteredChatBoxes = chatBoxes.where((chatBox) {
-          return chatBox.memberName.toLowerCase().contains(query.toLowerCase()) ||
+          return chatBox.memberName
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
               chatBox.recentMessage.toLowerCase().contains(query.toLowerCase());
         }).toList();
       });
@@ -199,7 +208,8 @@ if (itemId.startsWith('fou')) {
     if (receiverId == uid && senderId != uid) {
       if (!isDisposed) {
         setState(() {
-          int chatBoxIndex = chatBoxKeys.indexWhere((key) => key.currentState?.widget.chatId == chatId);
+          int chatBoxIndex = chatBoxKeys
+              .indexWhere((key) => key.currentState?.widget.chatId == chatId);
           if (chatBoxIndex != -1) {
             var chatBox = chatBoxes.removeAt(chatBoxIndex);
             chatBoxes.insert(0, chatBox);
@@ -210,7 +220,8 @@ if (itemId.startsWith('fou')) {
             } else if (imageUrl != null) {
               chatBoxKeys[0].currentState?.updateRecentMessage(messageText);
             }
-            chatBoxes.sort((a, b) => b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
+            chatBoxes.sort((a, b) =>
+                b.recentMessageCreatedAt.compareTo(a.recentMessageCreatedAt));
             filteredChatBoxes = List.from(chatBoxes);
           }
         });
@@ -290,7 +301,8 @@ if (itemId.startsWith('fou')) {
                         child: GestureDetector(
                           onTap: fetchChats,
                           child: Icon(
-                            Icons.refresh, color: primaryColor,
+                            Icons.refresh,
+                            color: primaryColor,
                           ),
                         ),
                       ),
@@ -323,19 +335,29 @@ if (itemId.startsWith('fou')) {
                     children: [
                       isLoading
                           ? const CircularProgressIndicator()
-                          : Column(
-                              children: [
-                                for (var chatBox in filteredChatBoxes)
-                                  Column(
-                                    children: [
-                                      chatBox,
-                                      const SizedBox(
-                                        height: 10,
-                                      ), // Add SizedBox between ChatBoxes
-                                    ],
+                          : filteredChatBoxes.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'No chats',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                              ],
-                            ),
+                                )
+                              : Column(
+                                  children: [
+                                    for (var chatBox in filteredChatBoxes)
+                                      Column(
+                                        children: [
+                                          chatBox,
+                                          const SizedBox(
+                                            height: 10,
+                                          ), // Add SizedBox between ChatBoxes
+                                        ],
+                                      ),
+                                  ],
+                                ),
                     ],
                   ),
                   const SizedBox(height: 10),

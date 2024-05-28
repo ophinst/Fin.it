@@ -205,7 +205,7 @@ class _FormLostState extends State<FormLost> {
                         maxLines: 10,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          labelText: "Massages...",
+                          labelText: "Messages...",
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide:

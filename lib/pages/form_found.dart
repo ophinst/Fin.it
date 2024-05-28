@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:capstone_project/models/category.dart';
 import 'package:capstone_project/models/place.dart';
 import 'package:capstone_project/components/my_button.dart';
-import 'package:capstone_project/components/search_loc.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
@@ -103,9 +102,9 @@ class _FormFoundState extends State<FormFound> {
       });
 
       if (status) {
-        _showDialog(status, success, 'Your lost item has been uploaded.');
+        _showDialog(status, success, 'Your found item has been uploaded.');
       } else {
-        _showDialog(status, failed, 'Failed to upload your lost item.');
+        _showDialog(status, failed, 'Failed to upload your found item.');
       }
     } else {
       setState(() {
@@ -180,7 +179,7 @@ class _FormFoundState extends State<FormFound> {
                         height: 15,
                       ),
                       const Text(
-                        "Broadcast Massages",
+                        "Broadcast Messages",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       TextFormField(
@@ -188,7 +187,7 @@ class _FormFoundState extends State<FormFound> {
                         maxLines: 10,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          labelText: "Massages...",
+                          labelText: "Messages...",
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: const BorderSide(color: Colors.black, width: 3),
@@ -371,13 +370,18 @@ class _FormFoundState extends State<FormFound> {
                               children: [
                                 LocationInput(
                                   onSelectLocation: (location) {
-                                    _placeLocation = location;
+                                    setState(() {
+                                      _placeLocation = location;
+                                    });
                                   },
                                 ),
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const SrcLoc(),
+                                Text(
+                                  _placeLocation?.locationDetail ??
+                                      'Location Detail',
+                                ),
                                 const SizedBox(
                                   height: 10,
                                 ),

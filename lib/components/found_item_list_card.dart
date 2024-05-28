@@ -71,7 +71,7 @@ class _FoundItemListCardState extends State<FoundItemListCard> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(widget.foundItem.foundOwner),
+                    Text(widget.foundItem.itemName),
                     Text(widget.foundItem.foundDate),
                   ],
                 ),

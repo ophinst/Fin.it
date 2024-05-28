@@ -405,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                                         )
                                       : const Center(
                                           child: Text(
-                                            'No Recent Activity',
+                                            'No Near Items',
                                             style: TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
