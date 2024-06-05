@@ -48,10 +48,13 @@ class AnotherSearchBar extends StatelessWidget {
 class SrcBar extends StatefulWidget {
   final TextEditingController searchController;
   final Function(String) onSearch;
+  final double size;
 
   const SrcBar({
     required this.searchController,
     required this.onSearch,
+    required this.size,
+    super.key
   });
 
   @override
@@ -65,7 +68,7 @@ class _SrcBarState extends State<SrcBar> {
       margin: const EdgeInsets.only(
         top: 10,
       ),
-      width: 127,
+      width: widget.size,
       height: 45,
       alignment: Alignment.center,
       decoration: BoxDecoration(

@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:capstone_project/models/category.dart';
 import 'package:capstone_project/models/place.dart';
 import 'package:capstone_project/components/my_button.dart';
-import 'package:capstone_project/components/search_loc.dart';
 import 'package:intl/intl.dart';
 import 'package:capstone_project/models/found_model.dart';
 import 'package:capstone_project/services/remote_service.dart';
@@ -12,7 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:capstone_project/models/user_provider.dart';
 
 class FormFound extends StatefulWidget {
-  const FormFound({super.key});
+  final VoidCallback? onItemAdded;
+
+  const FormFound({super.key, this.onItemAdded});
 
   @override
   State<FormFound> createState() => _FormFoundState();
@@ -25,6 +26,16 @@ class _FormFoundState extends State<FormFound> {
 
   final success = 'assets/images/success.png';
   final failed = 'assets/images/fail.png';
+
+  final _formKey = GlobalKey<FormState>();
+  var _itemName = '';
+  var _itemDescription = '';
+  var _foundDate = DateTime.now();
+  var _foundTime = DateTime.now();
+  var _category = Categories.Phone.toString().split('.').last;
+  PlaceLocation? _placeLocation;
+  bool _isLoading = false;
+  bool _locationSelected = true;
 
   void _showDialog(bool status, String image, String text) {
     showDialog(
@@ -49,7 +60,8 @@ class _FormFoundState extends State<FormFound> {
                 Text(
                   text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
                   height: 20,
@@ -69,22 +81,15 @@ class _FormFoundState extends State<FormFound> {
     );
   }
 
-  final _formKey = GlobalKey<FormState>();
-  var _itemName = '';
-  var _itemDescription = '';
-  var _foundDate = DateTime.now();
-  var _foundTime = DateTime.now();
-  var _category = Categories.Phone.toString().split('.').last;
-  PlaceLocation? _placeLocation;
-  bool _isLoading = false;
-
   void _saveItem() async {
     setState(() {
       _isLoading = true;
     });
 
     final token = Provider.of<UserProvider>(context, listen: false).token;
-    if (_formKey.currentState!.validate() && token != null) {
+    if (_formKey.currentState!.validate() &&
+        token != null &&
+        _placeLocation != null) {
       _formKey.currentState!.save();
       String formattedDate = DateFormat('yyyy-MM-dd').format(_foundDate);
       String formattedTime = DateFormat('HH:mm:ss').format(_foundTime);
@@ -103,15 +108,21 @@ class _FormFoundState extends State<FormFound> {
       });
 
       if (status) {
-        _showDialog(status, success, 'Your lost item has been uploaded.');
+        if (widget.onItemAdded != null) {
+          widget.onItemAdded!(); // Call the callback function
+        }
+        _showDialog(status, success, 'Your found item has been uploaded.');
       } else {
-        _showDialog(status, failed, 'Failed to upload your lost item.');
+        _showDialog(status, failed, 'Failed to upload your found item.');
       }
     } else {
       setState(() {
         _isLoading = false;
+        _locationSelected = _placeLocation != null;
       });
-      print('token is null');
+      if (token == null) {
+        print('token is null');
+      }
     }
   }
 
@@ -147,7 +158,8 @@ class _FormFoundState extends State<FormFound> {
                     children: [
                       const Text(
                         "Item Name",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       TextFormField(
                         keyboardType: TextInputType.multiline,
@@ -155,12 +167,14 @@ class _FormFoundState extends State<FormFound> {
                           labelText: "Input Item Name Here",
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Colors.black, width: 3),
+                            borderSide:
+                                const BorderSide(color: Colors.black, width: 3),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: const BorderSide(
-                                color: Color.fromRGBO(43, 52, 153, 1), width: 3),
+                                color: Color.fromRGBO(43, 52, 153, 1),
+                                width: 3),
                           ),
                         ),
                         validator: (value) {
@@ -180,23 +194,26 @@ class _FormFoundState extends State<FormFound> {
                         height: 15,
                       ),
                       const Text(
-                        "Broadcast Massages",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        "Broadcast Messages",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       TextFormField(
                         minLines: 3,
                         maxLines: 10,
                         keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
-                          labelText: "Massages...",
+                          labelText: "Messages...",
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Colors.black, width: 3),
+                            borderSide:
+                                const BorderSide(color: Colors.black, width: 3),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: const BorderSide(
-                                color: Color.fromRGBO(43, 52, 153, 1), width: 3),
+                                color: Color.fromRGBO(43, 52, 153, 1),
+                                width: 3),
                           ),
                         ),
                         validator: (value) {
@@ -217,7 +234,8 @@ class _FormFoundState extends State<FormFound> {
                       ),
                       const Text(
                         "Date",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Center(
                         child: CupertinoButton(
@@ -230,7 +248,8 @@ class _FormFoundState extends State<FormFound> {
                               context: context,
                               builder: (context) {
                                 return Container(
-                                  height: MediaQuery.of(context).size.height * 0.4,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
                                   color: Colors.white,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -251,8 +270,10 @@ class _FormFoundState extends State<FormFound> {
                                         child: CupertinoDatePicker(
                                           backgroundColor: Colors.white,
                                           initialDateTime: _foundDate,
-                                          onDateTimeChanged: (DateTime newTime) {
-                                            setState(() => _foundDate = newTime);
+                                          onDateTimeChanged:
+                                              (DateTime newTime) {
+                                            setState(
+                                                () => _foundDate = newTime);
                                           },
                                           use24hFormat: true,
                                           mode: CupertinoDatePickerMode.date,
@@ -268,7 +289,8 @@ class _FormFoundState extends State<FormFound> {
                       ),
                       const Text(
                         "Time",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Center(
                         child: CupertinoButton(
@@ -281,7 +303,8 @@ class _FormFoundState extends State<FormFound> {
                               context: context,
                               builder: (context) {
                                 return Container(
-                                  height: MediaQuery.of(context).size.height * 0.4,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.4,
                                   color: Colors.white,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -302,8 +325,10 @@ class _FormFoundState extends State<FormFound> {
                                         child: CupertinoDatePicker(
                                           backgroundColor: Colors.white,
                                           initialDateTime: _foundDate,
-                                          onDateTimeChanged: (DateTime newTime) {
-                                            setState(() => _foundTime = newTime);
+                                          onDateTimeChanged:
+                                              (DateTime newTime) {
+                                            setState(
+                                                () => _foundTime = newTime);
                                           },
                                           use24hFormat: true,
                                           mode: CupertinoDatePickerMode.time,
@@ -322,7 +347,8 @@ class _FormFoundState extends State<FormFound> {
                       ),
                       const Text(
                         "Categories",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       DropdownButtonFormField<String>(
                         value: _category,
@@ -348,7 +374,8 @@ class _FormFoundState extends State<FormFound> {
                       ),
                       const Text(
                         "Last Location",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       Column(
                         children: [
@@ -371,13 +398,29 @@ class _FormFoundState extends State<FormFound> {
                               children: [
                                 LocationInput(
                                   onSelectLocation: (location) {
-                                    _placeLocation = location;
+                                    setState(() {
+                                      _placeLocation = location;
+                                      _locationSelected = true;
+                                    });
                                   },
                                 ),
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const SrcLoc(),
+                                Text(
+                                  _placeLocation?.locationDetail ??
+                                      'Location Detail',
+                                  style: TextStyle(
+                                    color: _locationSelected
+                                        ? Colors.black
+                                        : Colors.red,
+                                  ),
+                                ),
+                                if (!_locationSelected)
+                                  const Text(
+                                    'Location is required',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
                                 const SizedBox(
                                   height: 10,
                                 ),

@@ -55,11 +55,14 @@ class _ActivityListState extends State<ActivityList> {
   void setDeleting(bool deleting) {
     setState(() {
       isDeleting = deleting;
+      getRecentActivity();
     });
   }
 
   Future<void> _refreshPage() async {
-    getRecentActivity();
+    setState(() {
+      getRecentActivity();
+    });
   }
 
   @override
@@ -137,7 +140,6 @@ class _ActivityListState extends State<ActivityList> {
                                   ...allFound,
                                   ...allLost,
                                 ];
-                                combinedItems.shuffle();
                                 return ActivityCard(
                                   lostAct: combinedItems[index] is LostAct
                                       ? combinedItems[index] as LostAct

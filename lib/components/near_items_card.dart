@@ -18,8 +18,9 @@ class NearItemsCard extends StatelessWidget {
             builder: (context) {
               if (foundNearItems != null) {
                 return FoundItemPage(
-                    foundItem: foundNearItems!.toGetFoundModel(),
-                    foundId: foundNearItems!.foundId);
+                  foundItem: foundNearItems!.toGetFoundModel(),
+                  foundId: foundNearItems!.foundId,
+                );
               } else {
                 return LostItemPage(lostId: lostNearItems!.lostId);
               }
@@ -59,9 +60,13 @@ class NearItemsCard extends StatelessWidget {
                           children: [
                             Text(
                               foundNearItems != null
-                                  ? foundNearItems!.itemName
+                                  ? foundNearItems!.itemName.length <= 10
+                                      ? foundNearItems!.itemName
+                                      : '${foundNearItems!.itemName.substring(0, 10)}...'
                                   : (lostNearItems != null
-                                      ? lostNearItems!.itemName
+                                      ? lostNearItems!.itemName.length <= 10
+                                          ? lostNearItems!.itemName
+                                          : '${lostNearItems!.itemName.substring(0, 10)}...'
                                       : ''),
                               style: const TextStyle(
                                   fontWeight: FontWeight.w700,

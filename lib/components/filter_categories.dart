@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 List<String> items = [
   '',
   'Phone',
+  'Wallet',
+  'Card',
+  'Watch',
   'Jewelry',
   'Tumbler',
   'Glasses',

@@ -20,7 +20,6 @@ class FoundItemPage extends StatelessWidget {
 
   void chatButton(BuildContext? context) async {
     if (context == null) {
-      // Handle the case when the context is null
       return;
     }
 
