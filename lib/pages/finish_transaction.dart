@@ -36,51 +36,106 @@ class _FinishTransactionState extends State<FinishTransaction> {
     );
     // Navigate back to the homepage after a delay
     Future.delayed(const Duration(seconds: 2), () {
-      // Navigator.pop(context);
       Navigator.popAndPushNamed(context, '/home');
     });
   }
 
   // Function to handle finishing transaction based on item ID
-Future<void> finishTransaction(String token) async {
-  try {
-    if (widget.itemId.startsWith('fou')) {
-      // If itemId starts with 'fou'
-      dynamic foundItem =
-          await _remoteService.getFoundByIdJson(widget.itemId);
-      if (foundItem != null) {
-        await _remoteService.finishFoundTransaction(
-            token, widget.itemId); // Finish found transaction
-        // Call finishTrans upon successful completion
-        finishTrans(context);
+  Future<void> finishTransaction(String token) async {
+    try {
+      if (widget.itemId.startsWith('fou')) {
+        dynamic foundItem =
+            await _remoteService.getFoundByIdJson(widget.itemId);
+        if (foundItem != null) {
+          await _remoteService.finishFoundTransaction(
+              token, widget.itemId); // Finish found transaction
+          finishTrans(context); // Call finishTrans upon successful completion
+        } else {
+          print('Found item not found for ID: ${widget.itemId}');
+        }
+      } else if (widget.itemId.startsWith('los')) {
+        Datum? lostItem = await _remoteService.getLostItemById(widget.itemId);
+        if (lostItem != null) {
+          await _remoteService.finishLostTransaction(
+              token, widget.itemId); // Finish lost transaction
+          finishTrans(context); // Call finishTrans upon successful completion
+        } else {
+          print('Lost item not found for ID: ${widget.itemId}');
+        }
       } else {
-        print('Found item not found for ID: ${widget.itemId}');
+        print('Invalid itemId format');
       }
-    } else if (widget.itemId.startsWith('los')) {
-      // If itemId starts with 'los'
-      Datum? lostItem = await _remoteService.getLostItemById(widget.itemId);
-      if (lostItem != null) {
-        await _remoteService.finishLostTransaction(
-            token, widget.itemId); // Finish lost transaction
-        // Call finishTrans upon successful completion
-        finishTrans(context);
-      } else {
-        print('Lost item not found for ID: ${widget.itemId}');
-      }
-    } else {
-      print('Invalid itemId format');
+    } catch (e) {
+      print('Error finishing transaction: $e');
     }
-  } catch (e) {
-    print('Error finishing transaction: $e');
   }
-}
 
+  // Function to show confirmation dialog
+  Future<void> _showConfirmationDialog(String image, String text) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(image),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        final token =
+                            Provider.of<UserProvider>(context, listen: false)
+                                    .token ??
+                                '';
+                        finishTransaction(token);
+                      },
+                      child: const Text('Yes'),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('No'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
-    super.initState;
-    // print('Found user ${widget.foundUserStatus}');
-    // print('Lost user ${widget.lostUserStatus}');
+    super.initState();
   }
 
   @override
@@ -163,17 +218,17 @@ Future<void> finishTransaction(String token) async {
                       fontFamily: 'JosefinSans',
                     ),
                   ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text(
-                widget.itemDate,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  fontFamily: 'JosefinSans',
-                ),
-              ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    widget.itemDate,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'JosefinSans',
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -226,15 +281,14 @@ Future<void> finishTransaction(String token) async {
         width: 350,
         child: FloatingActionButton(
           onPressed: () {
-            final token =
-                Provider.of<UserProvider>(context, listen: false).token ?? '';
-            finishTransaction(token);
+            _showConfirmationDialog('assets/images/tandatanya.png',
+                'Are you sure you want to finish this transaction?');
           },
+          backgroundColor: const Color.fromRGBO(43, 52, 153, 1),
           child: const Text(
             'Finish Transaction',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: const Color.fromRGBO(43, 52, 153, 1),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

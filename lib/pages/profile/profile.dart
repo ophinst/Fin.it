@@ -22,6 +22,8 @@ class _ProfilePageState extends State<ProfilePage> {
       'https://storage.googleapis.com/ember-finit/lostImage/fin-H8xduSgoh6/93419946.jpeg';
   final ImagePicker _picker = ImagePicker();
   final RemoteService remoteService = RemoteService();
+  var ktpImage = '';
+  bool _imageSelected = true;
 
   late TextEditingController _nameController;
   late TextEditingController _emailController;
@@ -81,41 +83,64 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfilePreview(
-            imageUrl: pickedFile.path,
-            onSave: (String newImageUrl) async {
-              final userProvider = Provider.of<UserProvider>(context, listen: false);
-              final token = userProvider.token ?? '';
-              try {
-                await remoteService.updateProfilePicture(token, File(newImageUrl));
-                setState(() {
-                  userImage = newImageUrl;
-                });
-                _scaffoldMessengerKey.currentState?.showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile picture updated successfully'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              } catch (e) {
-                _scaffoldMessengerKey.currentState?.showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update profile picture: $e'),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
+      setState(() {
+        ktpImage = pickedFile.path;
+        _imageSelected = true;
+      });
+
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final token = userProvider.token ?? '';
+
+      try {
+        await remoteService.updateKTPPicture(token, File(ktpImage));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('KTP added successfully'),
+            duration: Duration(seconds: 2),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload KTP: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
+  }
+
+  Future<void> _showImageSourceActionSheet() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Take a photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // Method to navigate to ImagePreviewPage and handle the result
@@ -198,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       height: 10,
                     ),
                     InkWell(
-                      onTap: _pickImage,
+                      onTap: () => _showImageSourceActionSheet(),
                       child: Text(
                         'Edit Picture',
                         style: TextStyle(
@@ -288,6 +313,58 @@ class _ProfilePageState extends State<ProfilePage> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.black),
                       ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Row(
+              children: [
+                Text('KTP Image'),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _showImageSourceActionSheet,
+                    child: Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ktpImage.isEmpty
+                          ? const Center(child: Text('Tap to select KTP image'))
+                          : Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: Image.file(File(ktpImage), fit: BoxFit.cover),
+                                ),
+                                Positioned(
+                                  right: 8,
+                                  bottom: 8,
+                                  child: InkWell(
+                                    onTap: () => _showImageSourceActionSheet(),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black54,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                 ),
