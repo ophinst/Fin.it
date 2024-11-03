@@ -3,8 +3,9 @@ class LoginResponseModel {
   final String? error;
   final String? name;
   final String? uid;
+  final String? role;
 
-  LoginResponseModel({this.token, this.error, this.name, this.uid});
+  LoginResponseModel({this.token, this.error, this.name, this.uid, this.role});
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     var data = json['data'];
@@ -14,6 +15,7 @@ class LoginResponseModel {
     var token = data is Map<String, dynamic> ? data['token'] as String? : null;
     var name = data != null ? data['name'] as String? : null;
     var uid = data != null ? data['uid'] as String? : null;
+    var role = data != null ? data['role'] as String? : null;
 
     // Check if mess is a Map, otherwise try to use it as a String
     var error =
@@ -24,6 +26,7 @@ class LoginResponseModel {
       error: error,
       name: name,
       uid: uid,
+      role: role,
     );
   }
 }

@@ -45,9 +45,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // sign user in method
-  void signUserIn(BuildContext context, String name, String uid, String token) {
+  void signUserIn(BuildContext context, String name, String uid, String token, String role) {
     // Navigate to the HomePage
     Navigator.pushNamed(context, '/home', arguments: name);
+  }
+  void signAdminIn(BuildContext context, String name, String uid, String token, String role) {
+    // Navigate to the HomePage
+    Navigator.pushNamed(context, '/admin', arguments: name);
   }
 
   void signUserUp(BuildContext context) {
@@ -145,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                             isApiCallProcess = false;
                           });
                           //check token available or not
-                          if (value.token != null && value.token!.isNotEmpty) {
+                          if (value.token != null && value.token!.isNotEmpty && value.role == 'admin') {
                             const snackBar =
                                 SnackBar(content: Text("Login Successful"));
                             ScaffoldMessenger.of(context)
@@ -156,11 +160,26 @@ class _LoginPageState extends State<LoginPage> {
                                 listen: false);
                             // Update the user's data in the provider
                             userProvider.updateUserData(
-                                value.uid!, value.name!, value.token!);
+                                value.uid!, value.name!, value.token!, value.role!);
+                            userProvider.saveUserData();
+                            signAdminIn(
+                                context, value.name!, value.token!, value.uid!, value.role!);
+                            //if not, return value below
+                          } else if (value.token != null && value.token!.isNotEmpty && value.role == 'user'){
+                            const snackBar =
+                                SnackBar(content: Text("Login Successful"));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                            // Get the UserProvider instance
+                            final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false);
+                            // Update the user's data in the provider
+                            userProvider.updateUserData(
+                                value.uid!, value.name!, value.token!, value.role!);
                             userProvider.saveUserData();
                             signUserIn(
-                                context, value.name!, value.token!, value.uid!);
-                            //if not, return value below
+                                context, value.name!, value.token!, value.uid!, value.role!);
                           } else if (value.error != null) {
                             final snackBar =
                                 SnackBar(content: Text(value.error!));
