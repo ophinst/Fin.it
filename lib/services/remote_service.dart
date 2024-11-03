@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:capstone_project/models/found_model.dart';
+import 'package:capstone_project/models/item_model.dart';
 import 'package:capstone_project/models/lost_item_model.dart';
 import 'package:capstone_project/models/loginModel.dart';
 import 'package:capstone_project/models/message_model.dart';
@@ -15,6 +16,28 @@ import 'dart:io';
 class RemoteService {
   // final String url = "http://localhost:8080/api";
   final String url = "https://finit-api-ahawuso3sq-et.a.run.app/api";
+
+  Future<List<ItemModel>> getItems({
+    required int counter,
+    String? token,
+  }) async {
+    final uri = Uri.parse('$url/items?page=$counter');
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> itemsJson = data['data'];
+
+      return itemsJson.map((json) => ItemModel.fromMap(json)).toList();
+    } else {
+      throw response.statusCode;
+    }
+  }
 
   Future<List<List<Datum>>> getLostItems({
     required int counter,
@@ -54,12 +77,26 @@ class RemoteService {
         List<Datum> nextData =
             nextList.map((model) => Datum.fromJson(model)).toList();
 
-        return [currentData, nextData];
-      } else {
-        throw Exception('Failed to load next data');
-      }
+      return [currentData, nextData];
     } else {
-      throw Exception('Failed to load data');
+      throw Exception('Failed to load next data');
+    }
+  } else {
+    throw Exception('Failed to load data');
+  }
+}
+
+  Future<List<User>> getUsers({required int counter}) async {
+    final uri = Uri.parse('$url/user?page=$counter');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> usersJson = data['data'];
+
+      return usersJson.map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load users');
     }
   }
 
@@ -301,6 +338,7 @@ class RemoteService {
     );
 
     if (response.statusCode == 200) {
+      print(response.body);
       return LoginResponseModel.fromJson(
         jsonDecode(response.body),
       );
@@ -358,6 +396,8 @@ class RemoteService {
       }
     }
   }
+
+  
 
   Future<User?> getUserById(String userId) async {
     var client = http.Client();

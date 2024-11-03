@@ -27,7 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final vpasswordController = TextEditingController();
 
   // sign user up method
-  void signUserIn(BuildContext context, String name, String token, String uid) {
+  void signUserIn(BuildContext context, String name, String token, String uid, String role) {
     // Navigate to the HomePage
     Navigator.pushNamed(context, '/home', arguments: name);
   }
@@ -165,10 +165,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             Provider.of<UserProvider>(context, listen: false);
                         // Update the user's data in the provider
                         userProvider.updateUserData(
-                            value.uid!, value.name!, value.token!);
+                            value.uid!, value.name!, value.token!, value.role!);
                         userProvider.saveUserData();
                         signUserIn(
-                            context, value.name!, value.token!, value.uid!);
+                            context, value.name!, value.token!, value.uid!, value.role!);
                         //if not, return value below
                       } else if (value.message != null) {
                         final snackBar =

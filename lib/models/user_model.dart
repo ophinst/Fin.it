@@ -7,6 +7,9 @@ class User {
   final String? image;
   final double? balance;
   final int? points;
+  final bool verified;
+  final String? role;
+  final String? idCard;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<String>? reward;
@@ -19,6 +22,9 @@ class User {
     this.image,
     this.balance,
     this.points,
+    required this.verified,
+    this.role,
+    this.idCard,
     required this.createdAt,
     required this.updatedAt,
     this.reward,
@@ -36,6 +42,9 @@ class User {
       image: json['image'],
       balance: json['balance'] != null ? json['balance'].toDouble() : null,
       points: json['points'],
+      verified: json['verified'],
+      role: json['role'],
+      idCard: json['idCard'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       reward: rewardList,

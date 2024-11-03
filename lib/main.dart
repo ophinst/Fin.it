@@ -1,3 +1,4 @@
+import 'package:capstone_project/pages/admin/admin_page.dart';
 import 'package:capstone_project/pages/chat/chat_page.dart';
 import 'package:capstone_project/pages/found_item_list.dart';
 import 'package:capstone_project/pages/home_page.dart';
@@ -49,10 +50,17 @@ class MyApp extends StatelessWidget {
             // Check if the user is logged in
             if (userProvider.uid!.isNotEmpty &&
                 userProvider.name!.isNotEmpty &&
-                userProvider.token!.isNotEmpty) {
+                userProvider.token!.isNotEmpty &&
+                userProvider.role! == 'user') {
               // User is logged in, navigate to the home screen or appropriate page
               return const HomeScreen();
-            } else {
+            } else if(userProvider.uid!.isNotEmpty &&
+                userProvider.name!.isNotEmpty &&
+                userProvider.token!.isNotEmpty &&
+                userProvider.role! == 'admin'){
+                  return const AdminPage();
+                }
+            else {
               // User is not logged in, show the login page
               return const LoginPage();
             }
@@ -66,6 +74,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
+        '/admin': (context) => const AdminPage(),
         '/home': (context) => const HomeScreen(),
         '/homepage': (context) => const HomePage(),
         '/register': (context) => const RegisterPage(),
